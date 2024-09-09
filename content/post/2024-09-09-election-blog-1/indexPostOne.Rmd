@@ -3,7 +3,7 @@ title: Election Blog 1
 author: Package Build
 date: '2024-09-09'
 slug: election-blog-1
-draft: = false
+draft: false
 categories: []
 tags: []
 ---
