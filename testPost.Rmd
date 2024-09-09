@@ -18,7 +18,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r load and clean pres pop. vote, echo = FALSE}
+```{r load and clean pres pop. vote, echo = FALSE, }
 
 # Load libraries.
 ## install via `install.packages("name")`
@@ -61,6 +61,7 @@ d_popvote |>
 d_popvote_wide |> 
   group_by(winner) |>
   summarise(races = n())
+
 ```
 
 
@@ -152,17 +153,6 @@ pv2p_2024_states <- d_pvstate_wide |>
             R_pv2p_2024 = 0.8*R_pv2p + 0.2*R_pv2p_lag1) |> 
   mutate(pv2p_2024_margin = R_pv2p_2024 - D_pv2p_2024, 
          region = tolower(state))
-
-pv2p_2024_states |> 
-  left_join(states_map, by = "region") |> 
-  ggplot(aes(long, lat, group = group)) + 
-  geom_polygon(aes(fill = pv2p_2024_margin), color = "black", linewidth = .4) + 
-  scale_fill_gradient2(high = "firebrick1", 
-                       mid = "white", 
-                       low = "dodgerblue4", 
-                       breaks = c(-50, -25, 0, 25, 50), 
-                       limits = c(-50, 50)) + 
-  theme_void()
 
 ec <- read_csv("ec_full.csv")
 
