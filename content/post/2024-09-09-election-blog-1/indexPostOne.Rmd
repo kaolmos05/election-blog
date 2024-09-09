@@ -1,12 +1,15 @@
 ---
-title: Election Blog 1
-author: Package Build
+title: Election Blog One
+author: Kelly Olmos
 date: '2024-09-09'
 slug: election-blog-1
 draft: false
 categories: []
 tags: []
 ---
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(collapse = TRUE)
+```
 
 ```{r}
 
