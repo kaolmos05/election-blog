@@ -1,11 +1,12 @@
 ---
-title: Election Blog One
-author: Kelly Olmos
-date: '2024-09-09'
-slug: election-blog-1
-draft: false
+title: "Election Blog One"
+author: "Kelly Olmos"
+date: "2024-09-09"
+output: pdf_document
+draft: no
 categories: []
 tags: []
+slug: "election-blog-1"
 ---
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(collapse = TRUE)
