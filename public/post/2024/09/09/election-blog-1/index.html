@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=4321&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Election Blog 1 | A minimal Hugo website</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/about/">About</a></li>
+      
+      <li><a href="/categories/">Categories</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Election Blog 1</span></h1>
+<h2 class="author">Package Build</h2>
+<h2 class="date">2024/09/09</h2>
+</div>
+
+<main>
+<h1 id="load-libraries">Load libraries.</h1>
+<h2 id="install-via-installpackagesname">install via <code>install.packages(&quot;name&quot;)</code></h2>
+<p>library(ggplot2)
+library(ggthemes)
+library(maps)
+library(tidyverse)</p>
+<h2 id="set-working-directory-here">set working directory here</h2>
+<h1 id="setwd">setwd(&quot;~&quot;)</h1>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h4 id="read-and-clean-presidential-popular-vote">Read and clean presidential popular vote.</h4>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h1 id="read-presidential-popular-vote">Read presidential popular vote.</h1>
+<p>d_popvote &lt;- read_csv(&ldquo;popvote_1948-2020.csv&rdquo;)</p>
+<h1 id="subset-data-to-most-recent-past-election-year">Subset data to most recent past election year.</h1>
+<p>d_popvote |&gt; colnames()
+d_popvote |&gt;
+filter(year == 2020) |&gt;
+select(party, candidate, pv2p)</p>
+<h1 id="pivot-data-to-wide-format-with-party-names-as-columns-and-two-party-vote-share-as-values">Pivot data to wide format with party names as columns and two-party vote share as values.</h1>
+<p>(d_popvote_wide &lt;- d_popvote |&gt;
+select(year, party, pv2p) |&gt;
+pivot_wider(names_from = party, values_from = pv2p))</p>
+<h1 id="modify-winner-column-to-show-d-if-democrats-win-and-r-if-republicans-win">Modify winner column to show &ldquo;D&rdquo; if Democrats win and &ldquo;R&rdquo; if Republicans win.</h1>
+<p>(d_popvote_wide &lt;- d_popvote_wide |&gt;
+mutate(winner = case_when(democrat &gt; republican ~ &ldquo;D&rdquo;,
+TRUE ~ &ldquo;R&rdquo;)))</p>
+<h1 id="summarize-data-with-respect-to-winners">Summarize data with respect to winners.</h1>
+<p>d_popvote_wide |&gt;
+group_by(winner) |&gt;
+summarise(races = n())</p>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h4 id="visualize-trends-in-national-presidential-popular-vote">Visualize trends in national presidential popular vote.</h4>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h1 id="visualize-the-two-party-presidential-popular-over-time">Visualize the two-party presidential popular over time.</h1>
+<p>d_popvote |&gt;
+ggplot(aes(x = year, y = pv2p, color = party)) +
+geom_line() +
+scale_color_manual(values = c(&ldquo;dodgerblue4&rdquo;, &ldquo;firebrick1&rdquo;)) +
+theme_stata()</p>
+<p>my_custom_theme &lt;- theme_bw() +
+theme(panel.border = element_blank(),
+plot.title = element_text(size = 15, hjust = 0.5),
+axis.text.x = element_text(angle = 45, hjust = 1),
+axis.text = element_text(size = 12),
+strip.text = element_text(size = 18),
+axis.line = element_line(colour = &ldquo;black&rdquo;),
+legend.position = &ldquo;top&rdquo;,
+legend.text = element_text(size = 12))</p>
+<p>d_popvote |&gt;
+ggplot(aes(x = year, y = pv2p, color = party)) +
+geom_line() +
+scale_color_manual(values = c(&ldquo;dodgerblue4&rdquo;, &ldquo;firebrick1&rdquo;)) +
+my_custom_theme</p>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h4 id="state-by-state-map-of-presidential-popular-votes">State-by-state map of presidential popular votes.</h4>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h1 id="sequester-shapefile-of-states-from-maps-library">Sequester shapefile of states from <code>maps</code> library.</h1>
+<p>states_map &lt;- map_data(&ldquo;state&rdquo;)</p>
+<h1 id="read-wide-version-of-dataset-that-can-be-used-to-compare-candidate-votes-with-one-another">Read wide version of dataset that can be used to compare candidate votes with one another.</h1>
+<p>d_pvstate_wide &lt;- read_csv(&ldquo;clean_wide_state_2pv_1948_2020.csv&rdquo;)</p>
+<p>d_pvstate_wide</p>
+<h1 id="merge-d_pvstate_wide-with-state_map">Merge d_pvstate_wide with state_map.</h1>
+<p>d_pvstate_wide$region &lt;- tolower(d_pvstate_wide$state)</p>
+<p>pv_map &lt;- d_pvstate_wide |&gt;
+filter(year == 2020) |&gt;
+left_join(states_map, by = &ldquo;region&rdquo;)</p>
+<p>pv_map</p>
+<h1 id="make-map-grid-of-state-winners-for-each-election-year-available-in-the-dataset">Make map grid of state winners for each election year available in the dataset.</h1>
+<p>pv_win_map &lt;- d_pvstate_wide |&gt;
+filter(year == 2020) |&gt;
+left_join(states_map, by = &ldquo;region&rdquo;) |&gt;
+mutate(winner = ifelse(R_pv &gt; D_pv, &ldquo;republican&rdquo;, &ldquo;democrat&rdquo;))</p>
+<p>d_pvstate_wide</p>
+<p>pv_win_map |&gt;
+ggplot(aes(long, lat, group = group)) +
+geom_polygon(aes(fill = winner), color = &ldquo;black&rdquo;) +
+scale_fill_manual(values = c(&ldquo;dodgerblue4&rdquo;, &ldquo;firebrick1&rdquo;))</p>
+<p>d_pvstate_wide |&gt;
+filter(year &gt;= 1980) |&gt;
+left_join(states_map, by = &ldquo;region&rdquo;) |&gt;
+mutate(winner = ifelse(R_pv &gt; D_pv, &ldquo;republican&rdquo;, &ldquo;democrat&rdquo;)) |&gt;
+ggplot(aes(long, lat, group = group)) +
+facet_wrap(facets = year ~.) +
+geom_polygon(aes(fill = winner), color = &ldquo;white&rdquo;) +
+scale_fill_manual(values = c(&ldquo;dodgerblue4&rdquo;, &ldquo;firebrick1&rdquo;)) +
+theme_void() +
+ggtitle(&ldquo;Presidential Vote Share by State (1980-2020)&rdquo;) +
+theme(strip.text = element_text(size = 12),
+aspect.ratio = 1)</p>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h4 id="forecast-simplified-electoral-cycle-model">Forecast: simplified electoral cycle model.</h4>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h1 id="create-prediction-pv2p-and-margin-based-on-simplified-electoral-cycle-model">Create prediction (pv2p and margin) based on simplified electoral cycle model:</h1>
+<h1 id="vote_2024--34vote_2020--14vote_2016-lag1-lag2-respectively">vote_2024 = 3/4<em>vote_2020 + 1/4</em>vote_2016 (lag1, lag2, respectively).</h1>
+<p>d_pvstate_wide |&gt; colnames()</p>
+<p>pv2p_2024_states &lt;- d_pvstate_wide |&gt;
+filter(year == 2020) |&gt;
+group_by(state) |&gt;
+summarize(D_pv2p_2024 = 0.75<em>D_pv2p + 0.25</em>D_pv2p_lag1,
+R_pv2p_2024 = 0.75<em>R_pv2p + 0.25</em>R_pv2p_lag1) |&gt;
+mutate(pv2p_2024_margin = R_pv2p_2024 - D_pv2p_2024,
+region = tolower(state))</p>
+<p>pv2p_2024_states |&gt;
+left_join(states_map, by = &ldquo;region&rdquo;) |&gt;
+ggplot(aes(long, lat, group = group)) +
+geom_polygon(aes(fill = pv2p_2024_margin), color = &ldquo;black&rdquo;) +
+scale_fill_gradient2(high = &ldquo;firebrick1&rdquo;,
+mid = &ldquo;white&rdquo;,
+low = &ldquo;dodgerblue4&rdquo;,
+breaks = c(-50, -25, 0, 25, 50),
+limits = c(-50, 50)) +
+theme_void()</p>
+<p>ec &lt;- read_csv(&ldquo;ec_full.csv&rdquo;)</p>
+<p>pv2p_2024_states &lt;- pv2p_2024_states |&gt;
+mutate(year = 2024,
+winner = ifelse(R_pv2p_2024 &gt; D_pv2p_2024, &ldquo;R&rdquo;, &ldquo;D&rdquo;)) |&gt;
+left_join(ec, by = c(&ldquo;state&rdquo;, &ldquo;year&rdquo;))</p>
+<p>pv2p_2024_states |&gt;
+group_by(winner) |&gt;
+summarize(electoral_votes = sum(electors))</p>
+<p>pv2p_2024_states</p>
+
+</main>
+
+  <footer>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<script src="//cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+
+<script src="//cdn.jsdelivr.net/npm/@xiee/utils/js/center-img.min.js" defer></script>
+
+  
+  <hr/>
+  © <a href="https://yihui.org">Yihui Xie</a> 2017 &ndash; 2024 | <a href="https://github.com/yihui">Github</a> | <a href="https://twitter.com/xieyihui">Twitter</a>
+  
+  </footer>
+  </body>
+</html>
+
