@@ -20,6 +20,8 @@ library(ggplot2)
 library(ggthemes)
 library(maps)
 library(tidyverse)
+library(usdata)
+library(dplyr)
 
 ## set working directory here
 # setwd("~")
@@ -53,7 +55,18 @@ d_popvote_wide |>
   group_by(winner) |>
   summarise(races = n())
 
-
+### Blog Visualization Extension Custom Theme 
+#Source code from ...
+my_custom_theme <- 
+  theme_gray() + 
+  theme(panel.border = element_blank(),
+        plot.title = element_text(size = 15, hjust = 0.5), 
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text = element_text(size = 12),
+        strip.text = element_text(size = 18),
+        axis.line = element_line(colour = "purple"),
+        legend.position = "top",
+        legend.text = element_text(size = 12))
 ####----------------------------------------------------------#
 #### Visualize trends in national presidential popular vote. 
 ####----------------------------------------------------------#
@@ -65,21 +78,12 @@ d_popvote |>
   scale_color_manual(values = c("dodgerblue4", "firebrick1")) + 
   theme_stata()
 
-my_custom_theme <- theme_bw() + 
-  theme(panel.border = element_blank(),
-        plot.title = element_text(size = 15, hjust = 0.5), 
-        axis.text.x = element_text(angle = 45, hjust = 1),
-        axis.text = element_text(size = 12),
-        strip.text = element_text(size = 18),
-        axis.line = element_line(colour = "black"),
-        legend.position = "top",
-        legend.text = element_text(size = 12))
 
 d_popvote |> 
   ggplot(aes(x = year, y = pv2p, color = party)) + 
   geom_line() + 
   scale_color_manual(values = c("dodgerblue4", "firebrick1")) + 
-  my_custom_theme
+  theme_bw()
 
 ####----------------------------------------------------------#
 #### State-by-state map of presidential popular votes.
@@ -94,11 +98,11 @@ d_pvstate_wide <- read_csv("clean_wide_state_2pv_1948_2020.csv")
 d_pvstate_wide
 
 # Merge d_pvstate_wide with state_map.
-d_pvstate_wide$region <- tolower(d_pvstate_wide$state)
+d_pvstate_wide$region <- tolower(d_pvstate_wide$state) 
 
 pv_map <- d_pvstate_wide |>
   filter(year == 2020) |>
-  left_join(states_map, by = "region")
+  left_join(states_map, by = "region") 
 
 pv_map
 # Make map grid of state winners for each election year available in the dataset. 
@@ -106,9 +110,9 @@ pv_map
 pv_win_map <- d_pvstate_wide |> 
   filter(year == 2020) |> 
   left_join(states_map, by = "region") |> 
-  mutate(winner = ifelse(R_pv > D_pv, "republican", "democrat"))
+  mutate(winner = ifelse(R_pv > D_pv, "republican", "democrat"), state_abbr = state.abb[match(state, state.name)])
 
-d_pvstate_wide
+pv_win_map
 
 pv_win_map |> 
   ggplot(aes(long, lat, group = group)) + 
@@ -125,7 +129,7 @@ d_pvstate_wide |>
   scale_fill_manual(values = c("dodgerblue4", "firebrick1")) + 
   theme_void() + 
   ggtitle("Presidential Vote Share by State (1980-2020)") + 
-  theme(strip.text = element_text(size = 12), 
+  theme(strip.text = element_text(size = 2), 
         aspect.ratio = 1)
 
 ####----------------------------------------------------------#
@@ -147,7 +151,7 @@ pv2p_2024_states <- d_pvstate_wide |>
 pv2p_2024_states |> 
   left_join(states_map, by = "region") |> 
   ggplot(aes(long, lat, group = group)) + 
-  geom_polygon(aes(fill = pv2p_2024_margin), color = "black") + 
+  geom_polygon(aes(fill = pv2p_2024_margin), color = "black", size = 2) + 
   scale_fill_gradient2(high = "firebrick1", 
                        mid = "white", 
                        low = "dodgerblue4", 
@@ -159,14 +163,46 @@ ec <- read_csv("ec_full.csv")
 
 pv2p_2024_states <- pv2p_2024_states |> 
   mutate(year = 2024, 
-         winner = ifelse(R_pv2p_2024 > D_pv2p_2024, "R", "D")) |> 
+         winner = ifelse(R_pv2p_2024 > D_pv2p_2024, "R", "D"), 
+         state_abbr = state.abb[match(state, state.name)]) |> 
   left_join(ec, by = c("state", "year"))
+
+center_state_abbr <- pv2p_2024_states |> 
+  left_join(states_map, by = "region") |> 
+  group_by(state) |> 
+  summarize(
+    long = mean(long),
+    lat = mean(lat),
+    state_abbr = first(state_abbr)
+  )
+
+center_state_abbr 
+
+pv2p_2024_states |> 
+  left_join(states_map, by = "region") |> 
+  ggplot(aes(long, lat, group = group)) + 
+  geom_polygon(aes(fill = pv2p_2024_margin), color = "black") +
+  geom_text(data = center_state_abbr, 
+            aes(x = long, y = lat, label = state_abbr),
+            inherit.aes = FALSE, 
+            color = "black",
+            size = 2, 
+            family = "Times New Roman") +
+# Links/Sources/Documentation I used to place initials on the map 
+# (https://ggplot2.tidyverse.org/reference/geom_text.html#aesthetics)
+# https://ggplot2.tidyverse.org/reference/theme.html
+# https://www.rdocumentation.org/packages/usdata/versions/0.2.0/topics/state2abbr
+# 
+  scale_fill_gradient2(high = "firebrick1", 
+                       mid = "white", 
+                       low = "dodgerblue4", 
+                       breaks = c(-50, -25, 0, 25, 50), 
+                       limits = c(-50, 50)) + 
+  theme_void()
 
 pv2p_2024_states |> 
   group_by(winner) |> 
   summarize(electoral_votes = sum(electors))
-
-pv2p_2024_states
 
 
 ```
