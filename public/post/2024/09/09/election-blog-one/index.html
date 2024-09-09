@@ -34,6 +34,162 @@
 </div>
 
 <main>
+<pre><code class="language-r">
+# Load libraries.
+## install via `install.packages(&quot;name&quot;)`
+library(ggplot2)
+library(ggthemes)
+library(maps)
+library(tidyverse)
+
+## set working directory here
+# setwd(&quot;~&quot;)
+
+####----------------------------------------------------------#
+#### Read and clean presidential popular vote.
+####----------------------------------------------------------#
+
+# Read presidential popular vote. 
+d_popvote &lt;- read_csv(&quot;popvote_1948-2020.csv&quot;)
+
+
+# Subset data to most recent past election year. 
+d_popvote |&gt; colnames()
+d_popvote |&gt; 
+  filter(year == 2020) |&gt; 
+  select(party, candidate, pv2p)
+
+# Pivot data to wide format with party names as columns and two-party vote share as values.
+(d_popvote_wide &lt;- d_popvote |&gt;
+    select(year, party, pv2p) |&gt;
+    pivot_wider(names_from = party, values_from = pv2p))
+
+# Modify winner column to show &quot;D&quot; if Democrats win and &quot;R&quot; if Republicans win. 
+(d_popvote_wide &lt;- d_popvote_wide |&gt; 
+    mutate(winner = case_when(democrat &gt; republican ~ &quot;D&quot;,
+                              TRUE ~ &quot;R&quot;)))
+
+# Summarize data with respect to winners. 
+d_popvote_wide |&gt; 
+  group_by(winner) |&gt;
+  summarise(races = n())
+
+
+####----------------------------------------------------------#
+#### Visualize trends in national presidential popular vote. 
+####----------------------------------------------------------#
+
+# Visualize the two-party presidential popular over time. 
+d_popvote |&gt; 
+  ggplot(aes(x = year, y = pv2p, color = party)) + 
+  geom_line() + 
+  scale_color_manual(values = c(&quot;dodgerblue4&quot;, &quot;firebrick1&quot;)) + 
+  theme_stata()
+
+my_custom_theme &lt;- theme_bw() + 
+  theme(panel.border = element_blank(),
+        plot.title = element_text(size = 15, hjust = 0.5), 
+        axis.text.x = element_text(angle = 45, hjust = 1),
+        axis.text = element_text(size = 12),
+        strip.text = element_text(size = 18),
+        axis.line = element_line(colour = &quot;black&quot;),
+        legend.position = &quot;top&quot;,
+        legend.text = element_text(size = 12))
+
+d_popvote |&gt; 
+  ggplot(aes(x = year, y = pv2p, color = party)) + 
+  geom_line() + 
+  scale_color_manual(values = c(&quot;dodgerblue4&quot;, &quot;firebrick1&quot;)) + 
+  my_custom_theme
+
+####----------------------------------------------------------#
+#### State-by-state map of presidential popular votes.
+####----------------------------------------------------------#
+
+# Sequester shapefile of states from `maps` library.
+states_map &lt;- map_data(&quot;state&quot;)
+
+# Read wide version of dataset that can be used to compare candidate votes with one another. 
+d_pvstate_wide &lt;- read_csv(&quot;clean_wide_state_2pv_1948_2020.csv&quot;)
+
+d_pvstate_wide
+
+# Merge d_pvstate_wide with state_map.
+d_pvstate_wide$region &lt;- tolower(d_pvstate_wide$state)
+
+pv_map &lt;- d_pvstate_wide |&gt;
+  filter(year == 2020) |&gt;
+  left_join(states_map, by = &quot;region&quot;)
+
+pv_map
+# Make map grid of state winners for each election year available in the dataset. 
+
+pv_win_map &lt;- d_pvstate_wide |&gt; 
+  filter(year == 2020) |&gt; 
+  left_join(states_map, by = &quot;region&quot;) |&gt; 
+  mutate(winner = ifelse(R_pv &gt; D_pv, &quot;republican&quot;, &quot;democrat&quot;))
+
+d_pvstate_wide
+
+pv_win_map |&gt; 
+  ggplot(aes(long, lat, group = group)) + 
+  geom_polygon(aes(fill = winner), color = &quot;black&quot;) + 
+  scale_fill_manual(values = c(&quot;dodgerblue4&quot;, &quot;firebrick1&quot;))
+
+d_pvstate_wide |&gt; 
+  filter(year &gt;= 1980) |&gt; 
+  left_join(states_map, by = &quot;region&quot;) |&gt; 
+  mutate(winner = ifelse(R_pv &gt; D_pv, &quot;republican&quot;, &quot;democrat&quot;)) |&gt; 
+  ggplot(aes(long, lat, group = group)) + 
+  facet_wrap(facets = year ~.) + 
+  geom_polygon(aes(fill = winner), color = &quot;white&quot;) + 
+  scale_fill_manual(values = c(&quot;dodgerblue4&quot;, &quot;firebrick1&quot;)) + 
+  theme_void() + 
+  ggtitle(&quot;Presidential Vote Share by State (1980-2020)&quot;) + 
+  theme(strip.text = element_text(size = 12), 
+        aspect.ratio = 1)
+
+####----------------------------------------------------------#
+#### Forecast: simplified electoral cycle model. 
+####----------------------------------------------------------#
+
+# Create prediction (pv2p and margin) based on simplified electoral cycle model: 
+# vote_2024 = 3/4*vote_2020 + 1/4*vote_2016 (lag1, lag2, respectively). 
+d_pvstate_wide |&gt; colnames()
+
+pv2p_2024_states &lt;- d_pvstate_wide |&gt; 
+  filter(year == 2020) |&gt; 
+  group_by(state) |&gt; 
+  summarize(D_pv2p_2024 = 0.75*D_pv2p + 0.25*D_pv2p_lag1, 
+            R_pv2p_2024 = 0.75*R_pv2p + 0.25*R_pv2p_lag1) |&gt; 
+  mutate(pv2p_2024_margin = R_pv2p_2024 - D_pv2p_2024, 
+         region = tolower(state))
+
+pv2p_2024_states |&gt; 
+  left_join(states_map, by = &quot;region&quot;) |&gt; 
+  ggplot(aes(long, lat, group = group)) + 
+  geom_polygon(aes(fill = pv2p_2024_margin), color = &quot;black&quot;) + 
+  scale_fill_gradient2(high = &quot;firebrick1&quot;, 
+                       mid = &quot;white&quot;, 
+                       low = &quot;dodgerblue4&quot;, 
+                       breaks = c(-50, -25, 0, 25, 50), 
+                       limits = c(-50, 50)) + 
+  theme_void()
+
+ec &lt;- read_csv(&quot;ec_full.csv&quot;)
+
+pv2p_2024_states &lt;- pv2p_2024_states |&gt; 
+  mutate(year = 2024, 
+         winner = ifelse(R_pv2p_2024 &gt; D_pv2p_2024, &quot;R&quot;, &quot;D&quot;)) |&gt; 
+  left_join(ec, by = c(&quot;state&quot;, &quot;year&quot;))
+
+pv2p_2024_states |&gt; 
+  group_by(winner) |&gt; 
+  summarize(electoral_votes = sum(electors))
+
+pv2p_2024_states
+
+</code></pre>
 
 </main>
 
