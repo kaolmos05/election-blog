@@ -1,16 +1,24 @@
 ---
-title: "test post"
+title: "Election Blog Post 1"
 author: "Kelly Olmos"
 date: "2024-09-09"
 output: pdf_document
 ---
+
+Welcome to my election blog! Every week I will be updating my election model and providing analysis to forecast the outcome of the 2024 presidential election as part of an assignment for GOV 1347. 
+
+The following template is created by Matthew Dardet. In the following weeks I will be building off this election model from our lab section. 
+
+This week I aim to answer the following questions: 
+- How competitive are presidential elections in the United States?
+- Which states vote blue/red and how consistently?
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
 
-```{r}
+```{r load and clean pres pop. vote, echo = FALSE}
 
 # Load libraries.
 ## install via `install.packages("name")`
@@ -53,10 +61,11 @@ d_popvote |>
 d_popvote_wide |> 
   group_by(winner) |>
   summarise(races = n())
-
 ```
 
-```{r}
+
+
+```{r 2 party vote share trend}
 ####----------------------------------------------------------#
 #### Visualize trends in national presidential popular vote. 
 ####----------------------------------------------------------#
@@ -66,11 +75,20 @@ d_popvote_wide |>
 d_popvote |> 
   ggplot(aes(x = year, y = pv2p, color = party)) + 
   geom_line() + 
-  scale_color_manual(values = c("dodgerblue4", "firebrick1")) + 
+  scale_color_manual(values = c("dodgerblue4", "firebrick1")) +
+  labs(title = "two-party presidential popular over time",
+        x = "year",
+        y = "2p vote prop.") +
   theme_bw()
 ```
 
-```{r}
+This graph can help us understand how competitive U.S. presidential elections are because it demonstrates the proportion of popular vote Democrats and Republican presidential candidates have obtained. It is important to note that elections are not won by popular vote but it is not  unreasonable to presume that the elected presidents do not tend to win the popular vote. A document posted by the Alabama Secretary of State (https://www.sos.alabama.gov/sites/default/files/election-data/Electoral%20College%20FAQ.pdf) notes that only four times throughout American history has a president won the election without the popular vote. The 2016 presidential election is one of those outliers as displayed by the graph. Hilary Clinton obtained won the popular vote and lost the electoral college thus costing her the presidency.
+
+Additionally, it is worth mentioning that this data displays the two party popular vote share which excludes third party candidates that have made it onto the ballot. American presidential elections are competitive if the candidate is on the Democratic or Republican presidential ticket, leaving small opportunity for other party candidates. 
+
+A visual analysis of the graph above shows that over time American voters have let both parties have presidential power and the fact that it does swing and change over years highlights competitiveness. In fact it appears that elections are getting more competitive. Between 1950 and 1990 the difference between the proportion of the popular vote is wider than than it has been in the past 30 years. The difference is getting smaller which indicates that elections are becoming more competitive because both parties are getting closer in popular vote proportions.
+
+```{r state map of pres pop vote, echo = FALSE}
 ####----------------------------------------------------------#
 #### State-by-state map of presidential popular votes.
 ####----------------------------------------------------------#
@@ -81,8 +99,6 @@ states_map <- map_data("state")
 # Read wide version of dataset that can be used to compare candidate votes with one another. 
 d_pvstate_wide <- read_csv("clean_wide_state_2pv_1948_2020.csv")
 
-d_pvstate_wide
-
 # Merge d_pvstate_wide with state_map.
 d_pvstate_wide$region <- tolower(d_pvstate_wide$state) 
 
@@ -90,7 +106,6 @@ pv_map <- d_pvstate_wide |>
   filter(year == 2020) |>
   left_join(states_map, by = "region") 
 
-pv_map
 # Make map grid of state winners for each election year available in the dataset. 
 
 pv_win_map <- d_pvstate_wide |> 
@@ -98,12 +113,11 @@ pv_win_map <- d_pvstate_wide |>
   left_join(states_map, by = "region") |> 
   mutate(winner = ifelse(R_pv > D_pv, "republican", "democrat"), state_abbr = state.abb[match(state, state.name)])
 
-pv_win_map
-
 pv_win_map |> 
   ggplot(aes(long, lat, group = group)) + 
   geom_polygon(aes(fill = winner), color = "black") + 
-  scale_fill_manual(values = c("dodgerblue4", "firebrick1"))
+  scale_fill_manual(values = c("dodgerblue4", "firebrick1")) + 
+  ggtitle("Who won in each state in 2020?")
 
 d_pvstate_wide |> 
   filter(year >= 1980) |> 
@@ -119,27 +133,30 @@ d_pvstate_wide |>
         aspect.ratio = 1)
 ```
 
-```{r}
+This grid map of which party candidate won each state between 1980 and 2020 further supports the idea that elections have become more competitive. In 1980 and 1984, the maps are mostly red, indicating that one candidate won by a large margin of electoral college votes. After the 1988 election, the Democratic candidate starts winning states. Beyond the 1992 election, the Democratic candidate picks up states that are considered strongholds for them such as California, New York, Illinois, and a batch of northeast states. Minnesota, Washington and Oregon also prove to be consistently voting for the Democratic candidate. This grid map also shows that southern U.S. and west (excluding coastal states) tend to favor the Republican candidate.
+
+
+```{r electoral cycle model, echo = FALSE}
 ####----------------------------------------------------------#
 #### Forecast: simplified electoral cycle model. 
 ####----------------------------------------------------------#
 
 # Create prediction (pv2p and margin) based on simplified electoral cycle model: 
-# vote_2024 = 3/4*vote_2020 + 1/4*vote_2016 (lag1, lag2, respectively). 
+# vote_2024 = .8*vote_2020 + .2*vote_2016 (lag1, lag2, respectively). 
 d_pvstate_wide |> colnames()
 
 pv2p_2024_states <- d_pvstate_wide |> 
   filter(year == 2020) |> 
   group_by(state) |> 
-  summarize(D_pv2p_2024 = 0.75*D_pv2p + 0.25*D_pv2p_lag1, 
-            R_pv2p_2024 = 0.75*R_pv2p + 0.25*R_pv2p_lag1) |> 
+  summarize(D_pv2p_2024 = 0.8*D_pv2p + 0.2*D_pv2p_lag1, 
+            R_pv2p_2024 = 0.8*R_pv2p + 0.2*R_pv2p_lag1) |> 
   mutate(pv2p_2024_margin = R_pv2p_2024 - D_pv2p_2024, 
          region = tolower(state))
 
 pv2p_2024_states |> 
   left_join(states_map, by = "region") |> 
   ggplot(aes(long, lat, group = group)) + 
-  geom_polygon(aes(fill = pv2p_2024_margin), color = "black", size = 2) + 
+  geom_polygon(aes(fill = pv2p_2024_margin), color = "black", linewidth = .4) + 
   scale_fill_gradient2(high = "firebrick1", 
                        mid = "white", 
                        low = "dodgerblue4", 
@@ -151,7 +168,7 @@ ec <- read_csv("ec_full.csv")
 
 pv2p_2024_states <- pv2p_2024_states |> 
   mutate(year = 2024, 
-         winner = ifelse(R_pv2p_2024 > D_pv2p_2024, "R", "D"), 
+         winner = ifelse(R_pv2p_2024 > D_pv2p_2024, "Trump", "Harris"), 
          state_abbr = state.abb[match(state, state.name)]) |> 
   left_join(ec, by = c("state", "year"))
 
@@ -163,8 +180,6 @@ center_state_abbr <- pv2p_2024_states |>
     lat = mean(lat),
     state_abbr = first(state_abbr)
   )
-
-center_state_abbr 
 
 pv2p_2024_states |> 
   left_join(states_map, by = "region") |> 
@@ -191,5 +206,20 @@ pv2p_2024_states |>
   group_by(winner) |> 
   summarize(electoral_votes = sum(electors))
 
-
 ```
+In this simplified election model, I opted to rely more on the two party vote proportion from the 2020 election using 80% of the party vote share from 2020 and 20$ from 2016. In lab section, the original model was 75% and 25% respectively for each election. These numbers are hard to choose because every election is different whether it be circumstances like a pandemic or a non-traditional candidate like Trump in 2016. 
+
+It is hard to find another election that is similar to this year's. One can make the case that the results might be more similar to the 2016 election because the Democrats had a woman candidate and Trump is still on the ticket in 2024. However, there are too many other variables to consider like the performance of these candidates that I believe have more sway than a bias against woman. A 2024 poll from the Pew Research Center (https://www.pewresearch.org/social-trends/2023/09/27/views-of-having-a-woman-president/) reveals that the majority believe that the president's gender doesn't matter. Naturally, these views differ between Democrats and Republicans with 1/3 saying that a woman president would make the U.S. less respected on the global stage. 
+
+Regardless, when I changed the figures in the equation above from 70% to 80% the electoral college results remained the same. 
+
+In regard to the second question for this week about which states vote blue/red and how consistently. This graph can help support observations I made from the grid map. 
+
+States like California, New York, and Illinois are reliable Democratic strongholds. Other states that I did not know but have proven to consistently vote for the Democratic candidate are Washington, Oregon, Wisconsin, Minnesota. Wisconsin is interesting because in the past nine elections, it has voted for the Democratic candidate except for 2016 and yet the margin for the 2024 forecast does not lean heavily toward the Democrats.
+
+You can also see some geographic patterns where northeast and west coast states tend to favor the Democratic candidate. Southern states, rocky mountain states, and great plain states lean toward the Republican candidate. 
+
+Notes
+  - The initials on the states are still a work in progress
+  - I am able to commit/push to github and create a new post but when it comes to seeing the post on my Hugo site it never shows up. I will be going to office hours this week to resolve this issue. The code for this blog post can be found in my github repository under the name "testPost.Rmd"
+  
