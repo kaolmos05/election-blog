@@ -10,7 +10,7 @@ title: Home
 
 ### Welcome to my election blog! Every week I will be updating my election model to forecast the outcome of the 2024 presidential election with blog posts. 
 
-```
+
 **XMin** is a Hugo theme written by [Yihui Xie](https://yihui.org) in about four hours: half an hour was spent on the Hugo templates, and 3.5 hours were spent on styling. The main motivation for writing this theme was to provide a really minimal example to beginners of Hugo templates. This XMin theme contains about 140 lines of code in total, including the code in HTML templates and CSS (also counting empty lines).
 
 
@@ -25,4 +25,3 @@ Although it is a minimal theme, it is actually fully functional. It supports pag
 `$${\sqrt {n}}\left(\left({\frac {1}{n}}\sum _{i=1}^{n}X_{i}\right)-\mu \right)\ {\xrightarrow {d}}\ N\left(0,\sigma ^{2}\right)$$`
 
 All pages not under the root directory of the website are listed below. You can also visit the list page of a single section, e.g., [posts](/post/), or [notes](/note/). See the [About](/about/) page for the usage of this theme.
-```
