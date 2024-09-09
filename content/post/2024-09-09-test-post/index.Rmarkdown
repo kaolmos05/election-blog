@@ -31,7 +31,6 @@ library(tidyverse)
 # Read presidential popular vote. 
 d_popvote <- read_csv("popvote_1948-2020.csv")
 
-
 # Subset data to most recent past election year. 
 d_popvote |> colnames()
 d_popvote |> 
