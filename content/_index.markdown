@@ -2,7 +2,7 @@
 title: Home
 ---
 
-[<img src="https://simpleicons.org/icons/github.svg" style="max-width:15%;min-width:40px;float:right;" alt="Github repo" />](https://github.com/yihui/hugo-xmin)
+[<img src="https://www.google.com/url?sa=i&url=https%3A%2F%2Ffreesvg.org%2Fusa-map-and-flag&psig=AOvVaw2vUayrEz3d-zrwuj2-KSV0&ust=1725942087966000&source=images&cd=vfe&opi=89978449&ved=0CBQQjRxqFwoTCJiFxsCBtYgDFQAAAAAdAAAAABAE" style="max-width:15%;min-width:40px;float:right;" alt="Github repo" />](https://github.com/yihui/hugo-xmin)
 
 # Kelly Olmos
 
