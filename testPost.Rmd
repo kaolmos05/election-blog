@@ -1,18 +1,14 @@
 ---
-title: "Election Blog One"
+title: "test post"
 author: "Kelly Olmos"
 date: "2024-09-09"
-output:
-  pdf_document: default
-draft: no
-categories: []
-tags: []
-slug: "election-blog-1"
+output: pdf_document
 ---
 
-```{r}
-knitr::opts_chunk$set
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
 ```
+
 
 ```{r}
 
@@ -178,8 +174,7 @@ pv2p_2024_states |>
             aes(x = long, y = lat, label = state_abbr),
             inherit.aes = FALSE, 
             color = "black",
-            size = 2, 
-            family = "Times New Roman") +
+            size = 2) +
 # Links/Sources/Documentation I used to place initials on the map 
 # (https://ggplot2.tidyverse.org/reference/geom_text.html#aesthetics)
 # https://ggplot2.tidyverse.org/reference/theme.html
