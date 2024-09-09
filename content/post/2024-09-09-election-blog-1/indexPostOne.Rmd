@@ -4,7 +4,6 @@ author: Kelly Olmos
 date: '2024-09-09'
 slug: election-blog-1
 draft: false
-output: rmarkdown::html_document
 categories: []
 tags: []
 ---
