@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>testpost | A minimal Hugo website</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+      <li><a href="/about/">About</a></li>
+      
+      <li><a href="/categories/">Categories</a></li>
+      
+      <li><a href="/tags/">Tags</a></li>
+      
+      <li><a href="/index.xml">Subscribe</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">testpost</span></h1>
+<h2 class="author">Package Build</h2>
+<h2 class="date">2024/09/12</h2>
+</div>
+
+<main>
+<p>Welcome to my election blog! Every week I will be updating my election model and providing analysis to forecast the outcome of the 2024 presidential election as part of an assignment for GOV 1347.</p>
+<p>The following template is created by Matthew Dardet. In the following weeks I will be building off this election model from our lab section.</p>
+<p>This week I aim to answer the following questions:</p>
+<ul>
+<li>How competitive are presidential elections in the United States?</li>
+<li>Which states vote blue/red and how consistently?</li>
+</ul>
+<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.3     ✔ readr     2.1.4
+## ✔ forcats   1.0.0     ✔ stringr   1.5.0
+## ✔ lubridate 1.9.2     ✔ tibble    3.2.1
+## ✔ purrr     1.0.2     ✔ tidyr     1.3.0
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ dplyr::filter() masks stats::filter()
+## ✖ dplyr::lag()    masks stats::lag()
+## ✖ purrr::map()    masks maps::map()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors
+</code></pre>
+<pre><code>## Warning: package 'usdata' was built under R version 4.3.3
+</code></pre>
+<pre><code>## Rows: 38 Columns: 9
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (2): party, candidate
+## dbl (3): year, pv, pv2p
+## lgl (4): winner, incumbent, incumbent_party, prev_admin
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+</code></pre>
+<pre><code>## [1] &quot;year&quot;            &quot;party&quot;           &quot;winner&quot;          &quot;candidate&quot;      
+## [5] &quot;pv&quot;              &quot;pv2p&quot;            &quot;incumbent&quot;       &quot;incumbent_party&quot;
+## [9] &quot;prev_admin&quot;
+</code></pre>
+<pre><code>## # A tibble: 2 × 3
+##   party      candidate         pv2p
+##   &lt;chr&gt;      &lt;chr&gt;            &lt;dbl&gt;
+## 1 democrat   Biden, Joseph R.  52.3
+## 2 republican Trump, Donald J.  47.7
+</code></pre>
+<pre><code>## # A tibble: 19 × 3
+##     year democrat republican
+##    &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;
+##  1  1948     52.3       47.7
+##  2  1952     44.7       55.3
+##  3  1956     42.2       57.8
+##  4  1960     50.1       49.9
+##  5  1964     61.3       38.7
+##  6  1968     49.6       50.4
+##  7  1972     38.2       61.8
+##  8  1976     51.1       48.9
+##  9  1980     44.8       55.2
+## 10  1984     40.9       59.1
+## 11  1988     46.2       53.8
+## 12  1992     53.6       46.4
+## 13  1996     54.8       45.2
+## 14  2000     50.3       49.7
+## 15  2004     48.7       51.3
+## 16  2008     53.8       46.2
+## 17  2012     51.9       48.1
+## 18  2016     51.2       48.8
+## 19  2020     52.3       47.7
+</code></pre>
+<pre><code>## # A tibble: 19 × 4
+##     year democrat republican winner
+##    &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt; &lt;chr&gt; 
+##  1  1948     52.3       47.7 D     
+##  2  1952     44.7       55.3 R     
+##  3  1956     42.2       57.8 R     
+##  4  1960     50.1       49.9 D     
+##  5  1964     61.3       38.7 D     
+##  6  1968     49.6       50.4 R     
+##  7  1972     38.2       61.8 R     
+##  8  1976     51.1       48.9 D     
+##  9  1980     44.8       55.2 R     
+## 10  1984     40.9       59.1 R     
+## 11  1988     46.2       53.8 R     
+## 12  1992     53.6       46.4 D     
+## 13  1996     54.8       45.2 D     
+## 14  2000     50.3       49.7 D     
+## 15  2004     48.7       51.3 R     
+## 16  2008     53.8       46.2 D     
+## 17  2012     51.9       48.1 D     
+## 18  2016     51.2       48.8 D     
+## 19  2020     52.3       47.7 D
+</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   winner races
+##   &lt;chr&gt;  &lt;int&gt;
+## 1 D         11
+## 2 R          8
+</code></pre>
+<pre><code class="language-r">####----------------------------------------------------------#
+#### Visualize trends in national presidential popular vote. 
+####----------------------------------------------------------#
+
+# Visualize the two-party presidential popular over time. 
+
+d_popvote |&gt; 
+  ggplot(aes(x = year, y = pv2p, color = party)) + 
+  geom_line() + 
+  scale_color_manual(values = c(&quot;dodgerblue4&quot;, &quot;firebrick1&quot;)) +
+  labs(title = &quot;two-party presidential popular over time&quot;,
+        x = &quot;year&quot;,
+        y = &quot;2p vote prop.&quot;) +
+  theme_bw()
+</code></pre>
+<img src="https://example.org/post/2024/09/12/testpost/index_files/figure-html/2 party vote share trend-1.png" width="672" />
+<p>This graph can help us understand how competitive U.S. presidential elections are because it demonstrates the proportion of popular vote Democrats and Republican presidential candidates have obtained. It is important to note that elections are not won by popular vote but it is not  unreasonable to presume that the elected presidents do not tend to win the popular vote. A document posted by the Alabama Secretary of State (<a href="https://www.sos.alabama.gov/sites/default/files/election-data/Electoral%20College%20FAQ.pdf">https://www.sos.alabama.gov/sites/default/files/election-data/Electoral%20College%20FAQ.pdf</a>) notes that only four times throughout American history has a president won the election without the popular vote. The 2016 presidential election is one of those outliers as displayed by the graph. Hilary Clinton obtained won the popular vote and lost the electoral college thus costing her the presidency.</p>
+<p>Additionally, it is worth mentioning that this data displays the two party popular vote share which excludes third party candidates that have made it onto the ballot. American presidential elections are competitive if the candidate is on the Democratic or Republican presidential ticket, leaving small opportunity for other party candidates.</p>
+<p>A visual analysis of the graph above shows that over time American voters have let both parties have presidential power and the fact that it does swing and change over years highlights competitiveness. In fact it appears that elections are getting more competitive. Between 1950 and 1990 the difference between the proportion of the popular vote is wider than than it has been in the past 30 years. The difference is getting smaller which indicates that elections are becoming more competitive because both parties are getting closer in popular vote proportions.</p>
+<pre><code>## Rows: 959 Columns: 14
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (1): state
+## dbl (13): year, D_pv, R_pv, D_pv2p, R_pv2p, D_pv_lag1, R_pv_lag1, D_pv2p_lag...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+</code></pre>
+<img src="https://example.org/post/2024/09/12/testpost/index_files/figure-html/state map of pres pop vote-1.png" width="672" />
+<pre><code>## Warning in left_join(filter(d_pvstate_wide, year &gt;= 1980), states_map, by = &quot;region&quot;): Detected an unexpected many-to-many relationship between `x` and `y`.
+## ℹ Row 1 of `x` matches multiple rows in `y`.
+## ℹ Row 1 of `y` matches multiple rows in `x`.
+## ℹ If a many-to-many relationship is expected, set `relationship =
+##   &quot;many-to-many&quot;` to silence this warning.
+</code></pre>
+<img src="https://example.org/post/2024/09/12/testpost/index_files/figure-html/state map of pres pop vote-2.png" width="672" />
+<p>This grid map of which party candidate won each state between 1980 and 2020 further supports the idea that elections have become more competitive. In 1980 and 1984, the maps are mostly red, indicating that one candidate won by a large margin of electoral college votes. After the 1988 election, the Democratic candidate starts winning states. Beyond the 1992 election, the Democratic candidate picks up states that are considered strongholds for them such as California, New York, Illinois, and a batch of northeast states. Minnesota, Washington and Oregon also prove to be consistently voting for the Democratic candidate. This grid map also shows that southern U.S. and west (excluding coastal states) tend to favor the Republican candidate.</p>
+<pre><code>##  [1] &quot;year&quot;        &quot;state&quot;       &quot;D_pv&quot;        &quot;R_pv&quot;        &quot;D_pv2p&quot;     
+##  [6] &quot;R_pv2p&quot;      &quot;D_pv_lag1&quot;   &quot;R_pv_lag1&quot;   &quot;D_pv2p_lag1&quot; &quot;R_pv2p_lag1&quot;
+## [11] &quot;D_pv_lag2&quot;   &quot;R_pv_lag2&quot;   &quot;D_pv2p_lag2&quot; &quot;R_pv2p_lag2&quot; &quot;region&quot;
+</code></pre>
+<pre><code>## Rows: 936 Columns: 3
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (1): state
+## dbl (2): electors, year
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+</code></pre>
+<pre><code>## Warning: Removed 3 rows containing missing values (`geom_text()`).
+</code></pre>
+<img src="https://example.org/post/2024/09/12/testpost/index_files/figure-html/electoral cycle model-1.png" width="672" />
+<pre><code>## # A tibble: 2 × 2
+##   winner electoral_votes
+##   &lt;chr&gt;            &lt;dbl&gt;
+## 1 Harris             276
+## 2 Trump              262
+</code></pre>
+<p>In this simplified election model, I opted to rely more on the two party vote proportion from the 2020 election using 80% of the party vote share from 2020 and 20$ from 2016. In lab section, the original model was 75% and 25% respectively for each election. These numbers are hard to choose because every election is different whether it be circumstances like a pandemic or a non-traditional candidate like Trump in 2016.</p>
+<p>It is hard to find another election that is similar to this year&rsquo;s. One can make the case that the results might be more similar to the 2016 election because the Democrats had a woman candidate and Trump is still on the ticket in 2024. However, there are too many other variables to consider like the performance of these candidates that I believe have more sway than a bias against woman. A 2024 poll from the Pew Research Center (<a href="https://www.pewresearch.org/social-trends/2023/09/27/views-of-having-a-woman-president/">https://www.pewresearch.org/social-trends/2023/09/27/views-of-having-a-woman-president/</a>) reveals that the majority believe that the president&rsquo;s gender doesn&rsquo;t matter. Naturally, these views differ between Democrats and Republicans with 1/3 saying that a woman president would make the U.S. less respected on the global stage.</p>
+<p>Regardless, when I changed the figures in the equation above from 70% to 80% the electoral college results remained the same.</p>
+<p>In regard to the second question for this week about which states vote blue/red and how consistently. This graph can help support observations I made from the grid map.</p>
+<p>States like California, New York, and Illinois are reliable Democratic strongholds. Other states that I did not know but have proven to consistently vote for the Democratic candidate are Washington, Oregon, Wisconsin, Minnesota. Wisconsin is interesting because in the past nine elections, it has voted for the Democratic candidate except for 2016 and yet the margin for the 2024 forecast does not lean heavily toward the Democrats.</p>
+<p>You can also see some geographic patterns where northeast and west coast states tend to favor the Democratic candidate. Southern states, rocky mountain states, and great plain states lean toward the Republican candidate.</p>
+<p>Notes</p>
+<ul>
+<li>The initials on the states are still a work in progress</li>
+<li>I am able to commit/push to github and create a new post but when it comes to seeing the post on my Hugo site it never shows up. I will be going to office hours this week to resolve this issue. The code for this blog post can be found in my github repository under the name &ldquo;testPost.Rmd&rdquo;</li>
+</ul>
+
+</main>
+
+  <footer>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<script src="//cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+
+<script src="//cdn.jsdelivr.net/npm/@xiee/utils/js/center-img.min.js" defer></script>
+
+  
+  <hr/>
+  © <a href="https://yihui.org">Yihui Xie</a> 2017 &ndash; 2024 | <a href="https://github.com/yihui">Github</a> | <a href="https://twitter.com/xieyihui">Twitter</a>
+  
+  </footer>
+  </body>
+</html>
+
