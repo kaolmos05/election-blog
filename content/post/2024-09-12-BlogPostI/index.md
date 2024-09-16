@@ -1,5 +1,5 @@
 ---
-title: testpost
+title: Blog Post 1
 author: Package Build
 date: '2024-09-12'
 slug: testpost
