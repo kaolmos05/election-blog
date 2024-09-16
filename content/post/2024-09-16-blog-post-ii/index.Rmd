@@ -91,27 +91,27 @@ d_inc_econ <- d_popvote |>
 
 # Create scatterplot to visualize relationship between Q2 GDP growth and 
 # incumbent vote share. 
-d_inc_econ |> 
-  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) +
-  labs(x = "Second Quarter GDP Growth (%)", 
-       y = "Incumbent Party's National Popular Vote Share") + 
-  theme_bw()
+# d_inc_econ |> 
+#   ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
+#   geom_text() + 
+#   geom_hline(yintercept = 50, lty = 2) + 
+#   geom_vline(xintercept = 0.01, lty = 2) +
+#   labs(x = "Second Quarter GDP Growth (%)", 
+#        y = "Incumbent Party's National Popular Vote Share") + 
+#   theme_bw()
 
 # # Remove 2020 from plot.
 d_inc_econ_2 <- d_inc_econ |>
   filter(year != 2020)
 
-d_inc_econ_2 |>
- ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) +
- geom_text() +
- geom_hline(yintercept = 50, lty = 2) +
- geom_vline(xintercept = 0.01, lty = 2) +
- labs(x = "Second Quarter GDP Growth (%)",
-      y = "Incumbent Party's National Popular Vote Share") +
- theme_bw()
+# d_inc_econ_2 |>
+#  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) +
+#  geom_text() +
+#  geom_hline(yintercept = 50, lty = 2) +
+#  geom_vline(xintercept = 0.01, lty = 2) +
+#  labs(x = "Second Quarter GDP Growth (%)",
+#       y = "Incumbent Party's National Popular Vote Share") +
+#  theme_bw()
 
 # Compute correlations between Q2 GDP growth and incumbent vote 2-party vote share.
 cor(d_inc_econ$GDP_growth_quarterly, 
@@ -190,6 +190,8 @@ out_samp_pred - out_samp_truth # Dangers of fundamentals-only model!
 # out_samp_truth <- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
 # mean(out_samp_pred - out_samp_truth)
 ```
+The 
+
 ```{r}
 d_inc_econ_unemployment<- d_inc_econ |>
   select(unemployment, pv2p, year)

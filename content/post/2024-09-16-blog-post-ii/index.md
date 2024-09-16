@@ -92,7 +92,6 @@ library(tidyverse)
 ####----------------------------------------------------------#
 #### Understanding the relationship between economy and vote share. 
 ####----------------------------------------------------------#
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-2.png" width="672" />
 
 ```
 ## [1] 0.4336956
@@ -148,7 +147,7 @@ library(tidyverse)
 ##   variable into a factor?
 ```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
 
 ```
 ## Warning: The following aesthetics were dropped during statistical transformation: label
@@ -158,7 +157,7 @@ library(tidyverse)
 ##   variable into a factor?
 ```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-4.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-2.png" width="672" />
 
 ```
 ## [1] 0.3248066
@@ -168,7 +167,7 @@ library(tidyverse)
 ## [1] 0.282607
 ```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-5.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
 
 ```
 ## [1] 17.7027
@@ -194,6 +193,8 @@ library(tidyverse)
 ##        pv2p
 ## 1 -18.97913
 ```
+The 
+
 
 ```r
 d_inc_econ_unemployment<- d_inc_econ |>
