@@ -26,27 +26,20 @@
 </div>
 
 <main>
-<p>#&rsquo; @title GOV 1347: Week 2 (Economics) Laboratory Session
-#&rsquo; @author Matthew E. Dardet
-#&rsquo; @date September 10, 2024</p>
+<p>@title GOV 1347: Week 2 (Economics) Laboratory Session
+@author Matthew E. Dardet
+@date September 10, 2024</p>
 <p>Date: September, 16, 2024</p>
 <p>This Week&rsquo;s Question: Can we predict election outcomes using only the state of the economy? If so, how well?</p>
-<pre><code class="language-r"># Load libraries.
-## install via `install.packages(&quot;name&quot;)`
-library(car)
-</code></pre>
 <pre><code>## Loading required package: carData
-</code></pre>
-<pre><code class="language-r">library(tidyverse)
 </code></pre>
 <pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ## ✔ dplyr     1.1.3     ✔ readr     2.1.4
 ## ✔ forcats   1.0.0     ✔ stringr   1.5.0
 ## ✔ ggplot2   3.4.3     ✔ tibble    3.2.1
 ## ✔ lubridate 1.9.2     ✔ tidyr     1.3.0
-## ✔ purrr     1.0.2
-</code></pre>
-<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✔ purrr     1.0.2     
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()
 ## ✖ dplyr::recode() masks car::recode()
@@ -144,11 +137,6 @@ library(car)
 </code></pre>
 <pre><code>## [1] 0.282607
 </code></pre>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
-<pre><code>## [1] 17.7027
-</code></pre>
-<pre><code>## [1] 4.207458
-</code></pre>
 <pre><code>##        1 
 ## 28.75101
 </code></pre>
@@ -161,25 +149,7 @@ library(car)
 ## 1 -18.97913
 </code></pre>
 <p>The graphs demonstrate the correlations between Q2 GDP growth and incumbent vote 2-party vote share. One with 2020 as a data point and one without 2020 as a data point. Regardless, both graphs demonstrate the same trend, an increase in GDP in Q2 does correlate positively with an increase in the total vote share for the incumbent. What is interesting to point out is that when 2020 is removed as a data point the &ldquo;slope&rdquo; for GDP growth quarterly increases. It&rsquo;s coefficient is 0.7366 compared to 0.274 before removing 2020 as a data point which indicates to me that the GDP growth quarterly might be an outlier. A survey conducted by the Pew Research Center in 2020 shows that the top issue for voters in 2020 was the economy, which makes sense because 2020 was peak pandemic time and many had lost their job or had reduced hours. Additionally many Americans stayed home to mitigate the spread of COVID-19 but despite the importance of the economy, the incumbent overperformed despite the lowest GDP growth for Q2 in the past 80 years (<a href="https://www.pewresearch.org/politics/2020/08/13/important-issues-in-the-2020-election/)">https://www.pewresearch.org/politics/2020/08/13/important-issues-in-the-2020-election/)</a>. When looking at the graph above, the the incumbent received more of the total vote share than predicted. Generally though the trend exists but is not very strong because the adjusted R-squared value is 0.2826 whereas a 0.50 to 0.99 indicates greater fit.</p>
-<pre><code class="language-r">d_inc_econ_unemployment&lt;- d_inc_econ |&gt;
-  select(unemployment, pv2p, year)
-
-correlation &lt;- cor(d_inc_econ_unemployment$unemployment, d_inc_econ_unemployment$pv2p)
-
-ggplot(d_inc_econ_unemployment, aes(x = unemployment, y = pv2p)) +
-  geom_point() +
-  labs(
-    title = &quot;Relationship between Unemployment and Incumbent Vote Share&quot;,
-    x = &quot;Unemployment Rate (%)&quot;,
-    y = &quot;Incumbent Party's National Popular Vote Share (%)&quot;
-  ) +
-  theme_bw()
-</code></pre>
 <img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
-<pre><code class="language-r">reg_econ_3 &lt;- lm(pv2p ~ unemployment, data = d_inc_econ_unemployment)
-
-summary(reg_econ_3)
-</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = pv2p ~ unemployment, data = d_inc_econ_unemployment)
@@ -199,17 +169,6 @@ summary(reg_econ_3)
 ## Multiple R-squared:  0.01872,	Adjusted R-squared:  -0.03901 
 ## F-statistic: 0.3243 on 1 and 17 DF,  p-value: 0.5765
 </code></pre>
-<pre><code class="language-r">d_inc_econ_unemployment |&gt; 
-  ggplot(aes(x = unemployment, y = pv2p, label = year)) + 
-  geom_text() + 
-  geom_smooth(method = &quot;lm&quot;, formula = y ~ x) +
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = &quot;Unemployment Rate (%)&quot;, 
-       y = &quot;Incumbent Party's National Popular Vote Share&quot;, 
-       title = &quot;Y = 53.6260 + -0.3117 * X&quot;) + 
-  theme_bw() 
-</code></pre>
 <pre><code>## Warning: The following aesthetics were dropped during statistical transformation: label
 ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
 ##   the data.
@@ -218,12 +177,6 @@ summary(reg_econ_3)
 </code></pre>
 <img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-4-2.png" width="672" />
 In the graph above, I performed an analysis on the correlation between the unemployment rate and the incumbent party's national popular vote share (%). What I found was a model that indicates that for every increase in 1% of unemployment, the incumbent party loses -0.3117 of a point in total vote share. The 2020 data point again seems to be an outlier and drags the trend down but without this data point there would be less correlation. The adjusted r-square value is -0.03901 which indicates that the unemployment rate does not explain much of the variation and thus this variable has a weak influence on the total vote share. However, I did find this journal article that argues that employment security is a powerful indicator of economic performance and thus the increase in unemployment should result in decrease of support for the incumbent. "Employment Insecurity, Incumbent Partisanship, and Voting Behavior in Comparative Perspective" (https://journals.sagepub.com/doi/10.1177/0010414016679176) I was surprise to see that there was not a stronger association because candidates love to tout the creation of new jobs. 
-<pre><code class="language-r">correlation &lt;- cor(d_inc_econ$RDPI_growth_quarterly, d_inc_econ$pv2p)
-
-reg_econ_4 &lt;- lm(pv2p ~ RDPI_growth_quarterly, data = d_inc_econ)
-
-summary(reg_econ_4)
-</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = pv2p ~ RDPI_growth_quarterly, data = d_inc_econ)
@@ -243,16 +196,6 @@ summary(reg_econ_4)
 ## Multiple R-squared:  0.003033,	Adjusted R-squared:  -0.05561 
 ## F-statistic: 0.05172 on 1 and 17 DF,  p-value: 0.8228
 </code></pre>
-<pre><code class="language-r">d_inc_econ |&gt; 
-  ggplot(aes(x = RDPI_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
-  geom_smooth(method = &quot;lm&quot;, formula = y ~ x) +
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = &quot;RDPI Growth Q2 (%)&quot;, 
-       y = &quot;Incumbent Party's National Popular Vote Share&quot;) + 
-  theme_bw() 
-</code></pre>
 <pre><code>## Warning: The following aesthetics were dropped during statistical transformation: label
 ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
 ##   the data.
@@ -264,7 +207,6 @@ summary(reg_econ_4)
 <p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
 <h4 id="predicting-2024-results-using-simple-economy-model">Predicting 2024 results using simple economy model.</h4>
 <p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
-<h1 id="sequester-2024-data">Sequester 2024 data.</h1>
 <pre><code>##        1 
 ## 51.58486
 </code></pre>

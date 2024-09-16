@@ -6,27 +6,17 @@ slug: blog-post-ii
 categories: []
 tags: []
 ---
-#' @title GOV 1347: Week 2 (Economics) Laboratory Session
-#' @author Matthew E. Dardet
-#' @date September 10, 2024
+@title GOV 1347: Week 2 (Economics) Laboratory Session
+@author Matthew E. Dardet
+@date September 10, 2024
 
 Date: September, 16, 2024 
 
 This Week's Question: Can we predict election outcomes using only the state of the economy? If so, how well?
 
 
-```r
-# Load libraries.
-## install via `install.packages("name")`
-library(car)
-```
-
 ```
 ## Loading required package: carData
-```
-
-```r
-library(tidyverse)
 ```
 
 ```
@@ -35,10 +25,7 @@ library(tidyverse)
 ## ✔ forcats   1.0.0     ✔ stringr   1.5.0
 ## ✔ ggplot2   3.4.3     ✔ tibble    3.2.1
 ## ✔ lubridate 1.9.2     ✔ tidyr     1.3.0
-## ✔ purrr     1.0.2
-```
-
-```
+## ✔ purrr     1.0.2     
 ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()
@@ -157,16 +144,6 @@ library(tidyverse)
 ## [1] 0.282607
 ```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
-
-```
-## [1] 17.7027
-```
-
-```
-## [1] 4.207458
-```
-
 ```
 ##        1 
 ## 28.75101
@@ -185,30 +162,7 @@ library(tidyverse)
 ```
 The graphs demonstrate the correlations between Q2 GDP growth and incumbent vote 2-party vote share. One with 2020 as a data point and one without 2020 as a data point. Regardless, both graphs demonstrate the same trend, an increase in GDP in Q2 does correlate positively with an increase in the total vote share for the incumbent. What is interesting to point out is that when 2020 is removed as a data point the "slope" for GDP growth quarterly increases. It's coefficient is 0.7366 compared to 0.274 before removing 2020 as a data point which indicates to me that the GDP growth quarterly might be an outlier. A survey conducted by the Pew Research Center in 2020 shows that the top issue for voters in 2020 was the economy, which makes sense because 2020 was peak pandemic time and many had lost their job or had reduced hours. Additionally many Americans stayed home to mitigate the spread of COVID-19 but despite the importance of the economy, the incumbent overperformed despite the lowest GDP growth for Q2 in the past 80 years (https://www.pewresearch.org/politics/2020/08/13/important-issues-in-the-2020-election/). When looking at the graph above, the the incumbent received more of the total vote share than predicted. Generally though the trend exists but is not very strong because the adjusted R-squared value is 0.2826 whereas a 0.50 to 0.99 indicates greater fit.
 
-
-```r
-d_inc_econ_unemployment<- d_inc_econ |>
-  select(unemployment, pv2p, year)
-
-correlation <- cor(d_inc_econ_unemployment$unemployment, d_inc_econ_unemployment$pv2p)
-
-ggplot(d_inc_econ_unemployment, aes(x = unemployment, y = pv2p)) +
-  geom_point() +
-  labs(
-    title = "Relationship between Unemployment and Incumbent Vote Share",
-    x = "Unemployment Rate (%)",
-    y = "Incumbent Party's National Popular Vote Share (%)"
-  ) +
-  theme_bw()
-```
-
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
-
-```r
-reg_econ_3 <- lm(pv2p ~ unemployment, data = d_inc_econ_unemployment)
-
-summary(reg_econ_3)
-```
 
 ```
 ## 
@@ -231,19 +185,6 @@ summary(reg_econ_3)
 ## F-statistic: 0.3243 on 1 and 17 DF,  p-value: 0.5765
 ```
 
-```r
-d_inc_econ_unemployment |> 
-  ggplot(aes(x = unemployment, y = pv2p, label = year)) + 
-  geom_text() + 
-  geom_smooth(method = "lm", formula = y ~ x) +
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = "Unemployment Rate (%)", 
-       y = "Incumbent Party's National Popular Vote Share", 
-       title = "Y = 53.6260 + -0.3117 * X") + 
-  theme_bw() 
-```
-
 ```
 ## Warning: The following aesthetics were dropped during statistical transformation: label
 ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
@@ -256,14 +197,6 @@ d_inc_econ_unemployment |>
 In the graph above, I performed an analysis on the correlation between the unemployment rate and the incumbent party's national popular vote share (%). What I found was a model that indicates that for every increase in 1% of unemployment, the incumbent party loses -0.3117 of a point in total vote share. The 2020 data point again seems to be an outlier and drags the trend down but without this data point there would be less correlation. The adjusted r-square value is -0.03901 which indicates that the unemployment rate does not explain much of the variation and thus this variable has a weak influence on the total vote share. However, I did find this journal article that argues that employment security is a powerful indicator of economic performance and thus the increase in unemployment should result in decrease of support for the incumbent. "Employment Insecurity, Incumbent Partisanship, and Voting Behavior in Comparative Perspective" (https://journals.sagepub.com/doi/10.1177/0010414016679176) I was surprise to see that there was not a stronger association because candidates love to tout the creation of new jobs. 
 
 
-
-```r
-correlation <- cor(d_inc_econ$RDPI_growth_quarterly, d_inc_econ$pv2p)
-
-reg_econ_4 <- lm(pv2p ~ RDPI_growth_quarterly, data = d_inc_econ)
-
-summary(reg_econ_4)
-```
 
 ```
 ## 
@@ -286,18 +219,6 @@ summary(reg_econ_4)
 ## F-statistic: 0.05172 on 1 and 17 DF,  p-value: 0.8228
 ```
 
-```r
-d_inc_econ |> 
-  ggplot(aes(x = RDPI_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
-  geom_smooth(method = "lm", formula = y ~ x) +
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = "RDPI Growth Q2 (%)", 
-       y = "Incumbent Party's National Popular Vote Share") + 
-  theme_bw() 
-```
-
 ```
 ## Warning: The following aesthetics were dropped during statistical transformation: label
 ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
@@ -313,7 +234,6 @@ The graph above demonstrates the real disposable personal income (RDPI) growth i
 ####----------------------------------------------------------#
 #### Predicting 2024 results using simple economy model. 
 ####----------------------------------------------------------#
-# Sequester 2024 data.
 
 
 ```
