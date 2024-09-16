@@ -32,7 +32,8 @@
 <p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
 <h4 id="preamble">Preamble</h4>
 <p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#
-Can we predict election outcomes using only the state of
+Date: September, 16, 2024</p>
+<p>Can we predict election outcomes using only the state of
 the economy? If so, how well?</p>
 <pre><code class="language-r"># Load libraries.
 ## install via `install.packages(&quot;name&quot;)`
@@ -154,18 +155,18 @@ d_inc_econ |&gt;
   theme_bw()
 </code></pre>
 <img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
-<pre><code class="language-r"># Remove 2020 from plot.
+<pre><code class="language-r"># # Remove 2020 from plot.
 d_inc_econ_2 &lt;- d_inc_econ |&gt;
   filter(year != 2020)
 
-d_inc_econ_2 |&gt; 
-  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = &quot;Second Quarter GDP Growth (%)&quot;, 
-       y = &quot;Incumbent Party's National Popular Vote Share&quot;) + 
-  theme_bw()
+d_inc_econ_2 |&gt;
+ ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) +
+ geom_text() +
+ geom_hline(yintercept = 50, lty = 2) +
+ geom_vline(xintercept = 0.01, lty = 2) +
+ labs(x = &quot;Second Quarter GDP Growth (%)&quot;,
+      y = &quot;Incumbent Party's National Popular Vote Share&quot;) +
+ theme_bw()
 </code></pre>
 <img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-2.png" width="672" />
 <pre><code class="language-r"># Compute correlations between Q2 GDP growth and incumbent vote 2-party vote share.
@@ -174,12 +175,10 @@ cor(d_inc_econ$GDP_growth_quarterly,
 </code></pre>
 <pre><code>## [1] 0.4336956
 </code></pre>
-<pre><code class="language-r">cor(d_inc_econ_2$GDP_growth_quarterly, 
-    d_inc_econ_2$pv2p)
-</code></pre>
-<pre><code>## [1] 0.569918
-</code></pre>
-<pre><code class="language-r"># Fit bivariate OLS. 
+<pre><code class="language-r"># cor(d_inc_econ_2$GDP_growth_quarterly, 
+#     d_inc_econ_2$pv2p)
+
+# Fit bivariate OLS. 
 reg_econ &lt;- lm(pv2p ~ GDP_growth_quarterly, 
                data = d_inc_econ)
 reg_econ |&gt; summary()
@@ -246,16 +245,16 @@ d_inc_econ |&gt;
 ##   variable into a factor?
 </code></pre>
 <img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
-<pre><code class="language-r">d_inc_econ_2 |&gt; 
-  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
+<pre><code class="language-r">d_inc_econ_2 |&gt;
+  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) +
+  geom_text() +
   geom_smooth(method = &quot;lm&quot;, formula = y ~ x) +
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = &quot;Second Quarter GDP Growth (%)&quot;, 
-       y = &quot;Incumbent Party's National Popular Vote Share&quot;, 
-       title = &quot;Y = 49.38 + 0.737 * X&quot;) + 
-  theme_bw() + 
+  geom_hline(yintercept = 50, lty = 2) +
+  geom_vline(xintercept = 0.01, lty = 2) +
+  labs(x = &quot;Second Quarter GDP Growth (%)&quot;,
+       y = &quot;Incumbent Party's National Popular Vote Share&quot;,
+       title = &quot;Y = 49.38 + 0.737 * X&quot;) +
+  theme_bw() +
   theme(plot.title = element_text(size = 18))
 </code></pre>
 <pre><code>## Warning: The following aesthetics were dropped during statistical transformation: label
@@ -276,22 +275,20 @@ summary(reg_econ_2)$r.squared
 <pre><code>## [1] 0.282607
 </code></pre>
 <pre><code class="language-r"># Predicted and actual comparisons.
-plot(d_inc_econ$year, 
-     d_inc_econ$pv2p, 
-     type=&quot;l&quot;,
-     main=&quot;True Y (Line), Predicted Y (Dot) for Each Year&quot;)
-points(d_inc_econ$year, predict(reg_econ_2, d_inc_econ))
-</code></pre>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-5.png" width="672" />
-<pre><code class="language-r"># Residuals and regression innards. 
-plot(reg_econ_2)
-</code></pre>
-<p><img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-6.png" width="672" /><img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-7.png" width="672" /><img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-8.png" width="672" /><img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-9.png" width="672" /></p>
-<pre><code class="language-r"># MSE.
+# plot(d_inc_econ$year, 
+#      d_inc_econ$pv2p, 
+#      type=&quot;l&quot;,
+#      main=&quot;True Y (Line), Predicted Y (Dot) for Each Year&quot;)
+# points(d_inc_econ$year, predict(reg_econ_2, d_inc_econ))
+
+# Residuals and regression innards. 
+#plot(reg_econ_2)
+
+# MSE.
 hist(reg_econ_2$model$pv2p - reg_econ_2$fitted.values, 
      main = &quot;Histogram of True Y - Predicted Y&quot;)
 </code></pre>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-10.png" width="672" />
+<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-5.png" width="672" />
 <pre><code class="language-r">mse &lt;- mean((reg_econ_2$model$pv2p - reg_econ_2$fitted.values)^2)
 mse
 </code></pre>
@@ -321,35 +318,122 @@ mse
 </code></pre>
 <pre><code class="language-r"># https://www.nytimes.com/2020/07/30/business/economy/q2-gdp-coronavirus-economy.html
 
-# Model Testing: Cross-Validation (One Run)
-years_out_samp &lt;- sample(d_inc_econ_2$year, 9) 
-mod &lt;- lm(pv2p ~ GDP_growth_quarterly, 
-          d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
-out_samp_pred &lt;- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
-out_samp_truth &lt;- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
-mean(out_samp_pred - out_samp_truth)
+# # Model Testing: Cross-Validation (One Run)
+# years_out_samp &lt;- sample(d_inc_econ_2$year, 9) 
+# mod &lt;- lm(pv2p ~ GDP_growth_quarterly, 
+#           d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
+# out_samp_pred &lt;- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
+# out_samp_truth &lt;- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
+# mean(out_samp_pred - out_samp_truth)
 </code></pre>
-<pre><code>## [1] 2.040077
-</code></pre>
-<pre><code class="language-r"># Model Testing: Cross-Validation (1000 Runs)
-out_samp_errors &lt;- sapply(1:1000, function(i) {
-  years_out_samp &lt;- sample(d_inc_econ_2$year, 9) 
-  mod &lt;- lm(pv2p ~ GDP_growth_quarterly, 
-            d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
-  out_samp_pred &lt;- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
-  out_samp_truth &lt;- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
-  mean(out_samp_pred - out_samp_truth)
-})
+<pre><code class="language-r">d_inc_econ_unemployment&lt;- d_inc_econ |&gt;
+  select(unemployment, pv2p, year)
 
-mean(abs(out_samp_errors))
+correlation &lt;- cor(d_inc_econ_unemployment$unemployment, d_inc_econ_unemployment$pv2p)
+
+ggplot(d_inc_econ_unemployment, aes(x = unemployment, y = pv2p)) +
+  geom_point() +
+  labs(
+    title = &quot;Relationship between Unemployment and Incumbent Vote Share&quot;,
+    x = &quot;Unemployment Rate (%)&quot;,
+    y = &quot;Incumbent Party's National Popular Vote Share (%)&quot;
+  ) +
+  theme_bw()
 </code></pre>
-<pre><code>## [1] 1.817551
+<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<pre><code class="language-r">reg_econ_3 &lt;- lm(pv2p ~ unemployment, data = d_inc_econ_unemployment)
+
+summary(reg_econ_3)
 </code></pre>
-<pre><code class="language-r">hist(out_samp_errors,
-     xlab = &quot;&quot;,
-     main = &quot;Mean Out-of-Sample Residual\n(1000 Runs of Cross-Validation)&quot;)
+<pre><code>## 
+## Call:
+## lm(formula = pv2p ~ unemployment, data = d_inc_econ_unemployment)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -7.9906 -2.6616 -0.9256  2.4016  9.9399 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)   53.6260     3.4614  15.493 1.85e-11 ***
+## unemployment  -0.3117     0.5475  -0.569    0.577    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 5.314 on 17 degrees of freedom
+## Multiple R-squared:  0.01872,	Adjusted R-squared:  -0.03901 
+## F-statistic: 0.3243 on 1 and 17 DF,  p-value: 0.5765
 </code></pre>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-11.png" width="672" />
+<pre><code class="language-r">d_inc_econ_unemployment |&gt; 
+  ggplot(aes(x = unemployment, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_smooth(method = &quot;lm&quot;, formula = y ~ x) +
+  geom_hline(yintercept = 50, lty = 2) + 
+  geom_vline(xintercept = 0.01, lty = 2) + 
+  labs(x = &quot;Unemployment Rate (%)&quot;, 
+       y = &quot;Incumbent Party's National Popular Vote Share&quot;, 
+       title = &quot;Y = 53.6260 + -0.3117 * X&quot;) + 
+  theme_bw() 
+</code></pre>
+<pre><code>## Warning: The following aesthetics were dropped during statistical transformation: label
+## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+##   the data.
+## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+##   variable into a factor?
+</code></pre>
+<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-4-2.png" width="672" />
+<pre><code class="language-r">correlation &lt;- cor(d_inc_econ$unemployment, d_inc_econ$pv2p)
+
+ggplot(d_inc_econ, aes(x = dpi, y = pv2p)) +
+  geom_point() +
+  labs(
+    title = &quot;Relationship between Disposable Personal Income and Incumbent Vote Share&quot;,
+    x = &quot;Disposable Personal Income&quot;,
+    y = &quot;Incumbent Party's National Popular Vote Share (%)&quot;
+  ) +
+  theme_bw()
+</code></pre>
+<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+<pre><code class="language-r">reg_econ_4 &lt;- lm(pv2p ~ dpi, data = d_inc_econ)
+
+summary(reg_econ_4)
+</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = pv2p ~ dpi, data = d_inc_econ)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -8.7030 -3.4004 -0.6308  2.8215  9.2534 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)  5.464e+01  2.914e+00  18.751 8.56e-13 ***
+## dpi         -1.064e-04  9.884e-05  -1.077    0.297    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 5.191 on 17 degrees of freedom
+## Multiple R-squared:  0.06382,	Adjusted R-squared:  0.008753 
+## F-statistic: 1.159 on 1 and 17 DF,  p-value: 0.2967
+</code></pre>
+<pre><code class="language-r">d_inc_econ |&gt; 
+  ggplot(aes(x = dpi, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_smooth(method = &quot;lm&quot;, formula = y ~ x) +
+  geom_hline(yintercept = 50, lty = 2) + 
+  geom_vline(xintercept = 0.01, lty = 2) + 
+  labs(x = &quot;Disposable Personal Income (%)&quot;, 
+       y = &quot;Incumbent Party's National Popular Vote Share&quot;) + 
+  theme_bw() 
+</code></pre>
+<pre><code>## Warning: The following aesthetics were dropped during statistical transformation: label
+## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+##   the data.
+## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+##   variable into a factor?
+</code></pre>
+<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-5-2.png" width="672" />
 <p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
 <h4 id="predicting-2024-results-using-simple-economy-model">Predicting 2024 results using simple economy model.</h4>
 <p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>

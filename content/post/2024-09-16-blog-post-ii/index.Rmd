@@ -13,6 +13,8 @@ tags: []
 ####----------------------------------------------------------#
 #### Preamble
 ####----------------------------------------------------------#
+Date: September, 16, 2024 
+
 Can we predict election outcomes using only the state of
 the economy? If so, how well?
 
@@ -98,24 +100,25 @@ d_inc_econ |>
        y = "Incumbent Party's National Popular Vote Share") + 
   theme_bw()
 
-# Remove 2020 from plot.
+# # Remove 2020 from plot.
 d_inc_econ_2 <- d_inc_econ |>
   filter(year != 2020)
 
-d_inc_econ_2 |> 
-  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = "Second Quarter GDP Growth (%)", 
-       y = "Incumbent Party's National Popular Vote Share") + 
-  theme_bw()
+d_inc_econ_2 |>
+ ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) +
+ geom_text() +
+ geom_hline(yintercept = 50, lty = 2) +
+ geom_vline(xintercept = 0.01, lty = 2) +
+ labs(x = "Second Quarter GDP Growth (%)",
+      y = "Incumbent Party's National Popular Vote Share") +
+ theme_bw()
 
 # Compute correlations between Q2 GDP growth and incumbent vote 2-party vote share.
 cor(d_inc_econ$GDP_growth_quarterly, 
     d_inc_econ$pv2p)
-cor(d_inc_econ_2$GDP_growth_quarterly, 
-    d_inc_econ_2$pv2p)
+
+# cor(d_inc_econ_2$GDP_growth_quarterly, 
+#     d_inc_econ_2$pv2p)
 
 # Fit bivariate OLS. 
 reg_econ <- lm(pv2p ~ GDP_growth_quarterly, 
@@ -139,16 +142,16 @@ d_inc_econ |>
   theme_bw() + 
   theme(plot.title = element_text(size = 18))
 
-d_inc_econ_2 |> 
-  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
+d_inc_econ_2 |>
+  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) +
+  geom_text() +
   geom_smooth(method = "lm", formula = y ~ x) +
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = "Second Quarter GDP Growth (%)", 
-       y = "Incumbent Party's National Popular Vote Share", 
-       title = "Y = 49.38 + 0.737 * X") + 
-  theme_bw() + 
+  geom_hline(yintercept = 50, lty = 2) +
+  geom_vline(xintercept = 0.01, lty = 2) +
+  labs(x = "Second Quarter GDP Growth (%)",
+       y = "Incumbent Party's National Popular Vote Share",
+       title = "Y = 49.38 + 0.737 * X") +
+  theme_bw() +
   theme(plot.title = element_text(size = 18))
 
 # Evaluate the in-sample fit of your preferred model.
@@ -157,14 +160,14 @@ summary(reg_econ_2)$r.squared
 summary(reg_econ_2)$adj.r.squared
 
 # Predicted and actual comparisons.
-plot(d_inc_econ$year, 
-     d_inc_econ$pv2p, 
-     type="l",
-     main="True Y (Line), Predicted Y (Dot) for Each Year")
-points(d_inc_econ$year, predict(reg_econ_2, d_inc_econ))
+# plot(d_inc_econ$year, 
+#      d_inc_econ$pv2p, 
+#      type="l",
+#      main="True Y (Line), Predicted Y (Dot) for Each Year")
+# points(d_inc_econ$year, predict(reg_econ_2, d_inc_econ))
 
 # Residuals and regression innards. 
-plot(reg_econ_2)
+#plot(reg_econ_2)
 
 # MSE.
 hist(reg_econ_2$model$pv2p - reg_econ_2$fitted.values, 
@@ -179,31 +182,71 @@ sqrt(mse)
 out_samp_pred - out_samp_truth # Dangers of fundamentals-only model!
 # https://www.nytimes.com/2020/07/30/business/economy/q2-gdp-coronavirus-economy.html
 
-# Model Testing: Cross-Validation (One Run)
-years_out_samp <- sample(d_inc_econ_2$year, 9) 
-mod <- lm(pv2p ~ GDP_growth_quarterly, 
-          d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
-out_samp_pred <- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
-out_samp_truth <- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
-mean(out_samp_pred - out_samp_truth)
-
-# Model Testing: Cross-Validation (1000 Runs)
-out_samp_errors <- sapply(1:1000, function(i) {
-  years_out_samp <- sample(d_inc_econ_2$year, 9) 
-  mod <- lm(pv2p ~ GDP_growth_quarterly, 
-            d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
-  out_samp_pred <- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
-  out_samp_truth <- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
-  mean(out_samp_pred - out_samp_truth)
-})
-
-mean(abs(out_samp_errors))
-
-hist(out_samp_errors,
-     xlab = "",
-     main = "Mean Out-of-Sample Residual\n(1000 Runs of Cross-Validation)")
-
+# # Model Testing: Cross-Validation (One Run)
+# years_out_samp <- sample(d_inc_econ_2$year, 9) 
+# mod <- lm(pv2p ~ GDP_growth_quarterly, 
+#           d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
+# out_samp_pred <- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
+# out_samp_truth <- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
+# mean(out_samp_pred - out_samp_truth)
 ```
+```{r}
+d_inc_econ_unemployment<- d_inc_econ |>
+  select(unemployment, pv2p, year)
+
+correlation <- cor(d_inc_econ_unemployment$unemployment, d_inc_econ_unemployment$pv2p)
+
+ggplot(d_inc_econ_unemployment, aes(x = unemployment, y = pv2p)) +
+  geom_point() +
+  labs(
+    title = "Relationship between Unemployment and Incumbent Vote Share",
+    x = "Unemployment Rate (%)",
+    y = "Incumbent Party's National Popular Vote Share (%)"
+  ) +
+  theme_bw()
+
+reg_econ_3 <- lm(pv2p ~ unemployment, data = d_inc_econ_unemployment)
+
+summary(reg_econ_3)
+
+d_inc_econ_unemployment |> 
+  ggplot(aes(x = unemployment, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_smooth(method = "lm", formula = y ~ x) +
+  geom_hline(yintercept = 50, lty = 2) + 
+  geom_vline(xintercept = 0.01, lty = 2) + 
+  labs(x = "Unemployment Rate (%)", 
+       y = "Incumbent Party's National Popular Vote Share", 
+       title = "Y = 53.6260 + -0.3117 * X") + 
+  theme_bw() 
+```
+```{r}
+correlation <- cor(d_inc_econ$unemployment, d_inc_econ$pv2p)
+
+ggplot(d_inc_econ, aes(x = dpi, y = pv2p)) +
+  geom_point() +
+  labs(
+    title = "Relationship between Disposable Personal Income and Incumbent Vote Share",
+    x = "Disposable Personal Income",
+    y = "Incumbent Party's National Popular Vote Share (%)"
+  ) +
+  theme_bw()
+
+reg_econ_4 <- lm(pv2p ~ dpi, data = d_inc_econ)
+
+summary(reg_econ_4)
+
+d_inc_econ |> 
+  ggplot(aes(x = dpi, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_smooth(method = "lm", formula = y ~ x) +
+  geom_hline(yintercept = 50, lty = 2) + 
+  geom_vline(xintercept = 0.01, lty = 2) + 
+  labs(x = "Disposable Personal Income (%)", 
+       y = "Incumbent Party's National Popular Vote Share") + 
+  theme_bw() 
+```
+
 
 ####----------------------------------------------------------#
 #### Predicting 2024 results using simple economy model. 

@@ -13,6 +13,8 @@ tags: []
 ####----------------------------------------------------------#
 #### Preamble
 ####----------------------------------------------------------#
+Date: September, 16, 2024 
+
 Can we predict election outcomes using only the state of
 the economy? If so, how well?
 
@@ -174,18 +176,18 @@ d_inc_econ |>
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
 
 ```r
-# Remove 2020 from plot.
+# # Remove 2020 from plot.
 d_inc_econ_2 <- d_inc_econ |>
   filter(year != 2020)
 
-d_inc_econ_2 |> 
-  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = "Second Quarter GDP Growth (%)", 
-       y = "Incumbent Party's National Popular Vote Share") + 
-  theme_bw()
+d_inc_econ_2 |>
+ ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) +
+ geom_text() +
+ geom_hline(yintercept = 50, lty = 2) +
+ geom_vline(xintercept = 0.01, lty = 2) +
+ labs(x = "Second Quarter GDP Growth (%)",
+      y = "Incumbent Party's National Popular Vote Share") +
+ theme_bw()
 ```
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-2.png" width="672" />
@@ -201,15 +203,9 @@ cor(d_inc_econ$GDP_growth_quarterly,
 ```
 
 ```r
-cor(d_inc_econ_2$GDP_growth_quarterly, 
-    d_inc_econ_2$pv2p)
-```
+# cor(d_inc_econ_2$GDP_growth_quarterly, 
+#     d_inc_econ_2$pv2p)
 
-```
-## [1] 0.569918
-```
-
-```r
 # Fit bivariate OLS. 
 reg_econ <- lm(pv2p ~ GDP_growth_quarterly, 
                data = d_inc_econ)
@@ -290,16 +286,16 @@ d_inc_econ |>
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
 
 ```r
-d_inc_econ_2 |> 
-  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
+d_inc_econ_2 |>
+  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) +
+  geom_text() +
   geom_smooth(method = "lm", formula = y ~ x) +
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = "Second Quarter GDP Growth (%)", 
-       y = "Incumbent Party's National Popular Vote Share", 
-       title = "Y = 49.38 + 0.737 * X") + 
-  theme_bw() + 
+  geom_hline(yintercept = 50, lty = 2) +
+  geom_vline(xintercept = 0.01, lty = 2) +
+  labs(x = "Second Quarter GDP Growth (%)",
+       y = "Incumbent Party's National Popular Vote Share",
+       title = "Y = 49.38 + 0.737 * X") +
+  theme_bw() +
   theme(plot.title = element_text(size = 18))
 ```
 
@@ -333,29 +329,21 @@ summary(reg_econ_2)$adj.r.squared
 
 ```r
 # Predicted and actual comparisons.
-plot(d_inc_econ$year, 
-     d_inc_econ$pv2p, 
-     type="l",
-     main="True Y (Line), Predicted Y (Dot) for Each Year")
-points(d_inc_econ$year, predict(reg_econ_2, d_inc_econ))
-```
+# plot(d_inc_econ$year, 
+#      d_inc_econ$pv2p, 
+#      type="l",
+#      main="True Y (Line), Predicted Y (Dot) for Each Year")
+# points(d_inc_econ$year, predict(reg_econ_2, d_inc_econ))
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-5.png" width="672" />
-
-```r
 # Residuals and regression innards. 
-plot(reg_econ_2)
-```
+#plot(reg_econ_2)
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-6.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-7.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-8.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-9.png" width="672" />
-
-```r
 # MSE.
 hist(reg_econ_2$model$pv2p - reg_econ_2$fitted.values, 
      main = "Histogram of True Y - Predicted Y")
 ```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-10.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-5.png" width="672" />
 
 ```r
 mse <- mean((reg_econ_2$model$pv2p - reg_econ_2$fitted.values)^2)
@@ -407,44 +395,147 @@ out_samp_pred - out_samp_truth # Dangers of fundamentals-only model!
 ```r
 # https://www.nytimes.com/2020/07/30/business/economy/q2-gdp-coronavirus-economy.html
 
-# Model Testing: Cross-Validation (One Run)
-years_out_samp <- sample(d_inc_econ_2$year, 9) 
-mod <- lm(pv2p ~ GDP_growth_quarterly, 
-          d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
-out_samp_pred <- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
-out_samp_truth <- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
-mean(out_samp_pred - out_samp_truth)
-```
-
-```
-## [1] 2.040077
+# # Model Testing: Cross-Validation (One Run)
+# years_out_samp <- sample(d_inc_econ_2$year, 9) 
+# mod <- lm(pv2p ~ GDP_growth_quarterly, 
+#           d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
+# out_samp_pred <- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
+# out_samp_truth <- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
+# mean(out_samp_pred - out_samp_truth)
 ```
 
 ```r
-# Model Testing: Cross-Validation (1000 Runs)
-out_samp_errors <- sapply(1:1000, function(i) {
-  years_out_samp <- sample(d_inc_econ_2$year, 9) 
-  mod <- lm(pv2p ~ GDP_growth_quarterly, 
-            d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
-  out_samp_pred <- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
-  out_samp_truth <- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
-  mean(out_samp_pred - out_samp_truth)
-})
+d_inc_econ_unemployment<- d_inc_econ |>
+  select(unemployment, pv2p, year)
 
-mean(abs(out_samp_errors))
+correlation <- cor(d_inc_econ_unemployment$unemployment, d_inc_econ_unemployment$pv2p)
+
+ggplot(d_inc_econ_unemployment, aes(x = unemployment, y = pv2p)) +
+  geom_point() +
+  labs(
+    title = "Relationship between Unemployment and Incumbent Vote Share",
+    x = "Unemployment Rate (%)",
+    y = "Incumbent Party's National Popular Vote Share (%)"
+  ) +
+  theme_bw()
+```
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+
+```r
+reg_econ_3 <- lm(pv2p ~ unemployment, data = d_inc_econ_unemployment)
+
+summary(reg_econ_3)
 ```
 
 ```
-## [1] 1.817551
+## 
+## Call:
+## lm(formula = pv2p ~ unemployment, data = d_inc_econ_unemployment)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -7.9906 -2.6616 -0.9256  2.4016  9.9399 
+## 
+## Coefficients:
+##              Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)   53.6260     3.4614  15.493 1.85e-11 ***
+## unemployment  -0.3117     0.5475  -0.569    0.577    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 5.314 on 17 degrees of freedom
+## Multiple R-squared:  0.01872,	Adjusted R-squared:  -0.03901 
+## F-statistic: 0.3243 on 1 and 17 DF,  p-value: 0.5765
 ```
 
 ```r
-hist(out_samp_errors,
-     xlab = "",
-     main = "Mean Out-of-Sample Residual\n(1000 Runs of Cross-Validation)")
+d_inc_econ_unemployment |> 
+  ggplot(aes(x = unemployment, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_smooth(method = "lm", formula = y ~ x) +
+  geom_hline(yintercept = 50, lty = 2) + 
+  geom_vline(xintercept = 0.01, lty = 2) + 
+  labs(x = "Unemployment Rate (%)", 
+       y = "Incumbent Party's National Popular Vote Share", 
+       title = "Y = 53.6260 + -0.3117 * X") + 
+  theme_bw() 
 ```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-11.png" width="672" />
+```
+## Warning: The following aesthetics were dropped during statistical transformation: label
+## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+##   the data.
+## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+##   variable into a factor?
+```
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-2.png" width="672" />
+
+```r
+correlation <- cor(d_inc_econ$unemployment, d_inc_econ$pv2p)
+
+ggplot(d_inc_econ, aes(x = dpi, y = pv2p)) +
+  geom_point() +
+  labs(
+    title = "Relationship between Disposable Personal Income and Incumbent Vote Share",
+    x = "Disposable Personal Income",
+    y = "Incumbent Party's National Popular Vote Share (%)"
+  ) +
+  theme_bw()
+```
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+
+```r
+reg_econ_4 <- lm(pv2p ~ dpi, data = d_inc_econ)
+
+summary(reg_econ_4)
+```
+
+```
+## 
+## Call:
+## lm(formula = pv2p ~ dpi, data = d_inc_econ)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -8.7030 -3.4004 -0.6308  2.8215  9.2534 
+## 
+## Coefficients:
+##               Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)  5.464e+01  2.914e+00  18.751 8.56e-13 ***
+## dpi         -1.064e-04  9.884e-05  -1.077    0.297    
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 5.191 on 17 degrees of freedom
+## Multiple R-squared:  0.06382,	Adjusted R-squared:  0.008753 
+## F-statistic: 1.159 on 1 and 17 DF,  p-value: 0.2967
+```
+
+```r
+d_inc_econ |> 
+  ggplot(aes(x = dpi, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_smooth(method = "lm", formula = y ~ x) +
+  geom_hline(yintercept = 50, lty = 2) + 
+  geom_vline(xintercept = 0.01, lty = 2) + 
+  labs(x = "Disposable Personal Income (%)", 
+       y = "Incumbent Party's National Popular Vote Share") + 
+  theme_bw() 
+```
+
+```
+## Warning: The following aesthetics were dropped during statistical transformation: label
+## ℹ This can happen when ggplot fails to infer the correct grouping structure in
+##   the data.
+## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
+##   variable into a factor?
+```
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-2.png" width="672" />
+
 
 ####----------------------------------------------------------#
 #### Predicting 2024 results using simple economy model. 
