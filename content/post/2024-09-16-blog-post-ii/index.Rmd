@@ -13,6 +13,8 @@ tags: []
 ####----------------------------------------------------------#
 #### Preamble
 ####----------------------------------------------------------#
+Can we predict election outcomes using only the state of
+the economy? If so, how well?
 
 ```{r}
 # Load libraries.
