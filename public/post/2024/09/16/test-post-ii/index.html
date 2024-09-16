@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>testpostii | A minimal Hugo website</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">testpostii</span></h1>
+<h2 class="author">Package Build</h2>
+<h2 class="date">2024/09/16</h2>
+</div>
+
+<main>
+<p>#&rsquo; @title GOV 1347: Week 2 (Economics) Laboratory Session
+#&rsquo; @author Matthew E. Dardet
+#&rsquo; @date September 10, 2024</p>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h4 id="preamble">Preamble</h4>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<pre><code class="language-r"># Load libraries.
+## install via `install.packages(&quot;name&quot;)`
+library(car)
+library(tidyverse)
+
+## set working directory here
+# setwd(&quot;~&quot;)
+</code></pre>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h4 id="read-merge-and-process-data">Read, merge, and process data.</h4>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<pre><code class="language-r"># Load popular vote data. 
+d_popvote &lt;- read_csv(&quot;popvote_1948-2020.csv&quot;)
+
+# Load economic data from FRED: https://fred.stlouisfed.org. 
+# Variables, units, &amp; ranges: 
+# GDP, billions $, 1947-2024
+# GDP_growth_quarterly, %
+# RDPI, $, 1959-2024
+# RDPI_growth_quarterly, %
+# CPI, $ index, 1947-2024
+# unemployment, %, 1948-2024
+# sp500_, $, 1927-2024 
+d_fred &lt;- read_csv(&quot;fred_econ.csv&quot;)
+
+# Load economic data from the BEA: https://apps.bea.gov/iTable/?reqid=19&amp;step=2&amp;isuri=1&amp;categories=survey#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjI2NCJdLFsiRmlyc3RfWWVhciIsIjE5NDciXSxbIkxhc3RfWWVhciIsIjIwMjQiXSxbIlNjYWxlIiwiMCJdLFsiU2VyaWVzIiwiUSJdXX0=.
+# GDP, 1947-2024 (all)
+# GNP
+# RDPI
+# Personal consumption expenditures
+# Goods
+# Durable goods
+# Nondurable goods
+# Services 
+# Population (midperiod, thousands)
+d_bea &lt;- read_csv(&quot;bea_econ.csv&quot;) |&gt; 
+  rename(year = &quot;Year&quot;,
+         quarter = &quot;Quarter&quot;, 
+         gdp = &quot;Gross domestic product&quot;, 
+         gnp = &quot;Gross national product&quot;, 
+         dpi = &quot;Disposable personal income&quot;, 
+         consumption = &quot;Personal consumption expenditures&quot;, 
+         goods = &quot;Goods&quot;, 
+         durables = &quot;Durable goods&quot;, 
+         nondurables = &quot;Nondurable goods&quot;, 
+         services = &quot;Services&quot;, 
+         pop = &quot;Population (midperiod, thousands)&quot;)
+
+# Filter and merge data. 
+d_inc_econ &lt;- d_popvote |&gt; 
+  filter(incumbent_party == TRUE) |&gt; 
+  select(year, pv, pv2p, winner) |&gt; 
+  left_join(d_fred |&gt; filter(quarter == 2)) |&gt; 
+  left_join(d_bea |&gt; filter(quarter == &quot;Q2&quot;) |&gt; select(year, dpi))
+  # N.B. two different sources of data to use, FRED &amp; BEA. 
+  # We are using second-quarter data since that is the latest 2024 release. 
+  # Feel free to experiment with different data/combinations!
+</code></pre>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h4 id="understanding-the-relationship-between-economy-and-vote-share">Understanding the relationship between economy and vote share.</h4>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<pre><code class="language-r"># Create scatterplot to visualize relationship between Q2 GDP growth and 
+# incumbent vote share. 
+d_inc_econ |&gt; 
+  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_hline(yintercept = 50, lty = 2) + 
+  geom_vline(xintercept = 0.01, lty = 2) +
+  labs(x = &quot;Second Quarter GDP Growth (%)&quot;, 
+       y = &quot;Incumbent Party's National Popular Vote Share&quot;) + 
+  theme_bw()
+
+# Remove 2020 from plot.
+d_inc_econ_2 &lt;- d_inc_econ |&gt;
+  filter(year != 2020)
+
+d_inc_econ_2 |&gt; 
+  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_hline(yintercept = 50, lty = 2) + 
+  geom_vline(xintercept = 0.01, lty = 2) + 
+  labs(x = &quot;Second Quarter GDP Growth (%)&quot;, 
+       y = &quot;Incumbent Party's National Popular Vote Share&quot;) + 
+  theme_bw()
+
+# Compute correlations between Q2 GDP growth and incumbent vote 2-party vote share.
+cor(d_inc_econ$GDP_growth_quarterly, 
+    d_inc_econ$pv2p)
+cor(d_inc_econ_2$GDP_growth_quarterly, 
+    d_inc_econ_2$pv2p)
+
+# Fit bivariate OLS. 
+reg_econ &lt;- lm(pv2p ~ GDP_growth_quarterly, 
+               data = d_inc_econ)
+reg_econ |&gt; summary()
+
+reg_econ_2 &lt;- lm(pv2p ~ GDP_growth_quarterly, 
+                         data = d_inc_econ_2)
+reg_econ_2 |&gt; summary()
+
+# Can add bivariate regression lines to our scatterplots. 
+d_inc_econ |&gt; 
+  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_smooth(method = &quot;lm&quot;, formula = y ~ x) +
+  geom_hline(yintercept = 50, lty = 2) + 
+  geom_vline(xintercept = 0.01, lty = 2) + 
+  labs(x = &quot;Second Quarter GDP Growth (%)&quot;, 
+       y = &quot;Incumbent Party's National Popular Vote Share&quot;, 
+       title = &quot;Y = 51.25 + 0.274 * X&quot;) + 
+  theme_bw() + 
+  theme(plot.title = element_text(size = 18))
+
+d_inc_econ_2 |&gt; 
+  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
+  geom_text() + 
+  geom_smooth(method = &quot;lm&quot;, formula = y ~ x) +
+  geom_hline(yintercept = 50, lty = 2) + 
+  geom_vline(xintercept = 0.01, lty = 2) + 
+  labs(x = &quot;Second Quarter GDP Growth (%)&quot;, 
+       y = &quot;Incumbent Party's National Popular Vote Share&quot;, 
+       title = &quot;Y = 49.38 + 0.737 * X&quot;) + 
+  theme_bw() + 
+  theme(plot.title = element_text(size = 18))
+
+# Evaluate the in-sample fit of your preferred model.
+# R2.
+summary(reg_econ_2)$r.squared
+summary(reg_econ_2)$adj.r.squared
+
+# Predicted and actual comparisons.
+plot(d_inc_econ$year, 
+     d_inc_econ$pv2p, 
+     type=&quot;l&quot;,
+     main=&quot;True Y (Line), Predicted Y (Dot) for Each Year&quot;)
+points(d_inc_econ$year, predict(reg_econ_2, d_inc_econ))
+
+# Residuals and regression innards. 
+plot(reg_econ_2)
+
+# MSE.
+hist(reg_econ_2$model$pv2p - reg_econ_2$fitted.values, 
+     main = &quot;Histogram of True Y - Predicted Y&quot;)
+mse &lt;- mean((reg_econ_2$model$pv2p - reg_econ_2$fitted.values)^2)
+mse
+sqrt(mse)
+
+# Model Testing: Leave-One-Out
+(out_samp_pred &lt;- predict(reg_econ_2, d_inc_econ[d_inc_econ$year == 2020,]))
+(out_samp_truth &lt;- d_inc_econ |&gt; filter(year == 2020) |&gt; select(pv2p))
+out_samp_pred - out_samp_truth # Dangers of fundamentals-only model!
+# https://www.nytimes.com/2020/07/30/business/economy/q2-gdp-coronavirus-economy.html
+
+# Model Testing: Cross-Validation (One Run)
+years_out_samp &lt;- sample(d_inc_econ_2$year, 9) 
+mod &lt;- lm(pv2p ~ GDP_growth_quarterly, 
+          d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
+out_samp_pred &lt;- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
+out_samp_truth &lt;- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
+mean(out_samp_pred - out_samp_truth)
+
+# Model Testing: Cross-Validation (1000 Runs)
+out_samp_errors &lt;- sapply(1:1000, function(i) {
+  years_out_samp &lt;- sample(d_inc_econ_2$year, 9) 
+  mod &lt;- lm(pv2p ~ GDP_growth_quarterly, 
+            d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
+  out_samp_pred &lt;- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
+  out_samp_truth &lt;- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
+  mean(out_samp_pred - out_samp_truth)
+})
+
+mean(abs(out_samp_errors))
+
+hist(out_samp_errors,
+     xlab = &quot;&quot;,
+     main = &quot;Mean Out-of-Sample Residual\n(1000 Runs of Cross-Validation)&quot;)
+</code></pre>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h4 id="predicting-2024-results-using-simple-economy-model">Predicting 2024 results using simple economy model.</h4>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h1 id="sequester-2024-data">Sequester 2024 data.</h1>
+<pre><code class="language-r">GDP_new &lt;- d_fred |&gt; 
+  filter(year == 2024 &amp; quarter == 2) |&gt; 
+  select(GDP_growth_quarterly)
+
+# Predict.
+predict(reg_econ_2, GDP_new)
+
+# Predict uncertainty.
+predict(reg_econ_2, GDP_new, interval = &quot;prediction&quot;)
+</code></pre>
+
+</main>
+
+  <footer>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<script src="//cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+
+<script src="//cdn.jsdelivr.net/npm/@xiee/utils/js/center-img.min.js" defer></script>
+
+  
+  <hr/>
+  © <a href="https://yihui.org">Yihui Xie</a> 2017 &ndash; 2024 | <a href="https://github.com/yihui">Github</a> | <a href="https://twitter.com/xieyihui">Twitter</a>
+  
+  </footer>
+  </body>
+</html>
+
