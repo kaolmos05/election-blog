@@ -33,7 +33,7 @@ library(tidyverse)
 ####----------------------------------------------------------#
 #### Read, merge, and process data.
 ####----------------------------------------------------------#
-```{r}
+```{r, echo=FALSE}
 
 # Load popular vote data. 
 d_popvote <- read_csv("popvote_1948-2020.csv")
@@ -87,7 +87,7 @@ d_inc_econ <- d_popvote |>
 ####----------------------------------------------------------#
 #### Understanding the relationship between economy and vote share. 
 ####----------------------------------------------------------#
-```{r}
+```{r, echo = FALSE}
 
 # Create scatterplot to visualize relationship between Q2 GDP growth and 
 # incumbent vote share. 
@@ -221,28 +221,20 @@ d_inc_econ_unemployment |>
   theme_bw() 
 ```
 ```{r}
-correlation <- cor(d_inc_econ$unemployment, d_inc_econ$pv2p)
 
-ggplot(d_inc_econ, aes(x = dpi, y = pv2p)) +
-  geom_point() +
-  labs(
-    title = "Relationship between Disposable Personal Income and Incumbent Vote Share",
-    x = "Disposable Personal Income",
-    y = "Incumbent Party's National Popular Vote Share (%)"
-  ) +
-  theme_bw()
+correlation <- cor(d_inc_econ$RDPI_growth_quarterly, d_inc_econ$pv2p)
 
-reg_econ_4 <- lm(pv2p ~ dpi, data = d_inc_econ)
+reg_econ_4 <- lm(pv2p ~ RDPI_growth_quarterly, data = d_inc_econ)
 
 summary(reg_econ_4)
 
 d_inc_econ |> 
-  ggplot(aes(x = dpi, y = pv2p, label = year)) + 
+  ggplot(aes(x = RDPI_growth_quarterly, y = pv2p, label = year)) + 
   geom_text() + 
   geom_smooth(method = "lm", formula = y ~ x) +
   geom_hline(yintercept = 50, lty = 2) + 
   geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = "Disposable Personal Income (%)", 
+  labs(x = "RDPI Growth Q2 (%)", 
        y = "Incumbent Party's National Popular Vote Share") + 
   theme_bw() 
 ```
@@ -257,12 +249,16 @@ d_inc_econ |>
 # Sequester 2024 data.
 GDP_new <- d_fred |> 
   filter(year == 2024 & quarter == 2) |> 
-  select(GDP_growth_quarterly)
+  select(GDP_growth_quarterly, RDPI_growth_quarterly, unemployment)
 
 # Predict.
 predict(reg_econ_2, GDP_new)
+predict(reg_econ_3, GDP_new)
+predict(reg_econ_4, GDP_new)
 
 # Predict uncertainty.
 predict(reg_econ_2, GDP_new, interval = "prediction")
+predict(reg_econ_3, GDP_new, interval = "prediction")
+predict(reg_econ_4, GDP_new, interval = "prediction")
 
 ```

@@ -62,9 +62,6 @@ library(car)
 <p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
 <h4 id="read-merge-and-process-data">Read, merge, and process data.</h4>
 <p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
-<pre><code class="language-r"># Load popular vote data. 
-d_popvote &lt;- read_csv(&quot;popvote_1948-2020.csv&quot;)
-</code></pre>
 <pre><code>## Rows: 38 Columns: 9
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
@@ -74,50 +71,14 @@ d_popvote &lt;- read_csv(&quot;popvote_1948-2020.csv&quot;)
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-</code></pre>
-<pre><code class="language-r"># Load economic data from FRED: https://fred.stlouisfed.org. 
-# Variables, units, &amp; ranges: 
-# GDP, billions $, 1947-2024
-# GDP_growth_quarterly, %
-# RDPI, $, 1959-2024
-# RDPI_growth_quarterly, %
-# CPI, $ index, 1947-2024
-# unemployment, %, 1948-2024
-# sp500_, $, 1927-2024 
-d_fred &lt;- read_csv(&quot;fred_econ.csv&quot;)
-</code></pre>
-<pre><code>## Rows: 387 Columns: 14
+## Rows: 387 Columns: 14
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## dbl (14): year, quarter, GDP, GDP_growth_quarterly, RDPI, RDPI_growth_quarte...
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-</code></pre>
-<pre><code class="language-r"># Load economic data from the BEA: https://apps.bea.gov/iTable/?reqid=19&amp;step=2&amp;isuri=1&amp;categories=survey#eyJhcHBpZCI6MTksInN0ZXBzIjpbMSwyLDMsM10sImRhdGEiOltbImNhdGVnb3JpZXMiLCJTdXJ2ZXkiXSxbIk5JUEFfVGFibGVfTGlzdCIsIjI2NCJdLFsiRmlyc3RfWWVhciIsIjE5NDciXSxbIkxhc3RfWWVhciIsIjIwMjQiXSxbIlNjYWxlIiwiMCJdLFsiU2VyaWVzIiwiUSJdXX0=.
-# GDP, 1947-2024 (all)
-# GNP
-# RDPI
-# Personal consumption expenditures
-# Goods
-# Durable goods
-# Nondurable goods
-# Services 
-# Population (midperiod, thousands)
-d_bea &lt;- read_csv(&quot;bea_econ.csv&quot;) |&gt; 
-  rename(year = &quot;Year&quot;,
-         quarter = &quot;Quarter&quot;, 
-         gdp = &quot;Gross domestic product&quot;, 
-         gnp = &quot;Gross national product&quot;, 
-         dpi = &quot;Disposable personal income&quot;, 
-         consumption = &quot;Personal consumption expenditures&quot;, 
-         goods = &quot;Goods&quot;, 
-         durables = &quot;Durable goods&quot;, 
-         nondurables = &quot;Nondurable goods&quot;, 
-         services = &quot;Services&quot;, 
-         pop = &quot;Population (midperiod, thousands)&quot;)
-</code></pre>
-<pre><code>## Rows: 310 Columns: 11
+## Rows: 310 Columns: 11
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr  (1): Quarter
@@ -125,63 +86,14 @@ d_bea &lt;- read_csv(&quot;bea_econ.csv&quot;) |&gt;
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-</code></pre>
-<pre><code class="language-r"># Filter and merge data. 
-d_inc_econ &lt;- d_popvote |&gt; 
-  filter(incumbent_party == TRUE) |&gt; 
-  select(year, pv, pv2p, winner) |&gt; 
-  left_join(d_fred |&gt; filter(quarter == 2)) |&gt; 
-  left_join(d_bea |&gt; filter(quarter == &quot;Q2&quot;) |&gt; select(year, dpi))
-</code></pre>
-<pre><code>## Joining with `by = join_by(year)`
 ## Joining with `by = join_by(year)`
-</code></pre>
-<pre><code class="language-r">  # N.B. two different sources of data to use, FRED &amp; BEA. 
-  # We are using second-quarter data since that is the latest 2024 release. 
-  # Feel free to experiment with different data/combinations!
+## Joining with `by = join_by(year)`
 </code></pre>
 <p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
 <h4 id="understanding-the-relationship-between-economy-and-vote-share">Understanding the relationship between economy and vote share.</h4>
-<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
-<pre><code class="language-r"># Create scatterplot to visualize relationship between Q2 GDP growth and 
-# incumbent vote share. 
-d_inc_econ |&gt; 
-  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) +
-  labs(x = &quot;Second Quarter GDP Growth (%)&quot;, 
-       y = &quot;Incumbent Party's National Popular Vote Share&quot;) + 
-  theme_bw()
-</code></pre>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
-<pre><code class="language-r"># # Remove 2020 from plot.
-d_inc_econ_2 &lt;- d_inc_econ |&gt;
-  filter(year != 2020)
-
-d_inc_econ_2 |&gt;
- ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) +
- geom_text() +
- geom_hline(yintercept = 50, lty = 2) +
- geom_vline(xintercept = 0.01, lty = 2) +
- labs(x = &quot;Second Quarter GDP Growth (%)&quot;,
-      y = &quot;Incumbent Party's National Popular Vote Share&quot;) +
- theme_bw()
-</code></pre>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-2.png" width="672" />
-<pre><code class="language-r"># Compute correlations between Q2 GDP growth and incumbent vote 2-party vote share.
-cor(d_inc_econ$GDP_growth_quarterly, 
-    d_inc_econ$pv2p)
-</code></pre>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#
+<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-1.png" width="672" /><img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
 <pre><code>## [1] 0.4336956
-</code></pre>
-<pre><code class="language-r"># cor(d_inc_econ_2$GDP_growth_quarterly, 
-#     d_inc_econ_2$pv2p)
-
-# Fit bivariate OLS. 
-reg_econ &lt;- lm(pv2p ~ GDP_growth_quarterly, 
-               data = d_inc_econ)
-reg_econ |&gt; summary()
 </code></pre>
 <pre><code>## 
 ## Call:
@@ -202,10 +114,6 @@ reg_econ |&gt; summary()
 ## Multiple R-squared:  0.1881,	Adjusted R-squared:  0.1403 
 ## F-statistic: 3.938 on 1 and 17 DF,  p-value: 0.06358
 </code></pre>
-<pre><code class="language-r">reg_econ_2 &lt;- lm(pv2p ~ GDP_growth_quarterly, 
-                         data = d_inc_econ_2)
-reg_econ_2 |&gt; summary()
-</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = pv2p ~ GDP_growth_quarterly, data = d_inc_econ_2)
@@ -225,19 +133,6 @@ reg_econ_2 |&gt; summary()
 ## Multiple R-squared:  0.3248,	Adjusted R-squared:  0.2826 
 ## F-statistic: 7.697 on 1 and 16 DF,  p-value: 0.01354
 </code></pre>
-<pre><code class="language-r"># Can add bivariate regression lines to our scatterplots. 
-d_inc_econ |&gt; 
-  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) + 
-  geom_text() + 
-  geom_smooth(method = &quot;lm&quot;, formula = y ~ x) +
-  geom_hline(yintercept = 50, lty = 2) + 
-  geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = &quot;Second Quarter GDP Growth (%)&quot;, 
-       y = &quot;Incumbent Party's National Popular Vote Share&quot;, 
-       title = &quot;Y = 51.25 + 0.274 * X&quot;) + 
-  theme_bw() + 
-  theme(plot.title = element_text(size = 18))
-</code></pre>
 <pre><code>## Warning: The following aesthetics were dropped during statistical transformation: label
 ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
 ##   the data.
@@ -245,18 +140,6 @@ d_inc_econ |&gt;
 ##   variable into a factor?
 </code></pre>
 <img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
-<pre><code class="language-r">d_inc_econ_2 |&gt;
-  ggplot(aes(x = GDP_growth_quarterly, y = pv2p, label = year)) +
-  geom_text() +
-  geom_smooth(method = &quot;lm&quot;, formula = y ~ x) +
-  geom_hline(yintercept = 50, lty = 2) +
-  geom_vline(xintercept = 0.01, lty = 2) +
-  labs(x = &quot;Second Quarter GDP Growth (%)&quot;,
-       y = &quot;Incumbent Party's National Popular Vote Share&quot;,
-       title = &quot;Y = 49.38 + 0.737 * X&quot;) +
-  theme_bw() +
-  theme(plot.title = element_text(size = 18))
-</code></pre>
 <pre><code>## Warning: The following aesthetics were dropped during statistical transformation: label
 ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
 ##   the data.
@@ -264,67 +147,25 @@ d_inc_econ |&gt;
 ##   variable into a factor?
 </code></pre>
 <img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-4.png" width="672" />
-<pre><code class="language-r"># Evaluate the in-sample fit of your preferred model.
-# R2.
-summary(reg_econ_2)$r.squared
-</code></pre>
 <pre><code>## [1] 0.3248066
-</code></pre>
-<pre><code class="language-r">summary(reg_econ_2)$adj.r.squared
 </code></pre>
 <pre><code>## [1] 0.282607
 </code></pre>
-<pre><code class="language-r"># Predicted and actual comparisons.
-# plot(d_inc_econ$year, 
-#      d_inc_econ$pv2p, 
-#      type=&quot;l&quot;,
-#      main=&quot;True Y (Line), Predicted Y (Dot) for Each Year&quot;)
-# points(d_inc_econ$year, predict(reg_econ_2, d_inc_econ))
-
-# Residuals and regression innards. 
-#plot(reg_econ_2)
-
-# MSE.
-hist(reg_econ_2$model$pv2p - reg_econ_2$fitted.values, 
-     main = &quot;Histogram of True Y - Predicted Y&quot;)
-</code></pre>
 <img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-5.png" width="672" />
-<pre><code class="language-r">mse &lt;- mean((reg_econ_2$model$pv2p - reg_econ_2$fitted.values)^2)
-mse
-</code></pre>
 <pre><code>## [1] 17.7027
-</code></pre>
-<pre><code class="language-r">sqrt(mse)
 </code></pre>
 <pre><code>## [1] 4.207458
 </code></pre>
-<pre><code class="language-r"># Model Testing: Leave-One-Out
-(out_samp_pred &lt;- predict(reg_econ_2, d_inc_econ[d_inc_econ$year == 2020,]))
-</code></pre>
 <pre><code>##        1 
 ## 28.75101
-</code></pre>
-<pre><code class="language-r">(out_samp_truth &lt;- d_inc_econ |&gt; filter(year == 2020) |&gt; select(pv2p))
 </code></pre>
 <pre><code>## # A tibble: 1 × 1
 ##    pv2p
 ##   &lt;dbl&gt;
 ## 1  47.7
 </code></pre>
-<pre><code class="language-r">out_samp_pred - out_samp_truth # Dangers of fundamentals-only model!
-</code></pre>
 <pre><code>##        pv2p
 ## 1 -18.97913
-</code></pre>
-<pre><code class="language-r"># https://www.nytimes.com/2020/07/30/business/economy/q2-gdp-coronavirus-economy.html
-
-# # Model Testing: Cross-Validation (One Run)
-# years_out_samp &lt;- sample(d_inc_econ_2$year, 9) 
-# mod &lt;- lm(pv2p ~ GDP_growth_quarterly, 
-#           d_inc_econ_2[!(d_inc_econ_2$year %in% years_out_samp),])
-# out_samp_pred &lt;- predict(mod, d_inc_econ_2[d_inc_econ_2$year %in% years_out_samp,])
-# out_samp_truth &lt;- d_inc_econ_2$pv2p[d_inc_econ_2$year %in% years_out_samp]
-# mean(out_samp_pred - out_samp_truth)
 </code></pre>
 <pre><code class="language-r">d_inc_econ_unemployment&lt;- d_inc_econ |&gt;
   select(unemployment, pv2p, year)
@@ -382,48 +223,38 @@ summary(reg_econ_3)
 ##   variable into a factor?
 </code></pre>
 <img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-4-2.png" width="672" />
-<pre><code class="language-r">correlation &lt;- cor(d_inc_econ$unemployment, d_inc_econ$pv2p)
+<pre><code class="language-r">correlation &lt;- cor(d_inc_econ$RDPI_growth_quarterly, d_inc_econ$pv2p)
 
-ggplot(d_inc_econ, aes(x = dpi, y = pv2p)) +
-  geom_point() +
-  labs(
-    title = &quot;Relationship between Disposable Personal Income and Incumbent Vote Share&quot;,
-    x = &quot;Disposable Personal Income&quot;,
-    y = &quot;Incumbent Party's National Popular Vote Share (%)&quot;
-  ) +
-  theme_bw()
-</code></pre>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
-<pre><code class="language-r">reg_econ_4 &lt;- lm(pv2p ~ dpi, data = d_inc_econ)
+reg_econ_4 &lt;- lm(pv2p ~ RDPI_growth_quarterly, data = d_inc_econ)
 
 summary(reg_econ_4)
 </code></pre>
 <pre><code>## 
 ## Call:
-## lm(formula = pv2p ~ dpi, data = d_inc_econ)
+## lm(formula = pv2p ~ RDPI_growth_quarterly, data = d_inc_econ)
 ## 
 ## Residuals:
 ##     Min      1Q  Median      3Q     Max 
-## -8.7030 -3.4004 -0.6308  2.8215  9.2534 
+## -7.2308 -2.9971 -0.8344  2.4629  9.9337 
 ## 
 ## Coefficients:
-##               Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)  5.464e+01  2.914e+00  18.751 8.56e-13 ***
-## dpi         -1.064e-04  9.884e-05  -1.077    0.297    
+##                       Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)           51.97420    1.49322  34.807   &lt;2e-16 ***
+## RDPI_growth_quarterly -0.02831    0.12446  -0.227    0.823    
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 ## 
-## Residual standard error: 5.191 on 17 degrees of freedom
-## Multiple R-squared:  0.06382,	Adjusted R-squared:  0.008753 
-## F-statistic: 1.159 on 1 and 17 DF,  p-value: 0.2967
+## Residual standard error: 5.357 on 17 degrees of freedom
+## Multiple R-squared:  0.003033,	Adjusted R-squared:  -0.05561 
+## F-statistic: 0.05172 on 1 and 17 DF,  p-value: 0.8228
 </code></pre>
 <pre><code class="language-r">d_inc_econ |&gt; 
-  ggplot(aes(x = dpi, y = pv2p, label = year)) + 
+  ggplot(aes(x = RDPI_growth_quarterly, y = pv2p, label = year)) + 
   geom_text() + 
   geom_smooth(method = &quot;lm&quot;, formula = y ~ x) +
   geom_hline(yintercept = 50, lty = 2) + 
   geom_vline(xintercept = 0.01, lty = 2) + 
-  labs(x = &quot;Disposable Personal Income (%)&quot;, 
+  labs(x = &quot;RDPI Growth Q2 (%)&quot;, 
        y = &quot;Incumbent Party's National Popular Vote Share&quot;) + 
   theme_bw() 
 </code></pre>
@@ -433,7 +264,7 @@ summary(reg_econ_4)
 ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
 ##   variable into a factor?
 </code></pre>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-5-2.png" width="672" />
+<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
 <p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
 <h4 id="predicting-2024-results-using-simple-economy-model">Predicting 2024 results using simple economy model.</h4>
 <p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
@@ -441,7 +272,7 @@ summary(reg_econ_4)
 <pre><code class="language-r"># Sequester 2024 data.
 GDP_new &lt;- d_fred |&gt; 
   filter(year == 2024 &amp; quarter == 2) |&gt; 
-  select(GDP_growth_quarterly)
+  select(GDP_growth_quarterly, RDPI_growth_quarterly, unemployment)
 
 # Predict.
 predict(reg_econ_2, GDP_new)
@@ -449,11 +280,31 @@ predict(reg_econ_2, GDP_new)
 <pre><code>##        1 
 ## 51.58486
 </code></pre>
+<pre><code class="language-r">predict(reg_econ_3, GDP_new)
+</code></pre>
+<pre><code>##        1 
+## 52.37907
+</code></pre>
+<pre><code class="language-r">predict(reg_econ_4, GDP_new)
+</code></pre>
+<pre><code>##       1 
+## 51.9459
+</code></pre>
 <pre><code class="language-r"># Predict uncertainty.
 predict(reg_econ_2, GDP_new, interval = &quot;prediction&quot;)
 </code></pre>
 <pre><code>##        fit      lwr     upr
 ## 1 51.58486 41.85982 61.3099
+</code></pre>
+<pre><code class="language-r">predict(reg_econ_3, GDP_new, interval = &quot;prediction&quot;)
+</code></pre>
+<pre><code>##        fit      lwr      upr
+## 1 52.37907 40.66441 64.09372
+</code></pre>
+<pre><code class="language-r">predict(reg_econ_4, GDP_new, interval = &quot;prediction&quot;)
+</code></pre>
+<pre><code>##       fit      lwr      upr
+## 1 51.9459 40.25082 63.64097
 </code></pre>
 
 </main>

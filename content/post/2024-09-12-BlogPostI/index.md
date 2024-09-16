@@ -6,7 +6,6 @@ slug: testpost
 categories: []
 tags: []
 ---
-let's test this 
 
 Welcome to my election blog! Every week I will be updating my election model and providing analysis to forecast the outcome of the 2024 presidential election as part of an assignment for GOV 1347. 
 
