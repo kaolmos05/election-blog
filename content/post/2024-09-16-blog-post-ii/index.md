@@ -10,13 +10,9 @@ tags: []
 #' @author Matthew E. Dardet
 #' @date September 10, 2024
 
-####----------------------------------------------------------#
-#### Preamble
-####----------------------------------------------------------#
 Date: September, 16, 2024 
 
-Can we predict election outcomes using only the state of
-the economy? If so, how well?
+This Week's Question: Can we predict election outcomes using only the state of the economy? If so, how well?
 
 
 ```r
@@ -50,12 +46,6 @@ library(tidyverse)
 ## ✖ purrr::some()   masks car::some()
 ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 ```
-
-
-
-## set working directory here
-# setwd("~")
-
 ####----------------------------------------------------------#
 #### Read, merge, and process data.
 ####----------------------------------------------------------#
@@ -193,7 +183,7 @@ library(tidyverse)
 ##        pv2p
 ## 1 -18.97913
 ```
-The 
+The graphs demonstrate the correlations between Q2 GDP growth and incumbent vote 2-party vote share. One with 2020 as a data point and one without 2020 as a data point. Regardless, both graphs demonstrate the same trend, an increase in GDP in Q2 does correlate positively with an increase in the total vote share for the incumbent. What is interesting to point out is that when 2020 is removed as a data point the "slope" for GDP growth quarterly increases. It's coefficient is 0.7366 compared to 0.274 before removing 2020 as a data point which indicates to me that the GDP growth quarterly might be an outlier. A survey conducted by the Pew Research Center in 2020 shows that the top issue for voters in 2020 was the economy, which makes sense because 2020 was peak pandemic time and many had lost their job or had reduced hours. Additionally many Americans stayed home to mitigate the spread of COVID-19 but despite the importance of the economy, the incumbent overperformed despite the lowest GDP growth for Q2 in the past 80 years (https://www.pewresearch.org/politics/2020/08/13/important-issues-in-the-2020-election/). When looking at the graph above, the the incumbent received more of the total vote share than predicted. Generally though the trend exists but is not very strong because the adjusted R-squared value is 0.2826 whereas a 0.50 to 0.99 indicates greater fit.
 
 
 ```r
@@ -263,6 +253,9 @@ d_inc_econ_unemployment |>
 ```
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-2.png" width="672" />
+In the graph above, I performed an analysis on the correlation between the unemployment rate and the incumbent party's national popular vote share (%). What I found was a model that indicates that for every increase in 1% of unemployment, the incumbent party loses -0.3117 of a point in total vote share. The 2020 data point again seems to be an outlier and drags the trend down but without this data point there would be less correlation. The adjusted r-square value is -0.03901 which indicates that the unemployment rate does not explain much of the variation and thus this variable has a weak influence on the total vote share. However, I did find this journal article that argues that employment security is a powerful indicator of economic performance and thus the increase in unemployment should result in decrease of support for the incumbent. "Employment Insecurity, Incumbent Partisanship, and Voting Behavior in Comparative Perspective" (https://journals.sagepub.com/doi/10.1177/0010414016679176) I was surprise to see that there was not a stronger association because candidates love to tout the creation of new jobs. 
+
+
 
 ```r
 correlation <- cor(d_inc_econ$RDPI_growth_quarterly, d_inc_econ$pv2p)
@@ -315,6 +308,7 @@ d_inc_econ |>
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
 
+The graph above demonstrates the real disposable personal income (RDPI) growth in Q2 and its correlation with the incumbent party's national popular vote share. Visually it appears that there is not a strong correlation because it looks like a lot of the dates are stacked in the graph which means that even when RDPI is similar the vote share can vary quite a bit from 45 to almost 60 percent of the vote share if you look at year 1952 and 1984. This is supported by the weak association that the linear regression model provided. The adjusted r-squared value is -0.05561 which is relatively low. Again, the 2020 data point seems to be an outlier. I wonder if the reason why real disposable income may not have a strong effect on the incumbent party's vote share has to do with the fact that people can still purchase items they can't afford by placing it on credit cards and therefore they don't necessarily feel as though their disposable income is severely affected. The federal bank reserve of New York reports that household debt is up to $17.80 trillion in second quarter (https://www.newyorkfed.org/microeconomics/hhdc). 
 
 ####----------------------------------------------------------#
 #### Predicting 2024 results using simple economy model. 
@@ -322,23 +316,9 @@ d_inc_econ |>
 # Sequester 2024 data.
 
 
-```r
-# Sequester 2024 data.
-GDP_new <- d_fred |> 
-  filter(year == 2024 & quarter == 2) |> 
-  select(GDP_growth_quarterly, RDPI_growth_quarterly, unemployment)
-
-# Predict.
-predict(reg_econ_2, GDP_new)
-```
-
 ```
 ##        1 
 ## 51.58486
-```
-
-```r
-predict(reg_econ_3, GDP_new)
 ```
 
 ```
@@ -346,18 +326,9 @@ predict(reg_econ_3, GDP_new)
 ## 52.37907
 ```
 
-```r
-predict(reg_econ_4, GDP_new)
-```
-
 ```
 ##       1 
 ## 51.9459
-```
-
-```r
-# Predict uncertainty.
-predict(reg_econ_2, GDP_new, interval = "prediction")
 ```
 
 ```
@@ -365,20 +336,15 @@ predict(reg_econ_2, GDP_new, interval = "prediction")
 ## 1 51.58486 41.85982 61.3099
 ```
 
-```r
-predict(reg_econ_3, GDP_new, interval = "prediction")
-```
-
 ```
 ##        fit      lwr      upr
 ## 1 52.37907 40.66441 64.09372
-```
-
-```r
-predict(reg_econ_4, GDP_new, interval = "prediction")
 ```
 
 ```
 ##       fit      lwr      upr
 ## 1 51.9459 40.25082 63.64097
 ```
+Above are the predicted values and intervals for the incumbent's vote share with the unemployment rate from and RDPI Q2 growth from 2024 respectively. 
+
+To answer this week's question, about how well we can predict election outcomes using only the state of the economy I can say that RDPI from Q2 and the unemployment rate are not enough to predict the election well enough because there was not a strong association between those variables and the incumbent party's vote share as shown visually by the graphs and r-squared values. Additionally, the national popular vote share is not indicative of the election winner because that is determined by the electoral college although usually the winner tends to win the popular vote. Where I would go from here is looking at other economy indicators and perhaps even go state by state to see who wins in that state and then use information that to calculate the electoral college count. 
