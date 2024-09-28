@@ -11,6 +11,9 @@ This Week's Objective: Compare and contrast Silver (2024) and Morris (2024). Bas
 
 Before I begin I will provide a summary of Silver (2024) and Morris (2024) 
 
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
+
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-2.png" width="672" />
