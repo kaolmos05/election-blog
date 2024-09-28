@@ -6,107 +6,36 @@ slug: blog-post-3
 categories: []
 tags: []
 ---
+#' @title GOV 1347: Week 3 (Polling) Laboratory Session
+#' @author Matthew E. Dardet
+#' @date September 18, 2024
 
-```
-## Loading required package: carData
-```
+####----------------------------------------------------------#
+#### Preamble
+####-----------------7-----------------------------------------#
 
-```
-## Loading required package: ggplot2
-```
-
-```
-## Loading required package: lattice
-```
-
-```
-## Warning: package 'CVXR' was built under R version 4.3.3
-```
-
-```
-## Warning in .recacheSubclasses(def@className, def, env): undefined subclass
-## "pcorMatrix" of class "ConstVal"; definition not updated
-```
-
-```
-## Warning in .recacheSubclasses(def@className, def, env): undefined subclass
-## "pcorMatrix" of class "ConstValListORExpr"; definition not updated
-```
-
-```
-## Warning in .recacheSubclasses(def@className, def, env): undefined subclass
-## "pcorMatrix" of class "ConstValORExpr"; definition not updated
-```
-
-```
-## Warning in .recacheSubclasses(def@className, def, env): undefined subclass
-## "pcorMatrix" of class "ConstValORNULL"; definition not updated
-```
-
-```
-## 
-## Attaching package: 'CVXR'
-```
-
-```
-## The following object is masked from 'package:stats':
-## 
-##     power
-```
-
-```
-## Loading required package: Matrix
-```
-
-```
-## Loaded glmnet 4.1-8
-```
-
-```
-## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ dplyr     1.1.3     ✔ readr     2.1.4
-## ✔ forcats   1.0.0     ✔ stringr   1.5.0
-## ✔ lubridate 1.9.2     ✔ tibble    3.2.1
-## ✔ purrr     1.0.2     ✔ tidyr     1.3.0
-## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ tidyr::expand()    masks Matrix::expand()
-## ✖ dplyr::filter()    masks stats::filter()
-## ✖ dplyr::id()        masks CVXR::id()
-## ✖ purrr::is_vector() masks CVXR::is_vector()
-## ✖ dplyr::lag()       masks stats::lag()
-## ✖ purrr::lift()      masks caret::lift()
-## ✖ tidyr::pack()      masks Matrix::pack()
-## ✖ dplyr::recode()    masks car::recode()
-## ✖ purrr::some()      masks car::some()
-## ✖ tidyr::unpack()    masks Matrix::unpack()
-## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-```
+# Load libraries.
+## install via `install.packages("name")`
+library(car)
+library(caret)
+library(CVXR)
+library(glmnet)
+library(tidyverse)
+library(readr)
+library(ggplot2)
 
 
-```
-## Rows: 7378 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr  (3): state, party, candidate
-## dbl  (4): year, weeks_left, days_left, poll_support
-## lgl  (1): before_convention
-## date (1): poll_date
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 204564 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr  (3): state, party, candidate
-## dbl  (4): year, weeks_left, days_left, poll_support
-## lgl  (1): before_convention
-## date (1): poll_date
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-```
+## set working directory here
+# setwd("~")
 
-```r
+####----------------------------------------------------------#
+#### Read, merge, and process data.
+####----------------------------------------------------------#
+
+# Read data (processed FiveThirtyEight polling average datasets).
+d_pollav_natl <- read_csv("national_polls_1968-2024.csv")
+d_pollav_state <- read_csv("state_polls_1968-2024.csv")
+
 ####----------------------------------------------------------#
 #### Visualizing poll variation over time.
 ####----------------------------------------------------------#
@@ -123,11 +52,7 @@ d_pollav_natl |>
        y = "Average Poll Approval", 
        title = "Polling Averages by Date, 2020") + 
   theme_classic()
-```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
-
-```r
 # Plot 2. RNC and DNC Bumps in 2020. 
 d_pollav_natl |> 
   filter(year == 2020) |> 
@@ -144,11 +69,7 @@ d_pollav_natl |>
        y = "Average Poll Approval", 
        title = "Polling Averages by Date, 2020 (with Conference Dates)") + 
   theme_classic()
-```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-2.png" width="672" />
-
-```r
 # Plot 3. Adding in Extra Dates of Interest for 2020 —— "game changers"? 
 d_pollav_natl |> 
   filter(year == 2020) |> 
@@ -190,277 +111,275 @@ d_pollav_natl |>
        y = "Average Poll Approval", 
        title = "Polling Averages by Date, 2020 (with Game Changers?)") + 
   theme_classic()
-```
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
+# Plot 4. Poll Averages and "Game Changers" for 1988
+d_pollav_natl |>
+  filter(year == 1988) |>
+  ggplot(aes(x = poll_date, y = poll_support, color = party)) +
+  geom_rect(xmin=as.Date("1988-07-18"), xmax=as.Date("1988-07-21"), ymin=47, ymax=100, alpha=0.1, colour=NA, fill="grey") +
+  annotate("text", x=as.Date("1988-07-10"), y=50, label="DNC", size=4) +
+  geom_rect(xmin=as.Date("1988-08-15"), xmax=as.Date("1988-08-18"), ymin=0, ymax=44, alpha=0.1, colour=NA, fill="grey") +
+  annotate("text", x=as.Date("1988-08-26"), y=40, label="RNC", size=4) +
+  
+  geom_point(size = 1) +
+  geom_line() + 
+  
+  geom_segment(x=as.Date("1988-09-13"), xend=as.Date("1988-09-13"), y=49, yend=100, lty=2, color="grey", alpha=0.4) +
+  annotate("text", x=as.Date("1988-09-13"), y=52, label="Tank Gaffe\n(?)", size=3) +
+  annotate("text", x=as.Date("1988-09-21"), y=57, label="Willie Horton Ad\n(?)", size=3) +
+  geom_segment(x=as.Date("1988-09-21"), xend=as.Date("1988-09-21"), y=49, yend=100, lty=2, color="grey", alpha=0.4) +
+  annotate("text", x=as.Date("1988-10-15"), y=64, label="First Debate\n(Death\nPenalty\nGaffe)", size=3) +
+  geom_segment(x=as.Date("1988-10-15"), xend=as.Date("1988-10-15"), y=49, yend=100, lty=2, color="grey", alpha=0.4) +
+  scale_x_date(date_labels = "%b, %Y") +
+  scale_color_manual(values = c("dodgerblue4","firebrick1")) +
+  labs(x = "Date",
+       y = "Average Poll Approval", 
+       title = "Polling Averages by Date, 1988 (with Game Changers?)") + 
+  theme_classic()
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-2.png" width="672" />
+# Plot 5. Poll Averages for 2024
+d_pollav_natl |> 
+  filter(year == 2024) |> 
+  ggplot(aes(x = poll_date, y = poll_support, color = party)) +
+  geom_point(size = 1) + 
+  geom_line() + 
+  scale_x_date(date_labels = "%b %d") + 
+  scale_color_manual(values = c("dodgerblue4", "firebrick1")) +
+  labs(x = "Date",
+       y = "Average Poll Approval", 
+       title = "Polling Averages by Date, 2024") + 
+  theme_classic()
 
-```
-## Rows: 38 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr (2): party, candidate
-## dbl (3): year, pv, pv2p
-## lgl (4): winner, incumbent, incumbent_party, prev_admin
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-```
+####----------------------------------------------------------#
+#### Regularized regression with polling data.
+####----------------------------------------------------------#
 
-```
-## 
-## Call:
-## lm(formula = pv2p ~ nov_poll, data = subset(d_poll_nov, party == 
-##     "DEM"))
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -4.0155 -2.4353 -0.3752  1.4026  5.8014 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)  14.2936     7.1693   1.994 0.069416 .  
-## nov_poll      0.7856     0.1608   4.885 0.000376 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 2.968 on 12 degrees of freedom
-## Multiple R-squared:  0.6654,	Adjusted R-squared:  0.6375 
-## F-statistic: 23.86 on 1 and 12 DF,  p-value: 0.0003756
-```
+# Read election results data. 
+d_vote <- read_csv("popvote_1948-2020.csv")
+d_vote$party[d_vote$party == "democrat"] <- "DEM"
+d_vote$party[d_vote$party == "republican"] <- "REP"
 
-```
-## 
-## Call:
-## lm(formula = pv2p ~ nov_poll, data = d_poll_nov)
-## 
-## Residuals:
-##     Min      1Q  Median      3Q     Max 
-## -4.6190 -1.6523 -0.5808  1.3629  6.0220 
-## 
-## Coefficients:
-##             Estimate Std. Error t value Pr(>|t|)    
-## (Intercept) 17.92577    4.15543   4.314 0.000205 ***
-## nov_poll     0.70787    0.09099   7.780 2.97e-08 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 2.75 on 26 degrees of freedom
-## Multiple R-squared:  0.6995,	Adjusted R-squared:  0.6879 
-## F-statistic: 60.52 on 1 and 26 DF,  p-value: 2.974e-08
-```
+# Shape and merge polling and election data using November polls. 
+d_poll_nov <- d_vote |> 
+  left_join(d_pollav_natl |> 
+              group_by(year, party) |> 
+              top_n(1, poll_date) |> 
+              select(-candidate), 
+            by = c("year", "party")) |> 
+  rename(nov_poll = poll_support) |> 
+  filter(year <= 2020) |> 
+  drop_na()
 
-```
-## `summarise()` has grouped output by 'year', 'party'. You can override using the
-## `.groups` argument.
-```
+# OLS: Democratic candidates pv2p on November polling average. 
+ols.nov.1 <- lm(pv2p ~ nov_poll, 
+                data = subset(d_poll_nov, party == "DEM"))
+summary(ols.nov.1)
 
-```
-## 
-## Call:
-## lm(formula = paste0("pv2p ~ ", paste0("poll_weeks_left_", 0:30, 
-##     collapse = " + ")), data = d_poll_weeks_train)
-## 
-## Residuals:
-## ALL 28 residuals are 0: no residual degrees of freedom!
-## 
-## Coefficients: (4 not defined because of singularities)
-##                    Estimate Std. Error t value Pr(>|t|)
-## (Intercept)        28.25534        NaN     NaN      NaN
-## poll_weeks_left_0   3.24113        NaN     NaN      NaN
-## poll_weeks_left_1   0.02516        NaN     NaN      NaN
-## poll_weeks_left_2  -8.87360        NaN     NaN      NaN
-## poll_weeks_left_3   7.91455        NaN     NaN      NaN
-## poll_weeks_left_4   0.74573        NaN     NaN      NaN
-## poll_weeks_left_5   1.41567        NaN     NaN      NaN
-## poll_weeks_left_6  -4.58444        NaN     NaN      NaN
-## poll_weeks_left_7   4.63361        NaN     NaN      NaN
-## poll_weeks_left_8  -0.95121        NaN     NaN      NaN
-## poll_weeks_left_9  -1.55307        NaN     NaN      NaN
-## poll_weeks_left_10 -1.38062        NaN     NaN      NaN
-## poll_weeks_left_11  1.74881        NaN     NaN      NaN
-## poll_weeks_left_12 -1.28871        NaN     NaN      NaN
-## poll_weeks_left_13 -0.08482        NaN     NaN      NaN
-## poll_weeks_left_14  0.87498        NaN     NaN      NaN
-## poll_weeks_left_15 -0.16310        NaN     NaN      NaN
-## poll_weeks_left_16 -0.34501        NaN     NaN      NaN
-## poll_weeks_left_17 -0.38689        NaN     NaN      NaN
-## poll_weeks_left_18 -0.06281        NaN     NaN      NaN
-## poll_weeks_left_19 -0.17204        NaN     NaN      NaN
-## poll_weeks_left_20  1.52230        NaN     NaN      NaN
-## poll_weeks_left_21 -0.72487        NaN     NaN      NaN
-## poll_weeks_left_22 -2.76531        NaN     NaN      NaN
-## poll_weeks_left_23  4.90361        NaN     NaN      NaN
-## poll_weeks_left_24 -2.04431        NaN     NaN      NaN
-## poll_weeks_left_25 -0.76078        NaN     NaN      NaN
-## poll_weeks_left_26 -0.47860        NaN     NaN      NaN
-## poll_weeks_left_27       NA         NA      NA       NA
-## poll_weeks_left_28       NA         NA      NA       NA
-## poll_weeks_left_29       NA         NA      NA       NA
-## poll_weeks_left_30       NA         NA      NA       NA
-## 
-## Residual standard error: NaN on 0 degrees of freedom
-## Multiple R-squared:      1,	Adjusted R-squared:    NaN 
-## F-statistic:   NaN on 27 and 0 DF,  p-value: NA
-```
+# OLS: Party-stacked pv2p on November polling average.
+ols.nov.2 <- lm(pv2p ~ nov_poll, 
+                data = d_poll_nov)
+summary(ols.nov.2)
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+# Create dataset of polling average by week until the election. 
+d_poll_weeks <- d_pollav_natl |> 
+  group_by(year, party, weeks_left) |>
+  summarize(mean_poll_week = mean(poll_support)) |> 
+  filter(weeks_left <= 30) |> 
+  pivot_wider(names_from = weeks_left, values_from = mean_poll_week) |> 
+  left_join(d_vote, by = c("year", "party"))
+ 
+# Split into training and testing data based on inclusion or exclusion of 2024. 
+d_poll_weeks_train <- d_poll_weeks |> 
+  filter(year <= 2020)
+d_poll_weeks_test <- d_poll_weeks |> 
+  filter(year == 2024)
 
-```
-## 32 x 1 sparse Matrix of class "dgCMatrix"
-##                              s1
-## (Intercept)        29.951147799
-## poll_weeks_left_0   0.032163983
-## poll_weeks_left_1   0.025440084
-## poll_weeks_left_2   0.024404320
-## poll_weeks_left_3   0.024688870
-## poll_weeks_left_4   0.024695646
-## poll_weeks_left_5   0.024725772
-## poll_weeks_left_6   0.024080438
-## poll_weeks_left_7   0.023636908
-## poll_weeks_left_8   0.024487501
-## poll_weeks_left_9   0.026498950
-## poll_weeks_left_10  0.025642838
-## poll_weeks_left_11  0.021361476
-## poll_weeks_left_12  0.017386999
-## poll_weeks_left_13  0.013378030
-## poll_weeks_left_14  0.010078675
-## poll_weeks_left_15  0.007248494
-## poll_weeks_left_16  0.012943440
-## poll_weeks_left_17  0.012879654
-## poll_weeks_left_18  0.011157452
-## poll_weeks_left_19  0.008302783
-## poll_weeks_left_20  0.004012987
-## poll_weeks_left_21  0.003350434
-## poll_weeks_left_22  0.004458406
-## poll_weeks_left_23  0.001019583
-## poll_weeks_left_24 -0.002711193
-## poll_weeks_left_25 -0.002447895
-## poll_weeks_left_26  0.001121142
-## poll_weeks_left_27  0.005975853
-## poll_weeks_left_28  0.011623984
-## poll_weeks_left_29  0.013833925
-## poll_weeks_left_30  0.018964139
-```
+colnames(d_poll_weeks)[3:33] <- paste0("poll_weeks_left_", 0:30)
+colnames(d_poll_weeks_train)[3:33] <- paste0("poll_weeks_left_", 0:30)
+colnames(d_poll_weeks_test)[3:33] <- paste0("poll_weeks_left_", 0:30)
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-2.png" width="672" />
+# Comparison of OLS and regularized regression methods. 
+ols.pollweeks <- lm(paste0("pv2p ~ ", paste0( "poll_weeks_left_", 0:30, collapse = " + ")), 
+                    data = d_poll_weeks_train)
+summary(ols.pollweeks) # N.B. Inestimable: p (31) > n (30)! 
 
-```
-## 32 x 1 sparse Matrix of class "dgCMatrix"
-##                             s1
-## (Intercept)        24.57897724
-## poll_weeks_left_0   0.50149421
-## poll_weeks_left_1   .         
-## poll_weeks_left_2   .         
-## poll_weeks_left_3   .         
-## poll_weeks_left_4   .         
-## poll_weeks_left_5   0.08461518
-## poll_weeks_left_6   .         
-## poll_weeks_left_7   .         
-## poll_weeks_left_8   .         
-## poll_weeks_left_9   0.17064525
-## poll_weeks_left_10  .         
-## poll_weeks_left_11  .         
-## poll_weeks_left_12  .         
-## poll_weeks_left_13  .         
-## poll_weeks_left_14  .         
-## poll_weeks_left_15  0.01147512
-## poll_weeks_left_16  .         
-## poll_weeks_left_17  .         
-## poll_weeks_left_18  0.23694416
-## poll_weeks_left_19  .         
-## poll_weeks_left_20  .         
-## poll_weeks_left_21  .         
-## poll_weeks_left_22  .         
-## poll_weeks_left_23  .         
-## poll_weeks_left_24  .         
-## poll_weeks_left_25 -0.55693209
-## poll_weeks_left_26  .         
-## poll_weeks_left_27  .         
-## poll_weeks_left_28  .         
-## poll_weeks_left_29  .         
-## poll_weeks_left_30  0.11120476
-```
+# Separate data into X and Y for training. 
+x.train <- d_poll_weeks_train |>
+  ungroup() |> 
+  select(all_of(starts_with("poll_weeks_left_"))) |> 
+  as.matrix()
+y.train <- d_poll_weeks_train$pv2p
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-3.png" width="672" />
+# Ridge. 
+ridge.pollsweeks <- glmnet(x = x.train, y = y.train, alpha = 0) # Set ridge using alpha = 0. 
 
-```
-## Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
-## fold
+# Visualize shrinkage. 
+plot(ridge.pollsweeks, xvar = "lambda")
 
-## Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
-## fold
+# Get particular coefficients. 
+coef(ridge.pollsweeks, s = 0.1)
 
-## Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
-## fold
-```
+# Lasso.
+lasso.pollsweeks <- glmnet(x = x.train, y = y.train, alpha = 1) # Set lasso using alpha = 1.
 
-```
-## [1] 9.575001
-```
+# Visualize shrinkage.
+plot(lasso.pollsweeks, xvar = "lambda")
 
-```
-## [1] 4.642786
-```
+# Get particular coefficients.
+coef(lasso.pollsweeks, s = 0.1)
 
-```
-## [1] 5.578409
-```
+# Elastic net.
+enet.pollsweeks <- glmnet(x = x.train, y = y.train, alpha = 0.5) # Set elastic net using alpha = 0.5.
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-4.png" width="672" />
+# Visualize shrinkage.
+plot(enet.pollsweeks, xvar = "lambda")
 
-```
-## [1]  7 36
-```
+# Can use cross-validated versions to find the optimal values of lambda that minimize the MSE of your predictions. 
+# N.B. Use set.seed() and your favorite number e.g., 12345, 02138, before each CV/any stochastic call if you want your results to be stable. 
+cv.ridge.pollweeks <- cv.glmnet(x = x.train, y = y.train, alpha = 0)
+cv.lasso.pollweeks <- cv.glmnet(x = x.train, y = y.train, alpha = 1)
+cv.enet.pollweeks <- cv.glmnet(x = x.train, y = y.train, alpha = 0.5)
 
-```
-## Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
-## fold
-```
+# Get minimum lambda values 
+lambda.min.ridge <- cv.ridge.pollweeks$lambda.min
+lambda.min.lasso <- cv.lasso.pollweeks$lambda.min
+lambda.min.enet <- cv.enet.pollweeks$lambda.min
 
-```
-##            s1
-## [1,] 51.79268
-## [2,] 50.65879
-```
+# Predict on training data using lambda values that minimize MSE.
+(mse.ridge <- mean((predict(ridge.pollsweeks, s = lambda.min.ridge, newx = x.train) - y.train)^2))
+(mse.lasso <- mean((predict(lasso.pollsweeks, s = lambda.min.lasso, newx = x.train) - y.train)^2))
+(mse.enet <- mean((predict(enet.pollsweeks, s = lambda.min.enet, newx = x.train) - y.train)^2))
 
+# Generate plot comparing coefficients for each of the weeks. 
+d.coefplot <- data.frame("OLS" = coef(ols.pollweeks)[-1], 
+                         "Ridge" = coef(ridge.pollsweeks, s = lambda.min.ridge)[-1], 
+                         "Lasso" = coef(lasso.pollsweeks, s = lambda.min.lasso)[-1], 
+                         "Elastic Net" = coef(enet.pollsweeks, s = lambda.min.enet)[-1]) |> 
+  rownames_to_column("coef_name") |> 
+  pivot_longer(cols = -coef_name, names_to = "method", values_to = "coef_est") |> 
+  mutate(week = rep(0:30, each = 4))
 
-```
-## Rows: 387 Columns: 14
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## dbl (14): year, quarter, GDP, GDP_growth_quarterly, RDPI, RDPI_growth_quarte...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-```
+d.coefplot[which(is.na(d.coefplot$coef_est)),]$coef_est <- 0 
 
-```
-## Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
-## fold
-```
+d.coefplot |>
+  ggplot(aes(x = coef_est, y = reorder(coef_name, -week), color = method)) +
+  geom_segment(aes(xend = 0, yend = reorder(coef_name, -week)), alpha = 0.5, lty = "dashed") +
+  geom_vline(aes(xintercept = 0), lty = "dashed") +   
+  geom_point() + 
+  labs(x = "Coefficient Estimate", 
+       y = "Coefficient Name", 
+       title = "Comparison of Coefficients Across Regularization Methods") + 
+  theme_classic()
 
-```
-## Warning in cbind2(1, newx): number of rows of result is not a multiple of
-## vector length (arg 1)
-```
+# First check how many weeks of polling we have for 2024. 
+d_pollav_natl |> 
+  filter(year == 2024) |> 
+  select(weeks_left) |> 
+  distinct() |> 
+  range() # Let's take week 30 - 7 as predictors since those are the weeks we have polling data for 2024 and historically. 
 
-```
-##      s1
-```
+x.train <- d_poll_weeks_train |>
+  ungroup() |> 
+  select(all_of(paste0("poll_weeks_left_", 7:30))) |> 
+  as.matrix()
+y.train <- d_poll_weeks_train$pv2p
+x.test <- d_poll_weeks_test |>
+  ungroup() |> 
+  select(all_of(paste0("poll_weeks_left_", 7:30))) |> 
+  as.matrix()
 
-```
-## Warning: Option grouped=FALSE enforced in cv.glmnet, since < 3 observations per
-## fold
+# Using elastic-net for simplicity. 
+set.seed(02138)
+enet.poll <- cv.glmnet(x = x.train, y = y.train, alpha = 0.5)
+lambda.min.enet.poll <- enet.poll$lambda.min
 
-## Warning: number of rows of result is not a multiple of vector length (arg 1)
-```
+# Predict 2024 national pv2p share using elastic-net. 
+(polls.pred <- predict(enet.poll, s = lambda.min.enet.poll, newx = x.test))
 
-```
-##      s1
-```
+# Harris: 51.8%
+# Trump: 50.7% 
 
+####----------------------------------------------------------#
+#### Model ensembling.
+####----------------------------------------------------------#
+
+# Estimate models using polls alone, fundamentals alone, and combined fundamentals and polls. 
+# Read economic data. 
+d_econ <- read_csv("fred_econ.csv") |> 
+  filter(quarter == 2)
+
+# Combine datasets and create vote lags. 
+d_combined <- d_econ |> 
+  left_join(d_poll_weeks, by = "year") |> 
+  filter(year %in% c(unique(d_vote$year), 2024)) |> 
+  group_by(party) |> 
+  mutate(pv2p_lag1 = lag(pv2p, 1), 
+         pv2p_lag2 = lag(pv2p, 2)) |> 
+  ungroup() |> 
+  mutate(gdp_growth_x_incumbent = GDP_growth_quarterly * incumbent, 
+         rdpi_growth_quarterly = RDPI_growth_quarterly * incumbent,
+         cpi_x_incumbent = CPI * incumbent,
+         unemployment_x_incumbent = unemployment * incumbent,
+         sp500_x_incumbent = sp500_close * incumbent) # Generate interaction effects.
+
+# Create fundamentals-only dataset and split into training and test sets. 
+d_fund <- d_combined |> 
+  select("year", "pv2p", "GDP", "GDP_growth_quarterly", "RDPI", "RDPI_growth_quarterly", "CPI", "unemployment", "sp500_close",
+         "incumbent", "gdp_growth_x_incumbent", "rdpi_growth_quarterly", "cpi_x_incumbent", "unemployment_x_incumbent", "sp500_x_incumbent", 
+         "pv2p_lag1", "pv2p_lag2") 
+x.train.fund <- d_fund |> 
+  filter(year <= 2020) |>
+  select(-c(year, pv2p)) |> 
+  slice(-c(1:9)) |> 
+  as.matrix()
+y.train.fund <- d_fund |> 
+  filter(year <= 2020) |> 
+  select(pv2p) |> 
+  slice(-c(1:9)) |> 
+  as.matrix()
+x.test.fund <- d_fund |> 
+  filter(year == 2024) |> 
+  select(-c(year, pv2p)) |> 
+  drop_na() |> 
+  as.matrix()
+
+# Estimate elastic-net using fundamental variables only.
+set.seed(02138)
+enet.fund <- cv.glmnet(x = x.train.fund, y = y.train.fund, intercept = FALSE, alpha = 0.5)
+lambda.min.enet.fund <- enet.fund$lambda.min
+
+# Predict 2024 national pv2p share using elastic-net. 
+(fund.pred <- predict(enet.fund, s = lambda.min.enet.fund, newx = x.test.fund))
+  
+# Sequester data for combined model.
+d_combo <- d_combined |> 
+  select("year", "pv2p", "GDP", "GDP_growth_quarterly", "RDPI", "RDPI_growth_quarterly", "CPI", "unemployment", "sp500_close",
+         "incumbent", "gdp_growth_x_incumbent", "rdpi_growth_quarterly", "cpi_x_incumbent", "unemployment_x_incumbent", "sp500_x_incumbent", 
+         "pv2p_lag1", "pv2p_lag2", all_of(paste0("poll_weeks_left_", 7:30))) 
+
+x.train.combined <- d_combo |> 
+  filter(year <= 2020) |> 
+  select(-c(year, pv2p)) |> 
+  slice(-c(1:9)) |> 
+  as.matrix()
+y.train.combined <- d_combo |>
+  filter(year <= 2020) |> 
+  select(pv2p) |> 
+  slice(-c(1:9)) |> 
+  as.matrix()
+x.test.combined <- d_combo |>
+  filter(year == 2024) |> 
+  select(-c(year, pv2p)) |> 
+  drop_na() |> 
+  as.matrix()
+  
+# Estimate combined model.
+set.seed(02138)
+enet.combined <- cv.glmnet(x = x.train.combined, y = y.train.combined, intercept = FALSE, alpha = 0.5)
+lambda.min.enet.combined <- enet.combined$lambda.min
+
+# Predict 2024 national pv2p share using elastic-net.
+(combo.pred <- predict(enet.combined, s = lambda.min.enet.combined, newx = x.test.combined))
 
 # Ensemble 1: Predict based on unweighted (or equally weighted) ensemble model between polls and fundamentals models. 
 (unweighted.ensemble.pred <- (polls.pred + fund.pred)/2)
@@ -480,6 +399,17 @@ days_left <- as.numeric(as.Date(election_day_2024) - as.Date(today))
 (fund_model_weight <- 1-(1/sqrt(days_left)))
 
 (ensemble.3.pred <- polls.pred * poll_model_weight + fund.pred * fund_model_weight)
+
+
+
+
+
+
+
+
+
+
+
 
 
 
