@@ -6,7 +6,7 @@ slug: blog-post-3
 categories: []
 tags: []
 ---
-```{r}
+```{r, echo = FALSE}
 
 # Load libraries.
 ## install via `install.packages("name")`
@@ -23,7 +23,7 @@ library(ggplot2)
 # setwd("~")
 ```
 
-```{r}
+```{r , echo = FALSE}
 
 ####----------------------------------------------------------#
 #### Read, merge, and process data.
@@ -114,7 +114,7 @@ d_pollav_natl |>
 
 ```
 
-```{r}
+```{r , echo = FALSE}
 
 # Plot 4. Poll Averages and "Game Changers" for 1988
 d_pollav_natl |>
@@ -155,7 +155,7 @@ d_pollav_natl |>
   theme_classic()
 
 ```
-```{r}
+```{r, echo = FALSE}
 
 ####----------------------------------------------------------#
 #### Regularized regression with polling data.
@@ -308,7 +308,7 @@ lambda.min.enet.poll <- enet.poll$lambda.min
 
 ```
 
-```{r}
+```{r, echo = FALSE}
 
 ####----------------------------------------------------------#
 #### Model ensembling.
@@ -391,6 +391,8 @@ lambda.min.enet.combined <- enet.combined$lambda.min
 
 # Predict 2024 national pv2p share using elastic-net.
 (combo.pred <- predict(enet.combined, s = lambda.min.enet.combined, newx = x.test.combined))
+```
+
 
 # Ensemble 1: Predict based on unweighted (or equally weighted) ensemble model between polls and fundamentals models. 
 (unweighted.ensemble.pred <- (polls.pred + fund.pred)/2)
@@ -411,6 +413,5 @@ days_left <- as.numeric(as.Date(election_day_2024) - as.Date(today))
 
 (ensemble.3.pred <- polls.pred * poll_model_weight + fund.pred * fund_model_weight)
 
-```
 
 
