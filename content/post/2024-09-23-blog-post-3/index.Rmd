@@ -389,7 +389,6 @@ lambda.min.enet.combined <- enet.combined$lambda.min
 
 # Predict 2024 national pv2p share using elastic-net.
 (combo.pred <- predict(enet.combined, s = lambda.min.enet.combined, newx = x.test.combined))
-```
 
 
 # Ensemble 1: Predict based on unweighted (or equally weighted) ensemble model between polls and fundamentals models. 
@@ -410,6 +409,9 @@ days_left <- as.numeric(as.Date(election_day_2024) - as.Date(today))
 (fund_model_weight <- 1-(1/sqrt(days_left)))
 
 (ensemble.3.pred <- polls.pred * poll_model_weight + fund.pred * fund_model_weight)
+```
+
+
 
 
 
