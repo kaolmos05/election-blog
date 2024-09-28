@@ -105,94 +105,7 @@ tags: []
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ```
-
-```r
-####----------------------------------------------------------#
-#### Visualizing poll variation over time.
-####----------------------------------------------------------#
-
-# Plot 1. Polling Averages Over 2020 Election Cycle with and Without Event Labels. 
-d_pollav_natl |> 
-  filter(year == 2020) |> 
-  ggplot(aes(x = poll_date, y = poll_support, color = party)) +
-  geom_point(size = 1) + 
-  geom_line() + 
-  scale_x_date(date_labels = "%b %d") + 
-  scale_color_manual(values = c("dodgerblue4", "firebrick1")) +
-  labs(x = "Date",
-       y = "Average Poll Approval", 
-       title = "Polling Averages by Date, 2020") + 
-  theme_classic()
-```
-
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
-
-```r
-# Plot 2. RNC and DNC Bumps in 2020. 
-d_pollav_natl |> 
-  filter(year == 2020) |> 
-  ggplot(aes(x = poll_date, y = poll_support, color = party)) +
-  geom_rect(xmin = as.Date("2020-08-17"), xmax = as.Date("2020-08-20"), ymin = 47.5, ymax = 100, alpha = 0.1, color = NA, fill = "grey") + 
-  annotate("text", x = as.Date("2020-08-07"), y = 51.5, label = "DNC", size = 4) + 
-  geom_rect(xmin = as.Date("2020-08-24"), xmax = as.Date("2020-08-27"), ymin = 0, ymax = 46, alpha = 0.1, color = NA, fill = "grey") +
-  annotate("text", x = as.Date("2020-09-04"), y = 45, label = "RNC", size = 4) +
-  geom_point(size = 1) + 
-  geom_line() + 
-  scale_x_date(date_labels = "%b %d") + 
-  scale_color_manual(values = c("dodgerblue4", "firebrick1")) +
-  labs(x = "Date",
-       y = "Average Poll Approval", 
-       title = "Polling Averages by Date, 2020 (with Conference Dates)") + 
-  theme_classic()
-```
-
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-2.png" width="672" />
-
-```r
-# Plot 3. Adding in Extra Dates of Interest for 2020 —— "game changers"? 
-d_pollav_natl |> 
-  filter(year == 2020) |> 
-  ggplot(aes(x = poll_date, y = poll_support, color = party)) +
-  geom_rect(xmin = as.Date("2020-08-17"), xmax = as.Date("2020-08-20"), ymin = 47.5, ymax = 100, alpha = 0.1, color = NA, fill = "grey") + 
-  annotate("text", x = as.Date("2020-08-07"), y = 51.5, label = "DNC", size = 4) +
-  geom_rect(xmin = as.Date("2020-08-24"), xmax = as.Date("2020-08-27"), ymin = 0, ymax = 47.2, alpha = 0.1, color = NA, fill = "grey") +
-  annotate("text", x = as.Date("2020-09-04"), y = 45, label = "RNC", size = 4) +
-  geom_rect(xmin = as.Date("2020-10-02"), xmax = as.Date("2020-10-12"), ymin = 0, ymax = 42.7, alpha = 0.05, color = NA, fill = "grey") +
-  
-  geom_point(size = 1) + 
-  geom_line() + 
-  
-  geom_segment(x = as.Date("2020-03-12"), xend = as.Date("2020-03-12"), y = 0, yend = 44.8, linetype = "dashed", alpha = 0.4, color = "grey") +
-  annotate("text", x = as.Date("2020-03-12"), y = 42.5, label = "COVID \n Market Crash", size = 3) +
-  geom_segment(x = as.Date("2020-04-08"), xend = as.Date("2020-04-08"), y = 49, yend = 100, linetype = "dashed", alpha = 0.4, color = "grey") +
-  annotate("text", x = as.Date("2020-03-25"), y = 51.3, label = "Bernie Ends Run", size = 3) +
-  geom_segment(x = as.Date("2020-04-16"), xend = as.Date("2020-04-16"), y = 0, yend = 44, linetype = "dashed", alpha = 0.4, color = "grey") +
-  annotate("text", x = as.Date("2020-04-16"), y = 44.7, label = "22 mil \n Unemployment", size = 3) +
-  geom_segment(x = as.Date("2020-05-27"), xend = as.Date("2020-05-27"), y = 0, yend = 43, linetype = "dashed", alpha = 0.4, color = "grey") +
-  annotate("text", x = as.Date("2020-06-05"), y = 44, label = "100k COVID Dead, \n George Floyd", size = 3) +
-  
-  geom_segment(x = as.Date("2020-07-14"), xend = as.Date("2020-07-14"), y = 0, yend = 50.3, linetype = "dashed", alpha = 0.4, color = "grey") +
-  annotate("text", x = as.Date("2020-06-19"), y = 47.5, label = "Moderna Announces", size = 3) +
-  
-  geom_segment(x = as.Date("2020-09-29"), xend = as.Date("2020-09-29"), y = 50, yend = 100, linetype = "dashed", alpha = 0.4, color = "grey") +
-  annotate("text", x = as.Date("2020-9-12"), y = 49.5, label = "Pres. Debate", size = 3) +
-  geom_segment(x = as.Date("2020-10-07"), xend = as.Date("2020-10-07"), y = 51.7, yend = 100, linetype = "dashed", alpha = 0.4, color = "grey") +
-  annotate("text", x = as.Date("2020-10-17"), y = 50.3, label = "VP Debate", size = 3) +
-  geom_segment(x = as.Date("2020-10-22"), xend = as.Date("2020-10-22"), y = 52, yend = 100, linetype = "dashed", alpha = 0.4, color = "grey") +
-  annotate("text", x = as.Date("2020-10-30"), y = 51.5, label = "Pres. Debate", size = 3) +
-  annotate("text", x = as.Date("2020-10-15"), y = 43.7, label = "Trump Has COVID", size = 3) +
-  geom_segment(x = as.Date("2020-09-18"), xend = as.Date("2020-09-18"), y = 50, yend = 100, linetype = "dashed", alpha = 0.4, color = "grey") +
-  annotate("text", x = as.Date("2020-09-03"), y = 51.5, label = "RBG Passes", size = 3) +
-  
-  scale_x_date(date_labels = "%b %d") + 
-  scale_color_manual(values = c("dodgerblue4", "firebrick1")) +
-  labs(x = "Date",
-       y = "Average Poll Approval", 
-       title = "Polling Averages by Date, 2020 (with Game Changers?)") + 
-  theme_classic()
-```
-
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-2.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-2.png" width="672" />
 
@@ -401,11 +314,11 @@ d_pollav_natl |>
 ```
 
 ```
-## [1] 4.607344
+## [1] 3.924171
 ```
 
 ```
-## [1] 2.325853
+## [1] 4.088951
 ```
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-5-4.png" width="672" />

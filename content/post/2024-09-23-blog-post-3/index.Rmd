@@ -6,7 +6,7 @@ slug: blog-post-3
 categories: []
 tags: []
 ---
-```{r, echo = FALSE}
+```{r echo=FALSE}
 
 # Load libraries.
 ## install via `install.packages("name")`
@@ -23,8 +23,7 @@ library(ggplot2)
 # setwd("~")
 ```
 
-```{r , echo = FALSE}
-
+```{r echo=FALSE}
 ####----------------------------------------------------------#
 #### Read, merge, and process data.
 ####----------------------------------------------------------#
@@ -33,7 +32,7 @@ library(ggplot2)
 d_pollav_natl <- read_csv("national_polls_1968-2024.csv")
 d_pollav_state <- read_csv("state_polls_1968-2024.csv")
 ```
-```{r}
+```{r echo=FALSE}
 
 
 ####----------------------------------------------------------#
@@ -114,8 +113,7 @@ d_pollav_natl |>
 
 ```
 
-```{r , echo = FALSE}
-
+```{r echo=FALSE}
 # Plot 4. Poll Averages and "Game Changers" for 1988
 d_pollav_natl |>
   filter(year == 1988) |>
@@ -155,7 +153,7 @@ d_pollav_natl |>
   theme_classic()
 
 ```
-```{r, echo = FALSE}
+```{r echo = FALSE}
 
 ####----------------------------------------------------------#
 #### Regularized regression with polling data.
@@ -308,7 +306,7 @@ lambda.min.enet.poll <- enet.poll$lambda.min
 
 ```
 
-```{r, echo = FALSE}
+```{r echo = FALSE}
 
 ####----------------------------------------------------------#
 #### Model ensembling.
