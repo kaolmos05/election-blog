@@ -412,3 +412,5 @@ days_left <- as.numeric(as.Date(election_day_2024) - as.Date(today))
 
 
 
+
+
