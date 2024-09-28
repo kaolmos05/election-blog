@@ -6,9 +6,6 @@ slug: blog-post-ii
 categories: []
 tags: []
 ---
-@title GOV 1347: Week 2 (Economics) Laboratory Session
-@author Matthew E. Dardet
-@date September 10, 2024
 
 Date: September, 16, 2024 
 
