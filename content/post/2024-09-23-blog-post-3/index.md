@@ -6,7 +6,6 @@ slug: blog-post-3
 categories: []
 tags: []
 ---
-
 # Load libraries.
 ## install via `install.packages("name")`
 library(car)
@@ -392,12 +391,5 @@ days_left <- as.numeric(as.Date(election_day_2024) - as.Date(today))
 (fund_model_weight <- 1-(1/sqrt(days_left)))
 
 (ensemble.3.pred <- polls.pred * poll_model_weight + fund.pred * fund_model_weight)
-
-
-
-
-
-
-
 
 

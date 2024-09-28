@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="en-us">
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=4321&amp;path=livereload" data-no-instant defer></script>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Blog Post 3 | A minimal Hugo website</title>
+    <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/fonts.css" />
+    
+  </head>
+
+  <body>
+    <nav>
+    <ul class="menu">
+      
+      <li><a href="/">Home</a></li>
+      
+    </ul>
+    <hr/>
+    </nav>
+
+<div class="article-meta">
+<h1><span class="title">Blog Post 3</span></h1>
+<h2 class="author">Package Build</h2>
+<h2 class="date">2024/09/23</h2>
+</div>
+
+<main>
+<h1 id="load-libraries">Load libraries.</h1>
+<h2 id="install-via-installpackagesname">install via <code>install.packages(&quot;name&quot;)</code></h2>
+<p>library(car)
+library(caret)
+library(CVXR)
+library(glmnet)
+library(tidyverse)
+library(readr)
+library(ggplot2)</p>
+<h2 id="set-working-directory-here">set working directory here</h2>
+<h1 id="setwd">setwd(&quot;~&quot;)</h1>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h4 id="read-merge-and-process-data">Read, merge, and process data.</h4>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h1 id="read-data-processed-fivethirtyeight-polling-average-datasets">Read data (processed FiveThirtyEight polling average datasets).</h1>
+<p>d_pollav_natl &lt;- read_csv(&ldquo;national_polls_1968-2024.csv&rdquo;)
+d_pollav_state &lt;- read_csv(&ldquo;state_polls_1968-2024.csv&rdquo;)</p>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h4 id="visualizing-poll-variation-over-time">Visualizing poll variation over time.</h4>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h1 id="plot-1-polling-averages-over-2020-election-cycle-with-and-without-event-labels">Plot 1. Polling Averages Over 2020 Election Cycle with and Without Event Labels.</h1>
+<p>d_pollav_natl |&gt;
+filter(year == 2020) |&gt;
+ggplot(aes(x = poll_date, y = poll_support, color = party)) +
+geom_point(size = 1) +
+geom_line() +
+scale_x_date(date_labels = &ldquo;%b %d&rdquo;) +
+scale_color_manual(values = c(&ldquo;dodgerblue4&rdquo;, &ldquo;firebrick1&rdquo;)) +
+labs(x = &ldquo;Date&rdquo;,
+y = &ldquo;Average Poll Approval&rdquo;,
+title = &ldquo;Polling Averages by Date, 2020&rdquo;) +
+theme_classic()</p>
+<h1 id="plot-2-rnc-and-dnc-bumps-in-2020">Plot 2. RNC and DNC Bumps in 2020.</h1>
+<p>d_pollav_natl |&gt;
+filter(year == 2020) |&gt;
+ggplot(aes(x = poll_date, y = poll_support, color = party)) +
+geom_rect(xmin = as.Date(&ldquo;2020-08-17&rdquo;), xmax = as.Date(&ldquo;2020-08-20&rdquo;), ymin = 47.5, ymax = 100, alpha = 0.1, color = NA, fill = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-08-07&rdquo;), y = 51.5, label = &ldquo;DNC&rdquo;, size = 4) +
+geom_rect(xmin = as.Date(&ldquo;2020-08-24&rdquo;), xmax = as.Date(&ldquo;2020-08-27&rdquo;), ymin = 0, ymax = 46, alpha = 0.1, color = NA, fill = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-09-04&rdquo;), y = 45, label = &ldquo;RNC&rdquo;, size = 4) +
+geom_point(size = 1) +
+geom_line() +
+scale_x_date(date_labels = &ldquo;%b %d&rdquo;) +
+scale_color_manual(values = c(&ldquo;dodgerblue4&rdquo;, &ldquo;firebrick1&rdquo;)) +
+labs(x = &ldquo;Date&rdquo;,
+y = &ldquo;Average Poll Approval&rdquo;,
+title = &ldquo;Polling Averages by Date, 2020 (with Conference Dates)&rdquo;) +
+theme_classic()</p>
+<h1 id="plot-3-adding-in-extra-dates-of-interest-for-2020--game-changers">Plot 3. Adding in Extra Dates of Interest for 2020 —— &ldquo;game changers&rdquo;?</h1>
+<p>d_pollav_natl |&gt;
+filter(year == 2020) |&gt;
+ggplot(aes(x = poll_date, y = poll_support, color = party)) +
+geom_rect(xmin = as.Date(&ldquo;2020-08-17&rdquo;), xmax = as.Date(&ldquo;2020-08-20&rdquo;), ymin = 47.5, ymax = 100, alpha = 0.1, color = NA, fill = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-08-07&rdquo;), y = 51.5, label = &ldquo;DNC&rdquo;, size = 4) +
+geom_rect(xmin = as.Date(&ldquo;2020-08-24&rdquo;), xmax = as.Date(&ldquo;2020-08-27&rdquo;), ymin = 0, ymax = 47.2, alpha = 0.1, color = NA, fill = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-09-04&rdquo;), y = 45, label = &ldquo;RNC&rdquo;, size = 4) +
+geom_rect(xmin = as.Date(&ldquo;2020-10-02&rdquo;), xmax = as.Date(&ldquo;2020-10-12&rdquo;), ymin = 0, ymax = 42.7, alpha = 0.05, color = NA, fill = &ldquo;grey&rdquo;) +</p>
+<p>geom_point(size = 1) +
+geom_line() +</p>
+<p>geom_segment(x = as.Date(&ldquo;2020-03-12&rdquo;), xend = as.Date(&ldquo;2020-03-12&rdquo;), y = 0, yend = 44.8, linetype = &ldquo;dashed&rdquo;, alpha = 0.4, color = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-03-12&rdquo;), y = 42.5, label = &ldquo;COVID \n Market Crash&rdquo;, size = 3) +
+geom_segment(x = as.Date(&ldquo;2020-04-08&rdquo;), xend = as.Date(&ldquo;2020-04-08&rdquo;), y = 49, yend = 100, linetype = &ldquo;dashed&rdquo;, alpha = 0.4, color = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-03-25&rdquo;), y = 51.3, label = &ldquo;Bernie Ends Run&rdquo;, size = 3) +
+geom_segment(x = as.Date(&ldquo;2020-04-16&rdquo;), xend = as.Date(&ldquo;2020-04-16&rdquo;), y = 0, yend = 44, linetype = &ldquo;dashed&rdquo;, alpha = 0.4, color = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-04-16&rdquo;), y = 44.7, label = &ldquo;22 mil \n Unemployment&rdquo;, size = 3) +
+geom_segment(x = as.Date(&ldquo;2020-05-27&rdquo;), xend = as.Date(&ldquo;2020-05-27&rdquo;), y = 0, yend = 43, linetype = &ldquo;dashed&rdquo;, alpha = 0.4, color = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-06-05&rdquo;), y = 44, label = &ldquo;100k COVID Dead, \n George Floyd&rdquo;, size = 3) +</p>
+<p>geom_segment(x = as.Date(&ldquo;2020-07-14&rdquo;), xend = as.Date(&ldquo;2020-07-14&rdquo;), y = 0, yend = 50.3, linetype = &ldquo;dashed&rdquo;, alpha = 0.4, color = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-06-19&rdquo;), y = 47.5, label = &ldquo;Moderna Announces&rdquo;, size = 3) +</p>
+<p>geom_segment(x = as.Date(&ldquo;2020-09-29&rdquo;), xend = as.Date(&ldquo;2020-09-29&rdquo;), y = 50, yend = 100, linetype = &ldquo;dashed&rdquo;, alpha = 0.4, color = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-9-12&rdquo;), y = 49.5, label = &ldquo;Pres. Debate&rdquo;, size = 3) +
+geom_segment(x = as.Date(&ldquo;2020-10-07&rdquo;), xend = as.Date(&ldquo;2020-10-07&rdquo;), y = 51.7, yend = 100, linetype = &ldquo;dashed&rdquo;, alpha = 0.4, color = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-10-17&rdquo;), y = 50.3, label = &ldquo;VP Debate&rdquo;, size = 3) +
+geom_segment(x = as.Date(&ldquo;2020-10-22&rdquo;), xend = as.Date(&ldquo;2020-10-22&rdquo;), y = 52, yend = 100, linetype = &ldquo;dashed&rdquo;, alpha = 0.4, color = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-10-30&rdquo;), y = 51.5, label = &ldquo;Pres. Debate&rdquo;, size = 3) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-10-15&rdquo;), y = 43.7, label = &ldquo;Trump Has COVID&rdquo;, size = 3) +
+geom_segment(x = as.Date(&ldquo;2020-09-18&rdquo;), xend = as.Date(&ldquo;2020-09-18&rdquo;), y = 50, yend = 100, linetype = &ldquo;dashed&rdquo;, alpha = 0.4, color = &ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x = as.Date(&ldquo;2020-09-03&rdquo;), y = 51.5, label = &ldquo;RBG Passes&rdquo;, size = 3) +</p>
+<p>scale_x_date(date_labels = &ldquo;%b %d&rdquo;) +
+scale_color_manual(values = c(&ldquo;dodgerblue4&rdquo;, &ldquo;firebrick1&rdquo;)) +
+labs(x = &ldquo;Date&rdquo;,
+y = &ldquo;Average Poll Approval&rdquo;,
+title = &ldquo;Polling Averages by Date, 2020 (with Game Changers?)&rdquo;) +
+theme_classic()</p>
+<h1 id="plot-4-poll-averages-and-game-changers-for-1988">Plot 4. Poll Averages and &ldquo;Game Changers&rdquo; for 1988</h1>
+<p>d_pollav_natl |&gt;
+filter(year == 1988) |&gt;
+ggplot(aes(x = poll_date, y = poll_support, color = party)) +
+geom_rect(xmin=as.Date(&ldquo;1988-07-18&rdquo;), xmax=as.Date(&ldquo;1988-07-21&rdquo;), ymin=47, ymax=100, alpha=0.1, colour=NA, fill=&ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x=as.Date(&ldquo;1988-07-10&rdquo;), y=50, label=&ldquo;DNC&rdquo;, size=4) +
+geom_rect(xmin=as.Date(&ldquo;1988-08-15&rdquo;), xmax=as.Date(&ldquo;1988-08-18&rdquo;), ymin=0, ymax=44, alpha=0.1, colour=NA, fill=&ldquo;grey&rdquo;) +
+annotate(&ldquo;text&rdquo;, x=as.Date(&ldquo;1988-08-26&rdquo;), y=40, label=&ldquo;RNC&rdquo;, size=4) +</p>
+<p>geom_point(size = 1) +
+geom_line() +</p>
+<p>geom_segment(x=as.Date(&ldquo;1988-09-13&rdquo;), xend=as.Date(&ldquo;1988-09-13&rdquo;), y=49, yend=100, lty=2, color=&ldquo;grey&rdquo;, alpha=0.4) +
+annotate(&ldquo;text&rdquo;, x=as.Date(&ldquo;1988-09-13&rdquo;), y=52, label=&ldquo;Tank Gaffe\n(?)&rdquo;, size=3) +
+annotate(&ldquo;text&rdquo;, x=as.Date(&ldquo;1988-09-21&rdquo;), y=57, label=&ldquo;Willie Horton Ad\n(?)&rdquo;, size=3) +
+geom_segment(x=as.Date(&ldquo;1988-09-21&rdquo;), xend=as.Date(&ldquo;1988-09-21&rdquo;), y=49, yend=100, lty=2, color=&ldquo;grey&rdquo;, alpha=0.4) +
+annotate(&ldquo;text&rdquo;, x=as.Date(&ldquo;1988-10-15&rdquo;), y=64, label=&ldquo;First Debate\n(Death\nPenalty\nGaffe)&rdquo;, size=3) +
+geom_segment(x=as.Date(&ldquo;1988-10-15&rdquo;), xend=as.Date(&ldquo;1988-10-15&rdquo;), y=49, yend=100, lty=2, color=&ldquo;grey&rdquo;, alpha=0.4) +
+scale_x_date(date_labels = &ldquo;%b, %Y&rdquo;) +
+scale_color_manual(values = c(&ldquo;dodgerblue4&rdquo;,&ldquo;firebrick1&rdquo;)) +
+labs(x = &ldquo;Date&rdquo;,
+y = &ldquo;Average Poll Approval&rdquo;,
+title = &ldquo;Polling Averages by Date, 1988 (with Game Changers?)&rdquo;) +
+theme_classic()</p>
+<h1 id="plot-5-poll-averages-for-2024">Plot 5. Poll Averages for 2024</h1>
+<p>d_pollav_natl |&gt;
+filter(year == 2024) |&gt;
+ggplot(aes(x = poll_date, y = poll_support, color = party)) +
+geom_point(size = 1) +
+geom_line() +
+scale_x_date(date_labels = &ldquo;%b %d&rdquo;) +
+scale_color_manual(values = c(&ldquo;dodgerblue4&rdquo;, &ldquo;firebrick1&rdquo;)) +
+labs(x = &ldquo;Date&rdquo;,
+y = &ldquo;Average Poll Approval&rdquo;,
+title = &ldquo;Polling Averages by Date, 2024&rdquo;) +
+theme_classic()</p>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h4 id="regularized-regression-with-polling-data">Regularized regression with polling data.</h4>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h1 id="read-election-results-data">Read election results data.</h1>
+<p>d_vote &lt;- read_csv(&ldquo;popvote_1948-2020.csv&rdquo;)
+d_vote$party[d_vote$party == &ldquo;democrat&rdquo;] &lt;- &ldquo;DEM&rdquo;
+d_vote$party[d_vote$party == &ldquo;republican&rdquo;] &lt;- &ldquo;REP&rdquo;</p>
+<h1 id="shape-and-merge-polling-and-election-data-using-november-polls">Shape and merge polling and election data using November polls.</h1>
+<p>d_poll_nov &lt;- d_vote |&gt;
+left_join(d_pollav_natl |&gt;
+group_by(year, party) |&gt;
+top_n(1, poll_date) |&gt;
+select(-candidate),
+by = c(&ldquo;year&rdquo;, &ldquo;party&rdquo;)) |&gt;
+rename(nov_poll = poll_support) |&gt;
+filter(year &lt;= 2020) |&gt;
+drop_na()</p>
+<h1 id="ols-democratic-candidates-pv2p-on-november-polling-average">OLS: Democratic candidates pv2p on November polling average.</h1>
+<p>ols.nov.1 &lt;- lm(pv2p ~ nov_poll,
+data = subset(d_poll_nov, party == &ldquo;DEM&rdquo;))
+summary(ols.nov.1)</p>
+<h1 id="ols-party-stacked-pv2p-on-november-polling-average">OLS: Party-stacked pv2p on November polling average.</h1>
+<p>ols.nov.2 &lt;- lm(pv2p ~ nov_poll,
+data = d_poll_nov)
+summary(ols.nov.2)</p>
+<h1 id="create-dataset-of-polling-average-by-week-until-the-election">Create dataset of polling average by week until the election.</h1>
+<p>d_poll_weeks &lt;- d_pollav_natl |&gt;
+group_by(year, party, weeks_left) |&gt;
+summarize(mean_poll_week = mean(poll_support)) |&gt;
+filter(weeks_left &lt;= 30) |&gt;
+pivot_wider(names_from = weeks_left, values_from = mean_poll_week) |&gt;
+left_join(d_vote, by = c(&ldquo;year&rdquo;, &ldquo;party&rdquo;))</p>
+<h1 id="split-into-training-and-testing-data-based-on-inclusion-or-exclusion-of-2024">Split into training and testing data based on inclusion or exclusion of 2024.</h1>
+<p>d_poll_weeks_train &lt;- d_poll_weeks |&gt;
+filter(year &lt;= 2020)
+d_poll_weeks_test &lt;- d_poll_weeks |&gt;
+filter(year == 2024)</p>
+<p>colnames(d_poll_weeks)[3:33] &lt;- paste0(&ldquo;poll_weeks_left_&rdquo;, 0:30)
+colnames(d_poll_weeks_train)[3:33] &lt;- paste0(&ldquo;poll_weeks_left_&rdquo;, 0:30)
+colnames(d_poll_weeks_test)[3:33] &lt;- paste0(&ldquo;poll_weeks_left_&rdquo;, 0:30)</p>
+<h1 id="comparison-of-ols-and-regularized-regression-methods">Comparison of OLS and regularized regression methods.</h1>
+<p>ols.pollweeks &lt;- lm(paste0(&ldquo;pv2p ~ &ldquo;, paste0( &ldquo;poll_weeks_left_&rdquo;, 0:30, collapse = &quot; + &ldquo;)),
+data = d_poll_weeks_train)
+summary(ols.pollweeks) # N.B. Inestimable: p (31) &gt; n (30)!</p>
+<h1 id="separate-data-into-x-and-y-for-training">Separate data into X and Y for training.</h1>
+<p>x.train &lt;- d_poll_weeks_train |&gt;
+ungroup() |&gt;
+select(all_of(starts_with(&ldquo;poll_weeks_left_&rdquo;))) |&gt;
+as.matrix()
+y.train &lt;- d_poll_weeks_train$pv2p</p>
+<h1 id="ridge">Ridge.</h1>
+<p>ridge.pollsweeks &lt;- glmnet(x = x.train, y = y.train, alpha = 0) # Set ridge using alpha = 0.</p>
+<h1 id="visualize-shrinkage">Visualize shrinkage.</h1>
+<p>plot(ridge.pollsweeks, xvar = &ldquo;lambda&rdquo;)</p>
+<h1 id="get-particular-coefficients">Get particular coefficients.</h1>
+<p>coef(ridge.pollsweeks, s = 0.1)</p>
+<h1 id="lasso">Lasso.</h1>
+<p>lasso.pollsweeks &lt;- glmnet(x = x.train, y = y.train, alpha = 1) # Set lasso using alpha = 1.</p>
+<h1 id="visualize-shrinkage-1">Visualize shrinkage.</h1>
+<p>plot(lasso.pollsweeks, xvar = &ldquo;lambda&rdquo;)</p>
+<h1 id="get-particular-coefficients-1">Get particular coefficients.</h1>
+<p>coef(lasso.pollsweeks, s = 0.1)</p>
+<h1 id="elastic-net">Elastic net.</h1>
+<p>enet.pollsweeks &lt;- glmnet(x = x.train, y = y.train, alpha = 0.5) # Set elastic net using alpha = 0.5.</p>
+<h1 id="visualize-shrinkage-2">Visualize shrinkage.</h1>
+<p>plot(enet.pollsweeks, xvar = &ldquo;lambda&rdquo;)</p>
+<h1 id="can-use-cross-validated-versions-to-find-the-optimal-values-of-lambda-that-minimize-the-mse-of-your-predictions">Can use cross-validated versions to find the optimal values of lambda that minimize the MSE of your predictions.</h1>
+<h1 id="nb-use-setseed-and-your-favorite-number-eg-12345-02138-before-each-cvany-stochastic-call-if-you-want-your-results-to-be-stable">N.B. Use set.seed() and your favorite number e.g., 12345, 02138, before each CV/any stochastic call if you want your results to be stable.</h1>
+<p>cv.ridge.pollweeks &lt;- cv.glmnet(x = x.train, y = y.train, alpha = 0)
+cv.lasso.pollweeks &lt;- cv.glmnet(x = x.train, y = y.train, alpha = 1)
+cv.enet.pollweeks &lt;- cv.glmnet(x = x.train, y = y.train, alpha = 0.5)</p>
+<h1 id="get-minimum-lambda-values">Get minimum lambda values</h1>
+<p>lambda.min.ridge &lt;- cv.ridge.pollweeks$lambda.min
+lambda.min.lasso &lt;- cv.lasso.pollweeks$lambda.min
+lambda.min.enet &lt;- cv.enet.pollweeks$lambda.min</p>
+<h1 id="predict-on-training-data-using-lambda-values-that-minimize-mse">Predict on training data using lambda values that minimize MSE.</h1>
+<p>(mse.ridge &lt;- mean((predict(ridge.pollsweeks, s = lambda.min.ridge, newx = x.train) - y.train)^2))
+(mse.lasso &lt;- mean((predict(lasso.pollsweeks, s = lambda.min.lasso, newx = x.train) - y.train)^2))
+(mse.enet &lt;- mean((predict(enet.pollsweeks, s = lambda.min.enet, newx = x.train) - y.train)^2))</p>
+<h1 id="generate-plot-comparing-coefficients-for-each-of-the-weeks">Generate plot comparing coefficients for each of the weeks.</h1>
+<p>d.coefplot &lt;- data.frame(&ldquo;OLS&rdquo; = coef(ols.pollweeks)[-1],
+&ldquo;Ridge&rdquo; = coef(ridge.pollsweeks, s = lambda.min.ridge)[-1],
+&ldquo;Lasso&rdquo; = coef(lasso.pollsweeks, s = lambda.min.lasso)[-1],
+&ldquo;Elastic Net&rdquo; = coef(enet.pollsweeks, s = lambda.min.enet)[-1]) |&gt;
+rownames_to_column(&ldquo;coef_name&rdquo;) |&gt;
+pivot_longer(cols = -coef_name, names_to = &ldquo;method&rdquo;, values_to = &ldquo;coef_est&rdquo;) |&gt;
+mutate(week = rep(0:30, each = 4))</p>
+<p>d.coefplot[which(is.na(d.coefplot$coef_est)),]$coef_est &lt;- 0</p>
+<p>d.coefplot |&gt;
+ggplot(aes(x = coef_est, y = reorder(coef_name, -week), color = method)) +
+geom_segment(aes(xend = 0, yend = reorder(coef_name, -week)), alpha = 0.5, lty = &ldquo;dashed&rdquo;) +
+geom_vline(aes(xintercept = 0), lty = &ldquo;dashed&rdquo;) +<br>
+geom_point() +
+labs(x = &ldquo;Coefficient Estimate&rdquo;,
+y = &ldquo;Coefficient Name&rdquo;,
+title = &ldquo;Comparison of Coefficients Across Regularization Methods&rdquo;) +
+theme_classic()</p>
+<h1 id="first-check-how-many-weeks-of-polling-we-have-for-2024">First check how many weeks of polling we have for 2024.</h1>
+<p>d_pollav_natl |&gt;
+filter(year == 2024) |&gt;
+select(weeks_left) |&gt;
+distinct() |&gt;
+range() # Let&rsquo;s take week 30 - 7 as predictors since those are the weeks we have polling data for 2024 and historically.</p>
+<p>x.train &lt;- d_poll_weeks_train |&gt;
+ungroup() |&gt;
+select(all_of(paste0(&ldquo;poll_weeks_left_&rdquo;, 7:30))) |&gt;
+as.matrix()
+y.train &lt;- d_poll_weeks_train$pv2p
+x.test &lt;- d_poll_weeks_test |&gt;
+ungroup() |&gt;
+select(all_of(paste0(&ldquo;poll_weeks_left_&rdquo;, 7:30))) |&gt;
+as.matrix()</p>
+<h1 id="using-elastic-net-for-simplicity">Using elastic-net for simplicity.</h1>
+<p>set.seed(02138)
+enet.poll &lt;- cv.glmnet(x = x.train, y = y.train, alpha = 0.5)
+lambda.min.enet.poll &lt;- enet.poll$lambda.min</p>
+<h1 id="predict-2024-national-pv2p-share-using-elastic-net">Predict 2024 national pv2p share using elastic-net.</h1>
+<p>(polls.pred &lt;- predict(enet.poll, s = lambda.min.enet.poll, newx = x.test))</p>
+<h1 id="harris-518">Harris: 51.8%</h1>
+<h1 id="trump-507">Trump: 50.7%</h1>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h4 id="model-ensembling">Model ensembling.</h4>
+<p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
+<h1 id="estimate-models-using-polls-alone-fundamentals-alone-and-combined-fundamentals-and-polls">Estimate models using polls alone, fundamentals alone, and combined fundamentals and polls.</h1>
+<h1 id="read-economic-data">Read economic data.</h1>
+<p>d_econ &lt;- read_csv(&ldquo;fred_econ.csv&rdquo;) |&gt;
+filter(quarter == 2)</p>
+<h1 id="combine-datasets-and-create-vote-lags">Combine datasets and create vote lags.</h1>
+<p>d_combined &lt;- d_econ |&gt;
+left_join(d_poll_weeks, by = &ldquo;year&rdquo;) |&gt;
+filter(year %in% c(unique(d_vote$year), 2024)) |&gt;
+group_by(party) |&gt;
+mutate(pv2p_lag1 = lag(pv2p, 1),
+pv2p_lag2 = lag(pv2p, 2)) |&gt;
+ungroup() |&gt;
+mutate(gdp_growth_x_incumbent = GDP_growth_quarterly * incumbent,
+rdpi_growth_quarterly = RDPI_growth_quarterly * incumbent,
+cpi_x_incumbent = CPI * incumbent,
+unemployment_x_incumbent = unemployment * incumbent,
+sp500_x_incumbent = sp500_close * incumbent) # Generate interaction effects.</p>
+<h1 id="create-fundamentals-only-dataset-and-split-into-training-and-test-sets">Create fundamentals-only dataset and split into training and test sets.</h1>
+<p>d_fund &lt;- d_combined |&gt;
+select(&ldquo;year&rdquo;, &ldquo;pv2p&rdquo;, &ldquo;GDP&rdquo;, &ldquo;GDP_growth_quarterly&rdquo;, &ldquo;RDPI&rdquo;, &ldquo;RDPI_growth_quarterly&rdquo;, &ldquo;CPI&rdquo;, &ldquo;unemployment&rdquo;, &ldquo;sp500_close&rdquo;,
+&ldquo;incumbent&rdquo;, &ldquo;gdp_growth_x_incumbent&rdquo;, &ldquo;rdpi_growth_quarterly&rdquo;, &ldquo;cpi_x_incumbent&rdquo;, &ldquo;unemployment_x_incumbent&rdquo;, &ldquo;sp500_x_incumbent&rdquo;,
+&ldquo;pv2p_lag1&rdquo;, &ldquo;pv2p_lag2&rdquo;)
+x.train.fund &lt;- d_fund |&gt;
+filter(year &lt;= 2020) |&gt;
+select(-c(year, pv2p)) |&gt;
+slice(-c(1:9)) |&gt;
+as.matrix()
+y.train.fund &lt;- d_fund |&gt;
+filter(year &lt;= 2020) |&gt;
+select(pv2p) |&gt;
+slice(-c(1:9)) |&gt;
+as.matrix()
+x.test.fund &lt;- d_fund |&gt;
+filter(year == 2024) |&gt;
+select(-c(year, pv2p)) |&gt;
+drop_na() |&gt;
+as.matrix()</p>
+<h1 id="estimate-elastic-net-using-fundamental-variables-only">Estimate elastic-net using fundamental variables only.</h1>
+<p>set.seed(02138)
+enet.fund &lt;- cv.glmnet(x = x.train.fund, y = y.train.fund, intercept = FALSE, alpha = 0.5)
+lambda.min.enet.fund &lt;- enet.fund$lambda.min</p>
+<h1 id="predict-2024-national-pv2p-share-using-elastic-net-1">Predict 2024 national pv2p share using elastic-net.</h1>
+<p>(fund.pred &lt;- predict(enet.fund, s = lambda.min.enet.fund, newx = x.test.fund))</p>
+<h1 id="sequester-data-for-combined-model">Sequester data for combined model.</h1>
+<p>d_combo &lt;- d_combined |&gt;
+select(&ldquo;year&rdquo;, &ldquo;pv2p&rdquo;, &ldquo;GDP&rdquo;, &ldquo;GDP_growth_quarterly&rdquo;, &ldquo;RDPI&rdquo;, &ldquo;RDPI_growth_quarterly&rdquo;, &ldquo;CPI&rdquo;, &ldquo;unemployment&rdquo;, &ldquo;sp500_close&rdquo;,
+&ldquo;incumbent&rdquo;, &ldquo;gdp_growth_x_incumbent&rdquo;, &ldquo;rdpi_growth_quarterly&rdquo;, &ldquo;cpi_x_incumbent&rdquo;, &ldquo;unemployment_x_incumbent&rdquo;, &ldquo;sp500_x_incumbent&rdquo;,
+&ldquo;pv2p_lag1&rdquo;, &ldquo;pv2p_lag2&rdquo;, all_of(paste0(&ldquo;poll_weeks_left_&rdquo;, 7:30)))</p>
+<p>x.train.combined &lt;- d_combo |&gt;
+filter(year &lt;= 2020) |&gt;
+select(-c(year, pv2p)) |&gt;
+slice(-c(1:9)) |&gt;
+as.matrix()
+y.train.combined &lt;- d_combo |&gt;
+filter(year &lt;= 2020) |&gt;
+select(pv2p) |&gt;
+slice(-c(1:9)) |&gt;
+as.matrix()
+x.test.combined &lt;- d_combo |&gt;
+filter(year == 2024) |&gt;
+select(-c(year, pv2p)) |&gt;
+drop_na() |&gt;
+as.matrix()</p>
+<h1 id="estimate-combined-model">Estimate combined model.</h1>
+<p>set.seed(02138)
+enet.combined &lt;- cv.glmnet(x = x.train.combined, y = y.train.combined, intercept = FALSE, alpha = 0.5)
+lambda.min.enet.combined &lt;- enet.combined$lambda.min</p>
+<h1 id="predict-2024-national-pv2p-share-using-elastic-net-2">Predict 2024 national pv2p share using elastic-net.</h1>
+<p>(combo.pred &lt;- predict(enet.combined, s = lambda.min.enet.combined, newx = x.test.combined))</p>
+<h1 id="ensemble-1-predict-based-on-unweighted-or-equally-weighted-ensemble-model-between-polls-and-fundamentals-models">Ensemble 1: Predict based on unweighted (or equally weighted) ensemble model between polls and fundamentals models.</h1>
+<p>(unweighted.ensemble.pred &lt;- (polls.pred + fund.pred)/2)</p>
+<h1 id="ensemble-2-weight-based-on-polls-mattering-closer-to-november-nate-silver">Ensemble 2: Weight based on polls mattering closer to November. (Nate Silver)</h1>
+<p>election_day_2024 &lt;- &ldquo;2024-11-05&rdquo;
+today &lt;- &ldquo;2024-09-18&rdquo;
+days_left &lt;- as.numeric(as.Date(election_day_2024) - as.Date(today))</p>
+<p>(poll_model_weight &lt;- 1- (1/sqrt(days_left)))
+(fund_model_weight &lt;- 1/sqrt(days_left))</p>
+<p>(ensemble.2.pred &lt;- polls.pred * poll_model_weight + fund.pred * fund_model_weight)</p>
+<h1 id="ensemble-3-weight-based-on-fundamentals-mattering-closer-to-november-gelman--king-1993">Ensemble 3. Weight based on fundamentals mattering closer to November. (Gelman &amp; King, 1993)</h1>
+<p>(poll_model_weight &lt;- 1/sqrt(days_left))
+(fund_model_weight &lt;- 1-(1/sqrt(days_left)))</p>
+<p>(ensemble.3.pred &lt;- polls.pred * poll_model_weight + fund.pred * fund_model_weight)</p>
+
+</main>
+
+  <footer>
+  <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/katex/dist/katex.min.css">
+<script src="//cdn.jsdelivr.net/combine/npm/katex/dist/katex.min.js,npm/katex/dist/contrib/auto-render.min.js,npm/@xiee/utils/js/render-katex.js" defer></script>
+
+<script src="//cdn.jsdelivr.net/npm/@xiee/utils/js/center-img.min.js" defer></script>
+
+  
+  </footer>
+  </body>
+</html>
+
