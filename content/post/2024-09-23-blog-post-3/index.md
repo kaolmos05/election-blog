@@ -27,11 +27,12 @@ The quality of a forecast for state-level predictions is as good as the quality 
 
 Despite the differences in the models, both forecast models leverage polling averages and fundamentals to predict the outcome. Both models weigh the polls differently based on sample size, date, and the quality of the pollster. 
 
-Which model is better? I understand why Morris made the changes he did for the forecast model and the reasoning behind these changes seems sound but Silver’s model has been around and refined for longer. Morris’ model is completely new. One thing that Morris’ model did not address thoroughly is the effect of third party candidates on the forecast. 
+Which model is better? I understand why Morris made the changes he did for the forecast model and the reasoning behind these changes seems sound but Silver’s model has been around and refined for longer. Morris’ model is completely new. One thing that Morris’ model did not address thoroughly is the effect of third party candidates on the forecast. It may not mean much for this election because RFK Jr. has pulled out of the race and because the electorate is becoming more calcified. 
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-3.png" width="672" />
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/2024-polling-averages-3.png" width="672" />
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/more-polling-averages-1.png" width="672" />
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-2.png" width="672" />
 
