@@ -6,7 +6,7 @@ slug: blog-post-3
 categories: []
 tags: []
 ---
-```{r echo=FALSE}
+```{r setup chunk, echo=FALSE}
 
 # Load libraries.
 ## install via `install.packages("name")`
@@ -23,7 +23,7 @@ library(ggplot2)
 # setwd("~")
 ```
 
-```{r echo=FALSE}
+```{r processing-data, echo=FALSE}
 ####----------------------------------------------------------#
 #### Read, merge, and process data.
 ####----------------------------------------------------------#
@@ -32,7 +32,7 @@ library(ggplot2)
 d_pollav_natl <- read_csv("national_polls_1968-2024.csv")
 d_pollav_state <- read_csv("state_polls_1968-2024.csv")
 ```
-```{r echo=FALSE}
+```{r 2024-polling-averages, echo=FALSE}
 
 
 ####----------------------------------------------------------#
@@ -108,12 +108,13 @@ d_pollav_natl |>
   scale_color_manual(values = c("dodgerblue4", "firebrick1")) +
   labs(x = "Date",
        y = "Average Poll Approval", 
-       title = "Polling Averages by Date, 2020 (with Game Changers?)") + 
+       title = "Polling Averages by Date, 2020 (with Game Changers?)",
+       caption = "Graph 1") + 
   theme_classic()
 
 ```
 
-```{r echo=FALSE}
+```{r more-polling-averages, echo=FALSE}
 # Plot 4. Poll Averages and "Game Changers" for 1988
 d_pollav_natl |>
   filter(year == 1988) |>
@@ -136,7 +137,8 @@ d_pollav_natl |>
   scale_color_manual(values = c("dodgerblue4","firebrick1")) +
   labs(x = "Date",
        y = "Average Poll Approval", 
-       title = "Polling Averages by Date, 1988 (with Game Changers?)") + 
+       title = "Polling Averages by Date, 1988 (with Game Changers?)",
+       caption = "Graph 2") + 
   theme_classic()
 
 # Plot 5. Poll Averages for 2024
@@ -149,11 +151,12 @@ d_pollav_natl |>
   scale_color_manual(values = c("dodgerblue4", "firebrick1")) +
   labs(x = "Date",
        y = "Average Poll Approval", 
-       title = "Polling Averages by Date, 2024") + 
+       title = "Polling Averages by Date, 2024", 
+       caption = "Graph 3") + 
   theme_classic()
 
 ```
-```{r echo = FALSE}
+```{r regularization, echo = FALSE}
 
 ####----------------------------------------------------------#
 #### Regularized regression with polling data.
@@ -306,7 +309,7 @@ lambda.min.enet.poll <- enet.poll$lambda.min
 
 ```
 
-```{r echo = FALSE}
+```{r model-ensembling, echo = FALSE}
 
 ####----------------------------------------------------------#
 #### Model ensembling.
@@ -329,28 +332,40 @@ d_combined <- d_econ |>
          rdpi_growth_quarterly = RDPI_growth_quarterly * incumbent,
          cpi_x_incumbent = CPI * incumbent,
          unemployment_x_incumbent = unemployment * incumbent,
-         sp500_x_incumbent = sp500_close * incumbent) # Generate interaction effects.
+         sp500_x_incumbent = sp500_close * incumbent) |>
+  drop_na()
+
+d_combined
+# Generate interaction effects.
+
 
 # Create fundamentals-only dataset and split into training and test sets. 
 d_fund <- d_combined |> 
-  select("year", "pv2p", "GDP", "GDP_growth_quarterly", "RDPI", "RDPI_growth_quarterly", "CPI", "unemployment", "sp500_close",
-         "incumbent", "gdp_growth_x_incumbent", "rdpi_growth_quarterly", "cpi_x_incumbent", "unemployment_x_incumbent", "sp500_x_incumbent", 
+  select("year", "pv2p", "GDP", "GDP_growth_quarterly", "RDPI",
+         "RDPI_growth_quarterly", "CPI", "unemployment", "sp500_close",
+         "incumbent", "gdp_growth_x_incumbent", "rdpi_growth_quarterly",
+         "cpi_x_incumbent", "unemployment_x_incumbent", "sp500_x_incumbent",
          "pv2p_lag1", "pv2p_lag2") 
+
 x.train.fund <- d_fund |> 
   filter(year <= 2020) |>
   select(-c(year, pv2p)) |> 
   slice(-c(1:9)) |> 
   as.matrix()
+
 y.train.fund <- d_fund |> 
   filter(year <= 2020) |> 
   select(pv2p) |> 
   slice(-c(1:9)) |> 
   as.matrix()
+
 x.test.fund <- d_fund |> 
   filter(year == 2024) |> 
   select(-c(year, pv2p)) |> 
   drop_na() |> 
   as.matrix()
+
+x.test.fund
 
 # Estimate elastic-net using fundamental variables only.
 set.seed(02138)
@@ -381,7 +396,11 @@ x.test.combined <- d_combo |>
   select(-c(year, pv2p)) |> 
   drop_na() |> 
   as.matrix()
-  
+```
+
+
+```{r ensemble, echo= FALSE}
+
 # Estimate combined model.
 set.seed(02138)
 enet.combined <- cv.glmnet(x = x.train.combined, y = y.train.combined, intercept = FALSE, alpha = 0.5)
@@ -390,10 +409,13 @@ lambda.min.enet.combined <- enet.combined$lambda.min
 # Predict 2024 national pv2p share using elastic-net.
 (combo.pred <- predict(enet.combined, s = lambda.min.enet.combined, newx = x.test.combined))
 
+polls.pred <- as.numeric(polls.pred)
+fund.pred <- as.numeric(fund.pred)
 
 # Ensemble 1: Predict based on unweighted (or equally weighted) ensemble model between polls and fundamentals models. 
-(unweighted.ensemble.pred <- (polls.pred + fund.pred)/2)
+unweighted.ensemble.pred <- (polls.pred + fund.pred)/2
 
+unweighted.ensemble.pred
 # Ensemble 2: Weight based on polls mattering closer to November. (Nate Silver)
 election_day_2024 <- "2024-11-05"
 today <- "2024-09-18"
@@ -402,13 +424,16 @@ days_left <- as.numeric(as.Date(election_day_2024) - as.Date(today))
 (poll_model_weight <- 1- (1/sqrt(days_left)))
 (fund_model_weight <- 1/sqrt(days_left))
 
-(ensemble.2.pred <- polls.pred * poll_model_weight + fund.pred * fund_model_weight)  
+(ensemble.2.pred <- polls.pred * poll_model_weight + fund.pred * fund_model_weight)
+ensemble.2.pred
 
 # Ensemble 3. Weight based on fundamentals mattering closer to November. (Gelman & King, 1993)
 (poll_model_weight <- 1/sqrt(days_left))
 (fund_model_weight <- 1-(1/sqrt(days_left)))
 
 (ensemble.3.pred <- polls.pred * poll_model_weight + fund.pred * fund_model_weight)
+
+ensemble.3.pred
 ```
 
 
