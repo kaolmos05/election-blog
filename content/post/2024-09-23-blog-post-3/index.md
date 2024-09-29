@@ -7,7 +7,7 @@ categories: []
 tags: []
 ---
 
-```
+```{r setup chunk, echo=FALSE}
 ## Loading required package: carData
 ```
 
