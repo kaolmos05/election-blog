@@ -314,11 +314,11 @@ tags: []
 ```
 
 ```
-## [1] 1.965488
+## [1] 3.61215
 ```
 
 ```
-## [1] 4.716646
+## [1] 4.021314
 ```
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/regularization-4.png" width="672" />
