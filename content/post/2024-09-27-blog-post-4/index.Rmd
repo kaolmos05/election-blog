@@ -416,13 +416,24 @@ d_expert |>
   select(cook_correct, sabato_correct) |> 
   colMeans()
 
-d_expert |> 
+# Summarize the data
+d_expert_summary <- d_expert |> 
   group_by(year) |> 
-  summarize(mean_cook_correct = mean(cook_correct),
-            mean_sabato_correct = mean(sabato_correct))
+  summarize(
+    mean_cook_correct = mean(cook_correct),
+    mean_sabato_correct = mean(sabato_correct)
+  )
 
-# How can we incorporate expert predictions into our models? 
-# TODO: 
+# Create the table using kable
+expert_pred_table <- data.frame(
+  "Year" = d_expert_summary$year,
+  "Mean Cook Correct" = d_expert_summary$mean_cook_correct,
+  "Mean Sabato Correct" = d_expert_summary$mean_sabato_correct
+)
+
+knitr::kable(expert_pred_table, caption = "Expert Predictions Summary by Year")
+
+
 ```
 
 ```{r ensembling, echo=FALSE}
@@ -637,6 +648,13 @@ ensemble_pred <- ensemble_pred |>
   mutate(winner = ifelse(pred > 50, "D", "R"))
 
 ensemble_pred
+
+# Create a table for state-level predictions
+state_pred_table <- data.frame("State" = ensemble_pred$state,
+  "Prediction" = ensemble_pred$pred,
+  "Winner" = ensemble_pred$winner)
+
+knitr::kable(state_pred_table, caption = "State-Level Predictions")
 
 # Merge with electoral college dataset and make plots. 
 # TODO: 
