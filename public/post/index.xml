@@ -6,28 +6,28 @@
     <description>Recent content in Posts on A minimal Hugo website</description>
     <generator>Hugo</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 27 Sep 2024 00:00:00 +0000</lastBuildDate>
+    <lastBuildDate>Tue, 01 Oct 2024 00:00:00 +0000</lastBuildDate>
     <atom:link href="https://example.org/post/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Blog Post 4</title>
-      <link>https://example.org/post/2024/09/27/blog-post-4/</link>
-      <pubDate>Fri, 27 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>https://example.org/post/2024/09/27/blog-post-4/</guid>
-      <description>&lt;p&gt;Blog Post&lt;/p&gt;</description>
+      <link>https://example.org/post/2024/10/01/blog-post-4/</link>
+      <pubDate>Tue, 01 Oct 2024 00:00:00 +0000</pubDate>
+      <guid>https://example.org/post/2024/10/01/blog-post-4/</guid>
+      <description></description>
     </item>
     <item>
       <title>Blog Post 3</title>
       <link>https://example.org/post/2024/09/23/blog-post-3/</link>
       <pubDate>Mon, 23 Sep 2024 00:00:00 +0000</pubDate>
       <guid>https://example.org/post/2024/09/23/blog-post-3/</guid>
-      <description>&lt;p&gt;#&amp;rsquo; @title GOV 1347: Week 3 (Polling) Laboratory Session&#xA;#&amp;rsquo; @author Matthew E. Dardet&#xA;#&amp;rsquo; @date September 18, 2024&lt;/p&gt;&#xA;&lt;p&gt;####&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-#&lt;/p&gt;&#xA;&lt;h4 id=&#34;preamble&#34;&gt;Preamble&lt;/h4&gt;&#xA;&lt;p&gt;####&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;ndash;7&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;ndash;#&lt;/p&gt;&#xA;&lt;h1 id=&#34;load-libraries&#34;&gt;Load libraries.&lt;/h1&gt;&#xA;&lt;h2 id=&#34;install-via-installpackagesname&#34;&gt;install via &lt;code&gt;install.packages(&amp;quot;name&amp;quot;)&lt;/code&gt;&lt;/h2&gt;&#xA;&lt;p&gt;library(car)&#xA;library(caret)&#xA;library(CVXR)&#xA;library(glmnet)&#xA;library(tidyverse)&#xA;library(readr)&#xA;library(ggplot2)&lt;/p&gt;&#xA;&lt;h2 id=&#34;set-working-directory-here&#34;&gt;set working directory here&lt;/h2&gt;&#xA;&lt;h1 id=&#34;setwd&#34;&gt;setwd(&amp;quot;~&amp;quot;)&lt;/h1&gt;&#xA;&lt;p&gt;####&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-#&lt;/p&gt;&#xA;&lt;h4 id=&#34;read-merge-and-process-data&#34;&gt;Read, merge, and process data.&lt;/h4&gt;&#xA;&lt;p&gt;####&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;&amp;mdash;-#&lt;/p&gt;&#xA;&lt;h1 id=&#34;read-data-processed-fivethirtyeight-polling-average-datasets&#34;&gt;Read data (processed FiveThirtyEight polling average datasets).&lt;/h1&gt;&#xA;&lt;p&gt;d_pollav_natl &amp;lt;- read_csv(&amp;ldquo;national_polls_1968-2024.csv&amp;rdquo;)&#xA;d_pollav_state &amp;lt;- read_csv(&amp;ldquo;state_polls_1968-2024.csv&amp;rdquo;)&lt;/p&gt;</description>
+      <description>&lt;p&gt;This Week&amp;rsquo;s Objective: Compare and contrast Silver (2024) and Morris (2024). Which approach is better?&lt;/p&gt;&#xA;&lt;p&gt;Nate Silver makes some updates to the 2024 presidential election forecast model. One of the biggest changes to the model from the 2020 presidential election is the removal of COVID-19 effects and its impact on other variables in the model such as the convention bounce–boost in the polls for presidential candidates after the convention. In 2020, the conventions were held virtually and likely drew less excitement for the candidates.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Blog Post II</title>
       <link>https://example.org/post/2024/09/16/blog-post-ii/</link>
       <pubDate>Mon, 16 Sep 2024 00:00:00 +0000</pubDate>
       <guid>https://example.org/post/2024/09/16/blog-post-ii/</guid>
-      <description>&lt;p&gt;@title GOV 1347: Week 2 (Economics) Laboratory Session&#xA;@author Matthew E. Dardet&#xA;@date September 10, 2024&lt;/p&gt;&#xA;&lt;p&gt;Date: September, 16, 2024&lt;/p&gt;&#xA;&lt;p&gt;This Week&amp;rsquo;s Question: Can we predict election outcomes using only the state of the economy? If so, how well?&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;## Loading required package: carData&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;pre&gt;&lt;code&gt;## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──&#xA;## ✔ dplyr     1.1.3     ✔ readr     2.1.4&#xA;## ✔ forcats   1.0.0     ✔ stringr   1.5.0&#xA;## ✔ ggplot2   3.4.3     ✔ tibble    3.2.1&#xA;## ✔ lubridate 1.9.2     ✔ tidyr     1.3.0&#xA;## ✔ purrr     1.0.2     &#xA;## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──&#xA;## ✖ dplyr::filter() masks stats::filter()&#xA;## ✖ dplyr::lag()    masks stats::lag()&#xA;## ✖ dplyr::recode() masks car::recode()&#xA;## ✖ purrr::some()   masks car::some()&#xA;## ℹ Use the conflicted package (&amp;lt;http://conflicted.r-lib.org/&amp;gt;) to force all conflicts to become errors&#xA;&lt;/code&gt;&lt;/pr</description>
+      <description>&lt;p&gt;Date: September, 16, 2024&lt;/p&gt;&#xA;&lt;p&gt;This Week&amp;rsquo;s Question: Can we predict election outcomes using only the state of the economy? If so, how well?&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;## Loading required package: carData&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;pre&gt;&lt;code&gt;## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──&#xA;## ✔ dplyr     1.1.3     ✔ readr     2.1.4&#xA;## ✔ forcats   1.0.0     ✔ stringr   1.5.0&#xA;## ✔ ggplot2   3.4.3     ✔ tibble    3.2.1&#xA;## ✔ lubridate 1.9.2     ✔ tidyr     1.3.0&#xA;## ✔ purrr     1.0.2     &#xA;## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──&#xA;## ✖ dplyr::filter() masks stats::filter()&#xA;## ✖ dplyr::lag()    masks stats::lag()&#xA;## ✖ dplyr::recode() masks car::recode()&#xA;## ✖ purrr::some()   masks car::some()&#xA;## ℹ Use the conflicted package (&amp;lt;http://conflicted.r-lib.org/&amp;gt;) to force all conflicts to become errors&#xA;&lt;/code&gt;&lt;/pr</description>
     </item>
     <item>
       <title>Blog Post 1</title>
