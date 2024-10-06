@@ -26,100 +26,6 @@
 </div>
 
 <main>
-<pre><code>## Loading required package: carData
-</code></pre>
-<pre><code>## Loading required package: ggplot2
-</code></pre>
-<pre><code>## Loading required package: lattice
-</code></pre>
-<pre><code>## 
-## Attaching package: 'CVXR'
-</code></pre>
-<pre><code>## The following object is masked from 'package:stats':
-## 
-##     power
-</code></pre>
-<pre><code>## Loading required package: Matrix
-</code></pre>
-<pre><code>## Loaded glmnet 4.1-8
-</code></pre>
-<pre><code>## Linking to GEOS 3.11.0, GDAL 3.5.3, PROJ 9.1.0; sf_use_s2() is TRUE
-</code></pre>
-<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-## ✔ lubridate 1.9.3     ✔ tibble    3.2.1
-## ✔ purrr     1.0.2     ✔ tidyr     1.3.1
-## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ tidyr::expand()     masks Matrix::expand()
-## ✖ dplyr::filter()     masks stats::filter()
-## ✖ dplyr::group_rows() masks kableExtra::group_rows()
-## ✖ dplyr::id()         masks CVXR::id()
-## ✖ purrr::is_vector()  masks CVXR::is_vector()
-## ✖ dplyr::lag()        masks stats::lag()
-## ✖ purrr::lift()       masks caret::lift()
-## ✖ purrr::map()        masks maps::map()
-## ✖ tidyr::pack()       masks Matrix::pack()
-## ✖ dplyr::recode()     masks car::recode()
-## ✖ purrr::some()       masks car::some()
-## ✖ tidyr::unpack()     masks Matrix::unpack()
-## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors
-## Loading required package: viridisLite
-## 
-## 
-## Attaching package: 'viridis'
-## 
-## 
-## The following object is masked from 'package:maps':
-## 
-##     unemp
-</code></pre>
-<pre><code>## Rows: 38 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (2): party, candidate
-## dbl (3): year, pv, pv2p
-## lgl (4): winner, incumbent, incumbent_party, prev_admin
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 959 Columns: 14
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (1): state
-## dbl (13): year, D_pv, R_pv, D_pv2p, R_pv2p, D_pv_lag1, R_pv_lag1, D_pv2p_lag...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 387 Columns: 14
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## dbl (14): year, quarter, GDP, GDP_growth_quarterly, RDPI, RDPI_growth_quarte...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 7378 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (3): state, party, candidate
-## dbl  (4): year, weeks_left, days_left, poll_support
-## lgl  (1): before_convention
-## date (1): poll_date
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 204564 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (3): state, party, candidate
-## dbl  (4): year, weeks_left, days_left, poll_support
-## lgl  (1): before_convention
-## date (1): poll_date
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## `summarise()` has grouped output by 'year', 'party'. You can override using the `.groups` argument.
-</code></pre>
 <pre><code>##   reelect_president  N Percent
 ## 1             FALSE 12   66.67
 ## 2              TRUE  6   33.33
@@ -144,25 +50,7 @@
 ## FALSE  TRUE 
 ## 72.22 27.78
 </code></pre>
-<pre><code>## Rows: 1251 Columns: 7
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr (3): state_abb, state_year_type, state_year_type2
-## dbl (4): year, elxn_year, grant_mil, state_incvote_avglast3
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-</code></pre>
 <p><img src="/post/2024/10/01/blog-post-4/index_files/figure-html/pork-analysis-1.png" width="672" /><img src="/post/2024/10/01/blog-post-4/index_files/figure-html/pork-analysis-2.png" width="672" /></p>
-<pre><code>## Rows: 18465 Columns: 16
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## chr  (3): state, county, state_abb
-## dbl (13): year, state_FIPS, county_FIPS, dvoteswing_inc, dpct_grants, dpc_in...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-</code></pre>
 <pre><code>## 
 ## Call:
 ## lm(formula = dvoteswing_inc ~ dpct_grants * comp_state + as.factor(year), 
@@ -226,12 +114,6 @@
 ##   (506 observations deleted due to missingness)
 ## Multiple R-squared:  0.4199,	Adjusted R-squared:  0.4194 
 ## F-statistic: 865.9 on 15 and 17943 DF,  p-value: &lt; 2.2e-16
-</code></pre>
-<pre><code>## Warning in left_join(inner_join(mutate(d_state_vote, state_abb = state.abb[match(d_state_vote$state, : Detected an unexpected many-to-many relationship between `x` and `y`.
-## ℹ Row 1 of `x` matches multiple rows in `y`.
-## ℹ Row 19 of `y` matches multiple rows in `x`.
-## ℹ If a many-to-many relationship is expected, set `relationship =
-##   &quot;many-to-many&quot;` to silence this warning.
 </code></pre>
 <pre><code>## 
 ## Call:
@@ -305,31 +187,6 @@
 ## Multiple R-squared:  0.01018,	Adjusted R-squared:  -0.0723 
 ## F-statistic: 0.1235 on 1 and 12 DF,  p-value: 0.7314
 </code></pre>
-<pre><code>## New names:
-## Rows: 474 Columns: 26
-## ── Column specification
-## ──────────────────────────────────────────────────────── Delimiter: &quot;,&quot; chr
-## (15): Office, Abbreviation, Rating, PluralityParty, RepCandidate, RepSta... dbl
-## (6): ...1, Cycle, RepVotesMajorPercent, DemVotesMajorPercent, ThirdVote... num
-## (3): RepVotes, DemVotes, PluralityVotes lgl (2): Raw, Incumbent.Party
-## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
-## Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 306 Columns: 3
-## ── Column specification
-## ──────────────────────────────────────────────────────── Delimiter: &quot;,&quot; chr
-## (1): state dbl (2): year, rating
-## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
-## Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## • `` -&gt; `...1`
-</code></pre>
-<pre><code>## 
-##  0  1 
-##  9 42
-</code></pre>
-<pre><code>## [1] &quot;Florida&quot;        &quot;Georgia&quot;        &quot;Iowa&quot;           &quot;Minnesota&quot;     
-## [5] &quot;New Hampshire&quot;  &quot;New Mexico&quot;     &quot;North Carolina&quot; &quot;Ohio&quot;          
-## [9] &quot;Texas&quot;
-</code></pre>
 <pre><code>## # A tibble: 9 × 4
 ##   state          cook_rating sabato_rating rating_match
 ##   &lt;chr&gt;                &lt;dbl&gt;         &lt;dbl&gt;        &lt;dbl&gt;
@@ -385,31 +242,10 @@
 </code></pre>
 <pre><code>## [1]  7 36
 </code></pre>
-<pre><code>## Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per
-## fold
-</code></pre>
 <pre><code>## Warning in cbind2(1, newx): number of rows of result is not a multiple of
 ## vector length (arg 1)
 </code></pre>
 <pre><code>##      s1
-</code></pre>
-<pre><code>## Rows: 387 Columns: 14
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: &quot;,&quot;
-## dbl (14): year, quarter, GDP, GDP_growth_quarterly, RDPI, RDPI_growth_quarte...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-</code></pre>
-<pre><code>## Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per
-## fold
-## Warning: number of rows of result is not a multiple of vector length (arg 1)
-</code></pre>
-<pre><code>##      s1
-</code></pre>
-<pre><code>## Warning: Option grouped=FALSE enforced in cv.glmnet, since &lt; 3 observations per
-## fold
-## Warning: number of rows of result is not a multiple of vector length (arg 1)
 </code></pre>
 <pre><code>##      s1
 </code></pre>
