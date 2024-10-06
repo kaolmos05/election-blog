@@ -7,7 +7,7 @@ categories: []
 tags: []
 ---
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/pork-analysis-1.png" width="672" /><img src="{{< blogdown/postref >}}index_files/figure-html/pork-analysis-2.png" width="672" />
+<img src="{{< blogdown/postref >}}index_files/figure-html/pork-analysis-1.png" width="900" /><img src="{{< blogdown/postref >}}index_files/figure-html/pork-analysis-2.png" width="900" />
 
 
 ```
