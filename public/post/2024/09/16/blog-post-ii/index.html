@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=4321&amp;path=livereload" data-no-instant defer></script>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Blog Post II | A minimal Hugo website</title>
@@ -122,14 +122,14 @@
 ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
 ##   variable into a factor?
 </code></pre>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
+<img src="https://example.org/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
 <pre><code>## Warning: The following aesthetics were dropped during statistical transformation: label
 ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
 ##   the data.
 ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
 ##   variable into a factor?
 </code></pre>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-2.png" width="672" />
+<img src="https://example.org/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-3-2.png" width="672" />
 <pre><code>## [1] 0.3248066
 </code></pre>
 <pre><code>## [1] 0.282607
@@ -146,7 +146,7 @@
 ## 1 -18.97913
 </code></pre>
 <p>The graphs demonstrate the correlations between Q2 GDP growth and incumbent vote 2-party vote share. One with 2020 as a data point and one without 2020 as a data point. Regardless, both graphs demonstrate the same trend, an increase in GDP in Q2 does correlate positively with an increase in the total vote share for the incumbent. What is interesting to point out is that when 2020 is removed as a data point the &ldquo;slope&rdquo; for GDP growth quarterly increases. It&rsquo;s coefficient is 0.7366 compared to 0.274 before removing 2020 as a data point which indicates to me that the GDP growth quarterly might be an outlier. A survey conducted by the Pew Research Center in 2020 shows that the top issue for voters in 2020 was the economy, which makes sense because 2020 was peak pandemic time and many had lost their job or had reduced hours. Additionally many Americans stayed home to mitigate the spread of COVID-19 but despite the importance of the economy, the incumbent overperformed despite the lowest GDP growth for Q2 in the past 80 years (<a href="https://www.pewresearch.org/politics/2020/08/13/important-issues-in-the-2020-election/)">https://www.pewresearch.org/politics/2020/08/13/important-issues-in-the-2020-election/)</a>. When looking at the graph above, the the incumbent received more of the total vote share than predicted. Generally though the trend exists but is not very strong because the adjusted R-squared value is 0.2826 whereas a 0.50 to 0.99 indicates greater fit.</p>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
+<img src="https://example.org/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-4-1.png" width="672" />
 <pre><code>## 
 ## Call:
 ## lm(formula = pv2p ~ unemployment, data = d_inc_econ_unemployment)
@@ -172,7 +172,7 @@
 ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
 ##   variable into a factor?
 </code></pre>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-4-2.png" width="672" />
+<img src="https://example.org/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-4-2.png" width="672" />
 <p>In the graph above, I performed an analysis on the correlation between the unemployment rate and the incumbent party&rsquo;s national popular vote share (%). What I found was a model that indicates that for every increase in 1% of unemployment, the incumbent party loses -0.3117 of a point in total vote share. The 2020 data point again seems to be an outlier and drags the trend down but without this data point there would be less correlation. The adjusted r-square value is -0.03901 which indicates that the unemployment rate does not explain much of the variation and thus this variable has a weak influence on the total vote share. However, I did find this journal article that argues that employment security is a powerful indicator of economic performance and thus the increase in unemployment should result in decrease of support for the incumbent. &ldquo;Employment Insecurity, Incumbent Partisanship, and Voting Behavior in Comparative Perspective&rdquo; (<a href="https://journals.sagepub.com/doi/10.1177/0010414016679176">https://journals.sagepub.com/doi/10.1177/0010414016679176</a>) I was surprised to see that there was not a stronger association because candidates and elected officials often tout the creation of new jobs.</p>
 <pre><code>## 
 ## Call:
@@ -199,7 +199,7 @@
 ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
 ##   variable into a factor?
 </code></pre>
-<img src="/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
+<img src="https://example.org/post/2024/09/16/blog-post-ii/index_files/figure-html/unnamed-chunk-5-1.png" width="672" />
 <p>The graph above demonstrates the real disposable personal income (RDPI) growth in Q2 and its correlation with the incumbent party&rsquo;s national popular vote share. Visually it appears that there is not a strong correlation because it looks like a lot of the dates are stacked in the graph which means that even when RDPI is similar the vote share can vary quite a bit from 45 to almost 60 percent of the vote share if you look at year 1952 and 1984. This is supported by the weak association that the linear regression model provided. The adjusted r-squared value is -0.05561 which is relatively low. Again, the 2020 data point seems to be an outlier. I wonder if the reason why real disposable income may not have a strong effect on the incumbent party&rsquo;s vote share has to do with the fact that people can still purchase items they can&rsquo;t afford by placing it on credit cards and therefore they don&rsquo;t necessarily feel as though their disposable income is severely affected. The federal bank reserve of New York reports that household debt is up to $17.80 trillion in second quarter (<a href="https://www.newyorkfed.org/microeconomics/hhdc)">https://www.newyorkfed.org/microeconomics/hhdc)</a>.</p>
 <p>####&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;&mdash;-#</p>
 <h4 id="predicting-2024-results-using-simple-economy-model">Predicting 2024 results using simple economy model.</h4>

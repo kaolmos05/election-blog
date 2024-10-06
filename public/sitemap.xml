@@ -2,27 +2,30 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>http://localhost:4321/post/2024/09/23/blog-post-3/</loc>
+    <loc>https://example.org/post/2024/10/06/blogpostiiii/</loc>
+    <lastmod>2024-10-06T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://example.org/</loc>
+    <lastmod>2024-10-06T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://example.org/post/</loc>
+    <lastmod>2024-10-06T00:00:00+00:00</lastmod>
+  </url><url>
+    <loc>https://example.org/post/2024/09/23/blog-post-3/</loc>
     <lastmod>2024-09-23T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:4321/</loc>
-    <lastmod>2024-09-23T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:4321/post/</loc>
-    <lastmod>2024-09-23T00:00:00+00:00</lastmod>
-  </url><url>
-    <loc>http://localhost:4321/post/2024/09/16/blog-post-ii/</loc>
+    <loc>https://example.org/post/2024/09/16/blog-post-ii/</loc>
     <lastmod>2024-09-16T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:4321/post/2024/09/12/testpost/</loc>
+    <loc>https://example.org/post/2024/09/12/testpost/</loc>
     <lastmod>2024-09-12T00:00:00+00:00</lastmod>
   </url><url>
-    <loc>http://localhost:4321/post/1/01/01/</loc>
+    <loc>https://example.org/post/1/01/01/</loc>
   </url><url>
-    <loc>http://localhost:4321/about/</loc>
+    <loc>https://example.org/about/</loc>
   </url><url>
-    <loc>http://localhost:4321/categories/</loc>
+    <loc>https://example.org/categories/</loc>
   </url><url>
-    <loc>http://localhost:4321/tags/</loc>
+    <loc>https://example.org/tags/</loc>
   </url>
 </urlset>
