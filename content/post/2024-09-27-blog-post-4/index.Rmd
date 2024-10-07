@@ -145,7 +145,7 @@ d_pork_state |>
   summarize(mean_grant = mean(grant_mil, na.rm = T), se_grant = sd(grant_mil, na.rm = T)/sqrt(n())) |> 
   ggplot(aes(x = state_year_type, y = mean_grant, ymin = mean_grant-1.96*se_grant, ymax = mean_grant+1.96*se_grant)) + 
   coord_flip() + 
-  geom_bar(stat = "identity", fill = "chartreuse4") + 
+  geom_bar(stat = "identity", fill = "dodgerblue") + 
   geom_errorbar(width = 0.2) + 
   labs(x = "Type of State & Year", 
        y = "Federal Grant Spending (Millions of $)", 
@@ -163,7 +163,7 @@ d_pork_state |>
   summarize(mean_grant = mean(grant_mil, na.rm = T), se_grant = sd(grant_mil, na.rm = T)/sqrt(n())) |> 
   ggplot(aes(x = state_year_type2, y = mean_grant, ymin = mean_grant-1.96*se_grant, ymax = mean_grant+1.96*se_grant)) + 
   coord_flip() + 
-  geom_bar(stat = "identity", fill = "chartreuse4") + 
+  geom_bar(stat = "identity", fill = "dodgerblue") + 
   geom_errorbar(width = 0.2) + 
   labs(x = "Type of State & Year", 
        y = "Federal Grant Spending (Millions of $)", 
