@@ -149,9 +149,10 @@ d_pork_state |>
   geom_errorbar(width = 0.2) + 
   labs(x = "Type of State & Year", 
        y = "Federal Grant Spending (Millions of $)", 
-       title = "Federal Grant Spending (Millions $) by State Election Type") + 
+       title = "Federal Grant Spending (Millions $) by State Election Type",
+       caption = "Chart 1") + 
   theme_minimal() + 
-  theme(plot.title = element_text(size = 20),
+  theme(plot.title = element_text(size = 15),
         axis.title = element_text(size = 15),
         axis.text = element_text(size = 12))
 
@@ -166,9 +167,10 @@ d_pork_state |>
   geom_errorbar(width = 0.2) + 
   labs(x = "Type of State & Year", 
        y = "Federal Grant Spending (Millions of $)", 
-       title = "Federal Grant Spending (Millions $) by State Election Type") + 
+       title = "Federal Grant Spending (Millions $) by State Election Type",
+       caption = "Chart 2") + 
   theme_minimal() +
-  theme(plot.title = element_text(size = 20),
+  theme(plot.title = element_text(size = 15),
         axis.title = element_text(size = 15),
         axis.text = element_text(size = 12))
 
