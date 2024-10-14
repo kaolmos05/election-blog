@@ -1,162 +1,20 @@
 ---
 title: Blog Post 4
-author: Package Build
+author: Kelly Olmos 
 date: '2024-10-01'
 slug: blog-post-4
 categories: []
 tags: []
 ---
 
+#### This Week's Question: Does the incumbency advantage apply to Harris and/or Trump? Explain why or why not.
 
-```
-## Loading required package: carData
-```
-
-```
-## Loading required package: ggplot2
-```
-
-```
-## Loading required package: lattice
-```
-
-```
-## 
-## Attaching package: 'CVXR'
-```
-
-```
-## The following object is masked from 'package:stats':
-## 
-##     power
-```
-
-```
-## Loading required package: Matrix
-```
-
-```
-## Loaded glmnet 4.1-8
-```
-
-```
-## Linking to GEOS 3.11.0, GDAL 3.5.3, PROJ 9.1.0; sf_use_s2() is TRUE
-```
-
-```
-## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-## ✔ lubridate 1.9.3     ✔ tibble    3.2.1
-## ✔ purrr     1.0.2     ✔ tidyr     1.3.1
-## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ tidyr::expand()     masks Matrix::expand()
-## ✖ dplyr::filter()     masks stats::filter()
-## ✖ dplyr::group_rows() masks kableExtra::group_rows()
-## ✖ dplyr::id()         masks CVXR::id()
-## ✖ purrr::is_vector()  masks CVXR::is_vector()
-## ✖ dplyr::lag()        masks stats::lag()
-## ✖ purrr::lift()       masks caret::lift()
-## ✖ purrr::map()        masks maps::map()
-## ✖ tidyr::pack()       masks Matrix::pack()
-## ✖ dplyr::recode()     masks car::recode()
-## ✖ purrr::some()       masks car::some()
-## ✖ tidyr::unpack()     masks Matrix::unpack()
-## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-## Loading required package: viridisLite
-## 
-## 
-## Attaching package: 'viridis'
-## 
-## 
-## The following object is masked from 'package:maps':
-## 
-##     unemp
-```
+To begin answering this question I will start with an analysis of pork spending. Pork is federal spending via programs and funding that is provided to people in certain geographic areas and districts. Incumbents generally have an advantage when competing for re-election. Among those advantages is the ability to leverage pork to persuade voters and maintain their base's support. 
 
 
 
-```
-## Rows: 38 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr (2): party, candidate
-## dbl (3): year, pv, pv2p
-## lgl (4): winner, incumbent, incumbent_party, prev_admin
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 959 Columns: 14
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr  (1): state
-## dbl (13): year, D_pv, R_pv, D_pv2p, R_pv2p, D_pv_lag1, R_pv_lag1, D_pv2p_lag...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 387 Columns: 14
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## dbl (14): year, quarter, GDP, GDP_growth_quarterly, RDPI, RDPI_growth_quarte...
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 7378 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr  (3): state, party, candidate
-## dbl  (4): year, weeks_left, days_left, poll_support
-## lgl  (1): before_convention
-## date (1): poll_date
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## Rows: 204564 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
-## Delimiter: ","
-## chr  (3): state, party, candidate
-## dbl  (4): year, weeks_left, days_left, poll_support
-## lgl  (1): before_convention
-## date (1): poll_date
-## 
-## ℹ Use `spec()` to retrieve the full column specification for this data.
-## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-## `summarise()` has grouped output by 'year', 'party'. You can override using the `.groups` argument.
-```
 
-```
-##   reelect_president  N Percent
-## 1             FALSE 12   66.67
-## 2              TRUE  6   33.33
-```
 
-```
-## Elections with At Least One Incumbent Running: 11
-## Incumbent Victories: 7
-## Percentage: 63.64
-```
-
-```
-## # A tibble: 3 × 7
-##    year candidate_DEM    candidate_REP    incumbent_DEM incumbent_REP winner_DEM
-##   <dbl> <chr>            <chr>            <lgl>         <lgl>         <lgl>     
-## 1  2004 Kerry, John      Bush, George W.  FALSE         TRUE          FALSE     
-## 2  2012 Obama, Barack H. Romney, Mitt     TRUE          FALSE         TRUE      
-## 3  2020 Biden, Joseph R. Trump, Donald J. FALSE         TRUE          TRUE      
-## # ℹ 1 more variable: winner_REP <lgl>
-```
-
-```
-##   reelect_party  N Percent
-## 1         FALSE 10   55.56
-## 2          TRUE  8   44.44
-```
-
-```
-## prev_admin
-## FALSE  TRUE 
-## 72.22 27.78
-```
 
 
 ```
@@ -288,6 +146,12 @@ tags: []
 ## Multiple R-squared:  0.2675,	Adjusted R-squared:  0.2474 
 ## F-statistic: 13.29 on 8 and 291 DF,  p-value: 2.299e-16
 ```
+#### Pork Analysis 
+
+Chart 1 demonstrates the relationship between federal grant spending in millions and the types of state and year. In Chart 1, it is visually evident that swing states receive more in federal grants. The bar chart with error bars for the swing states do not overlap with those of the core base. In other words, it appears that when a state is a considered a swing state, more federal spending is allotted to the state, especially in an election year although not statistically significant as spending is for swing versus core states. 
+
+In Chart 2, the question we're trying to answer is whether "Presidents Strategize for their Successor As Well?" It appears that more federal grant spending is allotted to a state when the president is the incumbent in an election year when compared when someone in their party is running to be their successor. However, at the 95% confidence interval, these results are not statistically significant but there does appear to be a pattern when incumbents spend more on a state when they are running for re-election versus when they are not. 
+
 
 
 ```
@@ -337,6 +201,7 @@ tags: []
 ## Multiple R-squared:  0.01018,	Adjusted R-squared:  -0.0723 
 ## F-statistic: 0.1235 on 1 and 12 DF,  p-value: 0.7314
 ```
+
 
 
 ```
@@ -439,6 +304,10 @@ Table: <span id="tab:expert-predictions"></span>Table 1: Expert Predictions Summ
 | 2012|         0.8627451|           0.9607843|
 | 2016|         0.9019608|           0.8823529|
 | 2020|         0.8823529|           0.9803922|
+
+In the table above (Expert Predictions Summary by Year), we see that Sabato had a higher prediction accuracy in the election years 2004, 2012, and 2020 compared to Cook. Sabato achieved an accuracy rate of 96% in 2004, 96% in 2012, and 98% in 2020, outperforming the Cook predictions. Cook's accuracy outperformed Sabato in election years 2008 and 2016. 
+
+It is important to not that Sabato calls states either for Democrats or Republicans, whereas Cook classifies some states in the "toss-up" category. For this purpose of this analysis, a toss-up call is considered an incorrect predictions, which lowers Cook's overall average accuracy. Regardless, both Cook and Sabato have a largely accurate prediction record.
 
 
 ```
@@ -557,6 +426,9 @@ Table: <span id="tab:ensembling"></span>Table 2: State-Level Predictions
 |Florida        |50.004     |D      |
 |California     |61.701     |D      |
 |Arizona        |50.292     |D      |
+
+
+In the State-level Predictions table, the predictions from all models use the optimized weights to produce a final prediction for each state in the 2020 election. The states listed above in the table are all correct predictions for the 2020 presidential election with the exception of Florida. The race in Florida was not very close with Trump winning 51.2% of the vote and Biden winning 47.9% in Florida. 
 
 
 

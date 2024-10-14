@@ -1,13 +1,17 @@
 ---
 title: Blog Post 4
-author: Package Build
+author: Kelly Olmos 
 date: '2024-10-01'
 slug: blog-post-4
 categories: []
 tags: []
 ---
 
-```{r setup-chunk, echo=FALSE}
+#### This Week's Question: Does the incumbency advantage apply to Harris and/or Trump? Explain why or why not.
+
+To begin answering this question I will start with an analysis of pork spending. Pork is federal spending via programs and funding that is provided to people in certain geographic areas and districts. Incumbents generally have an advantage when competing for re-election. Among those advantages is the ability to leverage pork to persuade voters and maintain their base's support. 
+
+```{r setup-chunk, echo=FALSE, include=FALSE, message=FALSE}
 
 # Load libraries.
 ## install via `install.packages("name")`
@@ -29,25 +33,25 @@ library(lubridate)
 ```
 
 
-```{r processing-data, echo= FALSE}
+```{r processing-data, echo= FALSE,include=FALSE, warning=FALSE}
 
 ####----------------------------------------------------------#
 #### Read, merge, and process data.
 ####----------------------------------------------------------#
 
 # Read incumbency/vote data.
-d_vote <- read_csv("popvote_1948-2020.csv")
-d_state_vote <- read_csv("state_popvote_1948_2020.csv")
+d_vote <- read_csv("popvote_1948-2020.csv", show_col_types = FALSE)
+d_state_vote <- read_csv("state_popvote_1948_2020.csv", show_col_types = FALSE)
 d_vote$party[d_vote$party == "democrat"] <- "DEM"
 d_vote$party[d_vote$party == "republican"] <- "REP"
 
 # Read economic data.
-d_econ <- read_csv("fred_econ.csv") |> 
+d_econ <- read_csv("fred_econ.csv", show_col_types = FALSE) |> 
   filter(quarter == 2)
 
 # Read polling and election results data. 
-d_pollav_natl <- read_csv("national_polls_1968-2024.csv")
-d_pollav_state <- read_csv("state_polls_1968-2024.csv")
+d_pollav_natl <- read_csv("national_polls_1968-2024.csv", show_col_types = FALSE)
+d_pollav_state <- read_csv("state_polls_1968-2024.csv", show_col_types = FALSE)
 
 # Shape and merge polling and election data using November polls. 
 d_poll_nov <- d_vote |> 
@@ -205,6 +209,12 @@ d_pork_state_model <- d_state_vote |>
 pork_state_mod <- lm(change_inc_pv2p ~ is_comp*change_grant_mil + as.factor(year), data = d_pork_state_model)
 summary(pork_state_mod)
 ```
+#### Pork Analysis 
+
+Chart 1 demonstrates the relationship between federal grant spending in millions and the types of state and year. In Chart 1, it is visually evident that swing states receive more in federal grants. The bar chart with error bars for the swing states do not overlap with those of the core base. In other words, it appears that when a state is a considered a swing state, more federal spending is allotted to the state, especially in an election year although not statistically significant as spending is for swing versus core states. 
+
+In Chart 2, the question we're trying to answer is whether "Presidents Strategize for their Successor As Well?" It appears that more federal grant spending is allotted to a state when the president is the incumbent in an election year when compared when someone in their party is running to be their successor. However, at the 95% confidence interval, these results are not statistically significant but there does appear to be a pattern when incumbents spend more on a state when they are running for re-election versus when they are not. 
+
 
 ```{r echo=FALSE}
 ####----------------------------------------------------------#
@@ -248,6 +258,7 @@ summary(tfc_mod_2020)
 # TODO: 
 
 ```
+
 
 ```{r expert-predictions, echo=FALSE}
 
@@ -437,6 +448,10 @@ knitr::kable(expert_pred_table, caption = "Expert Predictions Summary by Year")
 
 
 ```
+
+In the table above (Expert Predictions Summary by Year), we see that Sabato had a higher prediction accuracy in the election years 2004, 2012, and 2020 compared to Cook. Sabato achieved an accuracy rate of 96% in 2004, 96% in 2012, and 98% in 2020, outperforming the Cook predictions. Cook's accuracy outperformed Sabato in election years 2008 and 2016. 
+
+It is important to not that Sabato calls states either for Democrats or Republicans, whereas Cook classifies some states in the "toss-up" category. For this purpose of this analysis, a toss-up call is considered an incorrect predictions, which lowers Cook's overall average accuracy. Regardless, both Cook and Sabato have a largely accurate prediction record.
 
 ```{r ensembling, echo=FALSE}
 
@@ -663,6 +678,9 @@ knitr::kable(state_pred_table, caption = "State-Level Predictions")
 
                     
 ```
+
+
+In the State-level Predictions table, the predictions from all models use the optimized weights to produce a final prediction for each state in the 2020 election. The states listed above in the table are all correct predictions for the 2020 presidential election with the exception of Florida. The race in Florida was not very close with Trump winning 51.2% of the vote and Biden winning 47.9% in Florida. 
 
 
 
