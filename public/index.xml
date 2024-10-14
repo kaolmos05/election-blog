@@ -2,45 +2,45 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>Home on A minimal Hugo website</title>
-    <link>http://localhost:4321/</link>
+    <link>https://example.org/</link>
     <description>Recent content in Home on A minimal Hugo website</description>
     <generator>Hugo</generator>
     <language>en-us</language>
     <lastBuildDate>Tue, 01 Oct 2024 00:00:00 +0000</lastBuildDate>
-    <atom:link href="http://localhost:4321/index.xml" rel="self" type="application/rss+xml" />
+    <atom:link href="https://example.org/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Blog Post 4</title>
-      <link>http://localhost:4321/post/2024/10/01/blog-post-4/</link>
+      <link>https://example.org/post/2024/10/01/blog-post-4/</link>
       <pubDate>Tue, 01 Oct 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:4321/post/2024/10/01/blog-post-4/</guid>
+      <guid>https://example.org/post/2024/10/01/blog-post-4/</guid>
       <description>&lt;h4 id=&#34;this-weeks-question-does-the-incumbency-advantage-apply-to-harris-andor-trump-explain-why-or-why-not&#34;&gt;This Week&amp;rsquo;s Question: Does the incumbency advantage apply to Harris and/or Trump? Explain why or why not.&lt;/h4&gt;&#xA;&lt;p&gt;To begin answering this question I will start with an analysis of pork spending. Pork is federal spending via programs and funding that is provided to people in certain geographic areas and districts. Incumbents generally have an advantage when competing for re-election. Among those advantages is the ability to leverage pork to persuade voters and maintain their base&amp;rsquo;s support.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Blog Post 3</title>
-      <link>http://localhost:4321/post/2024/09/23/blog-post-3/</link>
+      <link>https://example.org/post/2024/09/23/blog-post-3/</link>
       <pubDate>Mon, 23 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:4321/post/2024/09/23/blog-post-3/</guid>
+      <guid>https://example.org/post/2024/09/23/blog-post-3/</guid>
       <description>&lt;p&gt;This Week&amp;rsquo;s Objective: Compare and contrast Silver (2024) and Morris (2024). Which approach is better?&lt;/p&gt;&#xA;&lt;p&gt;Nate Silver makes some updates to the 2024 presidential election forecast model. One of the biggest changes to the model from the 2020 presidential election is the removal of COVID-19 effects and its impact on other variables in the model such as the convention bounce–boost in the polls for presidential candidates after the convention. In 2020, the conventions were held virtually and likely drew less excitement for the candidates.&lt;/p&gt;</description>
     </item>
     <item>
       <title>Blog Post II</title>
-      <link>http://localhost:4321/post/2024/09/16/blog-post-ii/</link>
+      <link>https://example.org/post/2024/09/16/blog-post-ii/</link>
       <pubDate>Mon, 16 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:4321/post/2024/09/16/blog-post-ii/</guid>
+      <guid>https://example.org/post/2024/09/16/blog-post-ii/</guid>
       <description>&lt;p&gt;Date: September, 16, 2024&lt;/p&gt;&#xA;&lt;p&gt;This Week&amp;rsquo;s Question: Can we predict election outcomes using only the state of the economy? If so, how well?&lt;/p&gt;&#xA;&lt;pre&gt;&lt;code&gt;## Loading required package: carData&#xA;&lt;/code&gt;&lt;/pre&gt;&#xA;&lt;pre&gt;&lt;code&gt;## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──&#xA;## ✔ dplyr     1.1.3     ✔ readr     2.1.4&#xA;## ✔ forcats   1.0.0     ✔ stringr   1.5.0&#xA;## ✔ ggplot2   3.4.3     ✔ tibble    3.2.1&#xA;## ✔ lubridate 1.9.2     ✔ tidyr     1.3.0&#xA;## ✔ purrr     1.0.2     &#xA;## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──&#xA;## ✖ dplyr::filter() masks stats::filter()&#xA;## ✖ dplyr::lag()    masks stats::lag()&#xA;## ✖ dplyr::recode() masks car::recode()&#xA;## ✖ purrr::some()   masks car::some()&#xA;## ℹ Use the conflicted package (&amp;lt;http://conflicted.r-lib.org/&amp;gt;) to force all conflicts to become errors&#xA;&lt;/code&gt;&lt;/pr</description>
     </item>
     <item>
       <title>Blog Post 1</title>
-      <link>http://localhost:4321/post/2024/09/12/testpost/</link>
+      <link>https://example.org/post/2024/09/12/testpost/</link>
       <pubDate>Thu, 12 Sep 2024 00:00:00 +0000</pubDate>
-      <guid>http://localhost:4321/post/2024/09/12/testpost/</guid>
+      <guid>https://example.org/post/2024/09/12/testpost/</guid>
       <description>&lt;p&gt;Welcome to my election blog! Every week I will be updating my election model and providing analysis to forecast the outcome of the 2024 presidential election as part of an assignment for GOV 1347.&lt;/p&gt;&#xA;&lt;p&gt;The following template is created by Matthew Dardet. In the following weeks I will be building off this election model from our lab section.&lt;/p&gt;&#xA;&lt;p&gt;This week I aim to answer the following questions:&lt;/p&gt;&#xA;&lt;ul&gt;&#xA;&lt;li&gt;How competitive are presidential elections in the United States?&lt;/li&gt;&#xA;&lt;li&gt;Which states vote blue/red and how consistently?&lt;/li&gt;&#xA;&lt;/ul&gt;&#xA;&lt;pre&gt;&lt;code&gt;## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──&#xA;## ✔ dplyr     1.1.3     ✔ readr     2.1.4&#xA;## ✔ forcats   1.0.0     ✔ stringr   1.5.0&#xA;## ✔ lubridate 1.9.2     ✔ tibble    3.2.1&#xA;## ✔ purrr     1.0.2     ✔ tidyr     1.3.0&#xA;## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──&#xA;## ✖ dplyr::filter() masks stats::filter()&#xA;## ✖ dplyr::lag()    masks stats::lag()&#xA;## ✖ purrr::map()    masks maps::map()&#xA;## ℹ Use the conflicted package (&amp;lt;http://conflicted.r-lib.org/&amp;gt;) to force all conflicts to become errors&#xA;&lt;/code&gt;&lt;/pr</description>
     </item>
     <item>
       <title>About Hugo XMin</title>
-      <link>http://localhost:4321/about/</link>
+      <link>https://example.org/about/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
-      <guid>http://localhost:4321/about/</guid>
+      <guid>https://example.org/about/</guid>
       <description>&lt;p&gt;&lt;strong&gt;XMin&lt;/strong&gt; is the first Hugo theme I have designed. The original reason that I wrote it was I needed a minimal example of Hugo themes when I was writing the  &lt;a href=&#34;https://github.com/rstudio/blogdown&#34;&gt;&lt;strong&gt;blogdown&lt;/strong&gt;&lt;/a&gt; book. Basically I wanted a simple theme that supports a navigation menu, a home page, other single pages, lists of pages, blog posts, categories, tags, and RSS. That is all. Nothing fancy. In terms of CSS and JavaScript, I really want to keep them minimal. In fact, this theme does not contain any JavaScript code at all, although on this example website I did introduce some JavaScript code (still relatively simple anyway). The theme does not contain any images, either, and is pretty much a plain-text theme.&lt;/p&gt;</description>
     </item>
   </channel>
