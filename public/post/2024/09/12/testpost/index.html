@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=4321&amp;path=livereload" data-no-instant defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Blog Post 1 | A minimal Hugo website</title>
@@ -133,7 +133,7 @@ d_popvote |&gt;
         y = &quot;2p vote prop.&quot;) +
   theme_bw()
 </code></pre>
-<img src="https://example.org/post/2024/09/12/testpost/index_files/figure-html/2 party vote share trend-1.png" width="672" />
+<img src="/post/2024/09/12/testpost/index_files/figure-html/2 party vote share trend-1.png" width="672" />
 <p>This graph can help us understand how competitive U.S. presidential elections are because it demonstrates the proportion of popular vote Democrats and Republican presidential candidates have obtained. It is important to note that elections are not won by popular vote but it is not  unreasonable to presume that the elected presidents do not tend to win the popular vote. A document posted by the Alabama Secretary of State (<a href="https://www.sos.alabama.gov/sites/default/files/election-data/Electoral%20College%20FAQ.pdf">https://www.sos.alabama.gov/sites/default/files/election-data/Electoral%20College%20FAQ.pdf</a>) notes that only four times throughout American history has a president won the election without the popular vote. The 2016 presidential election is one of those outliers as displayed by the graph. Hilary Clinton obtained won the popular vote and lost the electoral college thus costing her the presidency.</p>
 <p>Additionally, it is worth mentioning that this data displays the two party popular vote share which excludes third party candidates that have made it onto the ballot. American presidential elections are competitive if the candidate is on the Democratic or Republican presidential ticket, leaving small opportunity for other party candidates.</p>
 <p>A visual analysis of the graph above shows that over time American voters have let both parties have presidential power and the fact that it does swing and change over years highlights competitiveness. In fact it appears that elections are getting more competitive. Between 1950 and 1990 the difference between the proportion of the popular vote is wider than than it has been in the past 30 years. The difference is getting smaller which indicates that elections are becoming more competitive because both parties are getting closer in popular vote proportions.</p>
@@ -146,14 +146,14 @@ d_popvote |&gt;
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 </code></pre>
-<img src="https://example.org/post/2024/09/12/testpost/index_files/figure-html/state map of pres pop vote-1.png" width="672" />
+<img src="/post/2024/09/12/testpost/index_files/figure-html/state map of pres pop vote-1.png" width="672" />
 <pre><code>## Warning in left_join(filter(d_pvstate_wide, year &gt;= 1980), states_map, by = &quot;region&quot;): Detected an unexpected many-to-many relationship between `x` and `y`.
 ## ℹ Row 1 of `x` matches multiple rows in `y`.
 ## ℹ Row 1 of `y` matches multiple rows in `x`.
 ## ℹ If a many-to-many relationship is expected, set `relationship =
 ##   &quot;many-to-many&quot;` to silence this warning.
 </code></pre>
-<img src="https://example.org/post/2024/09/12/testpost/index_files/figure-html/state map of pres pop vote-2.png" width="672" />
+<img src="/post/2024/09/12/testpost/index_files/figure-html/state map of pres pop vote-2.png" width="672" />
 <p>This grid map of which party candidate won each state between 1980 and 2020 further supports the idea that elections have become more competitive. In 1980 and 1984, the maps are mostly red, indicating that one candidate won by a large margin of electoral college votes. After the 1988 election, the Democratic candidate starts winning states. Beyond the 1992 election, the Democratic candidate picks up states that are considered strongholds for them such as California, New York, Illinois, and a batch of northeast states. Minnesota, Washington and Oregon also prove to be consistently voting for the Democratic candidate. This grid map also shows that southern U.S. and west (excluding coastal states) tend to favor the Republican candidate.</p>
 <pre><code>##  [1] &quot;year&quot;        &quot;state&quot;       &quot;D_pv&quot;        &quot;R_pv&quot;        &quot;D_pv2p&quot;     
 ##  [6] &quot;R_pv2p&quot;      &quot;D_pv_lag1&quot;   &quot;R_pv_lag1&quot;   &quot;D_pv2p_lag1&quot; &quot;R_pv2p_lag1&quot;
@@ -170,7 +170,7 @@ d_popvote |&gt;
 </code></pre>
 <pre><code>## Warning: Removed 3 rows containing missing values (`geom_text()`).
 </code></pre>
-<img src="https://example.org/post/2024/09/12/testpost/index_files/figure-html/electoral cycle model-1.png" width="672" />
+<img src="/post/2024/09/12/testpost/index_files/figure-html/electoral cycle model-1.png" width="672" />
 <pre><code>## # A tibble: 2 × 2
 ##   winner electoral_votes
 ##   &lt;chr&gt;            &lt;dbl&gt;
