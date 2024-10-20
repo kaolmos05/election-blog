@@ -1494,29 +1494,13 @@
 
     stan.model <- stan_model(model_code = stan.code)
 
-    ## Trying to compile a simple C file
-
-    ## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
-    ## using C compiler: ‘Apple clang version 15.0.0 (clang-1500.3.9.4)’
-    ## using SDK: ‘’
-    ## clang -arch arm64 -I"/Library/Frameworks/R.framework/Resources/include" -DNDEBUG   -I"/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/Rcpp/include/"  -I"/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/RcppEigen/include/"  -I"/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/RcppEigen/include/unsupported"  -I"/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/BH/include" -I"/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/StanHeaders/include/src/"  -I"/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/StanHeaders/include/"  -I"/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/RcppParallel/include/"  -I"/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/rstan/include" -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include '/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/opt/R/arm64/include    -fPIC  -falign-functions=64 -Wall -g -O2  -c foo.c -o foo.o
-    ## In file included from <built-in>:1:
-    ## In file included from /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:22:
-    ## In file included from /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/RcppEigen/include/Eigen/Dense:1:
-    ## In file included from /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/RcppEigen/include/Eigen/Core:19:
-    ## /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:679:10: fatal error: 'cmath' file not found
-    ## #include <cmath>
-    ##          ^~~~~~~
-    ## 1 error generated.
-    ## make: *** [foo.o] Error 1
-
     stan.fit <- sampling(stan.model, data = stan.data, chains = 4, iter = 4000, warmup = 1000)
 
     ## 
     ## SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 1).
     ## Chain 1: 
-    ## Chain 1: Gradient evaluation took 5.2e-05 seconds
-    ## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.52 seconds.
+    ## Chain 1: Gradient evaluation took 4.2e-05 seconds
+    ## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.42 seconds.
     ## Chain 1: Adjust your expectations accordingly!
     ## Chain 1: 
     ## Chain 1: 
@@ -1533,15 +1517,15 @@
     ## Chain 1: Iteration: 3800 / 4000 [ 95%]  (Sampling)
     ## Chain 1: Iteration: 4000 / 4000 [100%]  (Sampling)
     ## Chain 1: 
-    ## Chain 1:  Elapsed Time: 1.121 seconds (Warm-up)
-    ## Chain 1:                3.48 seconds (Sampling)
-    ## Chain 1:                4.601 seconds (Total)
+    ## Chain 1:  Elapsed Time: 0.938 seconds (Warm-up)
+    ## Chain 1:                3.398 seconds (Sampling)
+    ## Chain 1:                4.336 seconds (Total)
     ## Chain 1: 
     ## 
     ## SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 2).
     ## Chain 2: 
-    ## Chain 2: Gradient evaluation took 1.3e-05 seconds
-    ## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.13 seconds.
+    ## Chain 2: Gradient evaluation took 1.2e-05 seconds
+    ## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.12 seconds.
     ## Chain 2: Adjust your expectations accordingly!
     ## Chain 2: 
     ## Chain 2: 
@@ -1558,15 +1542,15 @@
     ## Chain 2: Iteration: 3800 / 4000 [ 95%]  (Sampling)
     ## Chain 2: Iteration: 4000 / 4000 [100%]  (Sampling)
     ## Chain 2: 
-    ## Chain 2:  Elapsed Time: 1.028 seconds (Warm-up)
-    ## Chain 2:                3.268 seconds (Sampling)
-    ## Chain 2:                4.296 seconds (Total)
+    ## Chain 2:  Elapsed Time: 1.049 seconds (Warm-up)
+    ## Chain 2:                3.402 seconds (Sampling)
+    ## Chain 2:                4.451 seconds (Total)
     ## Chain 2: 
     ## 
     ## SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 3).
     ## Chain 3: 
-    ## Chain 3: Gradient evaluation took 1.5e-05 seconds
-    ## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.15 seconds.
+    ## Chain 3: Gradient evaluation took 1.3e-05 seconds
+    ## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.13 seconds.
     ## Chain 3: Adjust your expectations accordingly!
     ## Chain 3: 
     ## Chain 3: 
@@ -1583,9 +1567,9 @@
     ## Chain 3: Iteration: 3800 / 4000 [ 95%]  (Sampling)
     ## Chain 3: Iteration: 4000 / 4000 [100%]  (Sampling)
     ## Chain 3: 
-    ## Chain 3:  Elapsed Time: 0.951 seconds (Warm-up)
-    ## Chain 3:                3.261 seconds (Sampling)
-    ## Chain 3:                4.212 seconds (Total)
+    ## Chain 3:  Elapsed Time: 1.055 seconds (Warm-up)
+    ## Chain 3:                3.448 seconds (Sampling)
+    ## Chain 3:                4.503 seconds (Total)
     ## Chain 3: 
     ## 
     ## SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 4).
@@ -1608,9 +1592,9 @@
     ## Chain 4: Iteration: 3800 / 4000 [ 95%]  (Sampling)
     ## Chain 4: Iteration: 4000 / 4000 [100%]  (Sampling)
     ## Chain 4: 
-    ## Chain 4:  Elapsed Time: 1.093 seconds (Warm-up)
-    ## Chain 4:                3.118 seconds (Sampling)
-    ## Chain 4:                4.211 seconds (Total)
+    ## Chain 4:  Elapsed Time: 1.06 seconds (Warm-up)
+    ## Chain 4:                3.097 seconds (Sampling)
+    ## Chain 4:                4.157 seconds (Total)
     ## Chain 4:
 
     # Compare coefficients from frequentist and Bayesian linear regressions. 
@@ -1637,14 +1621,14 @@
     ## post-warmup draws per chain=3000, total post-warmup draws=12000.
     ## 
     ##        mean se_mean   sd  2.5%   25%   50%   75% 97.5% n_eff Rhat
-    ## alpha  9.08    0.02 1.84  5.50  7.83  9.08 10.33 12.67  8345    1
-    ## beta1  0.88    0.00 0.08  0.72  0.82  0.88  0.94  1.05  6481    1
-    ## beta2 -0.28    0.00 0.07 -0.43 -0.33 -0.28 -0.23 -0.13  6821    1
-    ## beta3  0.44    0.00 0.05  0.35  0.41  0.44  0.47  0.53  7605    1
-    ## beta4 -0.17    0.00 0.04 -0.26 -0.20 -0.17 -0.15 -0.10  8270    1
-    ## sigma  3.41    0.00 0.18  3.08  3.29  3.40  3.52  3.78  8018    1
+    ## alpha  9.03    0.02 1.88  5.35  7.78  9.02 10.30 12.74  7994    1
+    ## beta1  0.88    0.00 0.08  0.72  0.82  0.88  0.94  1.04  5917    1
+    ## beta2 -0.28    0.00 0.08 -0.43 -0.33 -0.28 -0.23 -0.13  5895    1
+    ## beta3  0.44    0.00 0.05  0.35  0.41  0.44  0.47  0.53  7676    1
+    ## beta4 -0.18    0.00 0.04 -0.25 -0.20 -0.18 -0.15 -0.10  8695    1
+    ## sigma  3.41    0.00 0.17  3.09  3.28  3.40  3.52  3.77  8348    1
     ## 
-    ## Samples were drawn using NUTS(diag_e) at Sun Oct 20 16:25:52 2024.
+    ## Samples were drawn using NUTS(diag_e) at Sun Oct 20 17:08:19 2024.
     ## For each parameter, n_eff is a crude measure of effective sample size,
     ## and Rhat is the potential scale reduction factor on split chains (at 
     ## convergence, Rhat=1).
