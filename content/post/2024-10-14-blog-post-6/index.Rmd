@@ -5,7 +5,7 @@ date: '2024-10-14'
 slug: blog-post-6
 categories: []
 tags: []
-output: html_notebook
+output: md_document
 ---
 
 ```{r setup}
