@@ -540,9 +540,8 @@ d_pollav_state &lt;- d_state_polls |&gt;
   top_n(1, poll_date) |&gt; 
   rename(latest_pollav = poll_support) |&gt;
   select(-c(weeks_left, days_left, poll_date, candidate, before_convention)) |&gt;
-  pivot_wider(names_from = party, values_from = c(latest_pollav, mean_pollav))
-                             
-####----------------------------------------------------------#
+  pivot_wider(names_from = party, values_from = c(latest_pollav, mean_pollav))</code></pre>
+<pre class="r"><code>####----------------------------------------------------------#
 #### Replication of Kim &amp; Zilinsky (2023).
 ####----------------------------------------------------------#
                              
@@ -580,8 +579,7 @@ anes &lt;- anes |&gt;
          # 3-point ideology. 
          ideo = VCF0804 # 0, 9 = DK; 1 = Liberal; 2 = Moderate; 3 = Conservative
          ) |&gt; 
-  select(year, pres_vote, age, gender, race, educ, income, religion, attend_church, southern, 
-         region, work_status, homeowner, married, pid7, pid3, ideo)
+  select(year, pres_vote, age, gender, race, educ, income, religion, attend_church, southern, region, work_status, homeowner, married, pid7, pid3, ideo)
 
 # How well do demographics predict vote choice? 
 anes_year &lt;- anes[anes$year == 2016,] |&gt; 
@@ -635,8 +633,8 @@ summary(logit_fit)</code></pre>
 ## 
 ## Number of Fisher Scoring iterations: 4</code></pre>
 <pre class="r"><code># In-sample accuracy.
-logit.is &lt;- factor(ifelse(predict(logit_fit, type = &quot;response&quot;) &gt; 0.5, 2, 1), 
-                   levels = c(1, 2), labels = c(&quot;Democrat&quot;, &quot;Republican&quot;))
+logit.is &lt;- factor(ifelse(predict(logit_fit, type = &quot;response&quot;) &gt; 0.5, 2, 1), levels = c(1, 2), labels = c(&quot;Democrat&quot;, &quot;Republican&quot;))
+
 (cm.rf.logit.is &lt;- confusionMatrix(logit.is, anes_train$pres_vote))</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
@@ -666,8 +664,8 @@ logit.is &lt;- factor(ifelse(predict(logit_fit, type = &quot;response&quot;) &gt
 ##        &#39;Positive&#39; Class : Democrat        
 ## </code></pre>
 <pre class="r"><code># Out-of-sample accuracy. 
-logit_pred &lt;- factor(ifelse(predict(logit_fit, anes_test, type = &quot;response&quot;) &gt; 0.5, 2, 1), 
-                     levels = c(1, 2), labels = c(&quot;Democrat&quot;, &quot;Republican&quot;))
+logit_pred &lt;- factor(ifelse(predict(logit_fit, anes_test, type = &quot;response&quot;) &gt; 0.5, 2, 1), levels = c(1, 2), labels = c(&quot;Democrat&quot;, &quot;Republican&quot;))
+
 (cm.rf.logit.oos &lt;- confusionMatrix(logit_pred, anes_test$pres_vote))</code></pre>
 <pre><code>## Confusion Matrix and Statistics
 ## 
@@ -763,9 +761,8 @@ rf_pred &lt;- predict(rf_fit, data = anes_test)
 ##                                           
 ##        &#39;Positive&#39; Class : Democrat        
 ## </code></pre>
-<pre class="r"><code># Can also write loop to compute values by year and replicate plots from Kim &amp; Zilinsky&#39;s (2023) paper.
-
-####----------------------------------------------------------#
+<pre class="r"><code># Can also write loop to compute values by year and replicate plots from Kim &amp; Zilinsky&#39;s (2023) paper.</code></pre>
+<pre class="r"><code>####----------------------------------------------------------#
 #### Voterfile loading/descriptives/analysis. 
 ####----------------------------------------------------------#
 
@@ -773,22 +770,24 @@ rf_pred &lt;- predict(rf_fit, data = anes_test)
 voterfile.sample.files &lt;- list.files(&quot;state_1pc_samples_aug24&quot;)
 
 # Florida example. 
-vf_fl &lt;- read_csv(&quot;state_1pc_samples_aug24/FL_sample.csv&quot;)</code></pre>
+tx_fl &lt;- read_csv(&quot;state_1pc_samples_aug24/TX_sample.csv&quot;)</code></pre>
 <pre><code>## Warning: One or more parsing issues, call `problems()` on your data frame for details,
 ## e.g.:
 ##   dat &lt;- vroom(...)
 ##   problems(dat)</code></pre>
-<pre><code>## Rows: 216941 Columns: 43
+<pre><code>## Rows: 253672 Columns: 43
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr (22): sii_state, sii_age_range, sii_gender, sii_race, svi_party_registra...
 ## dbl (16): sii_deceased, sii_age, sii_married, svi_vote_all_general, svi_vote...
-## lgl  (5): svi_vh_2020pp_party, svi_vh_2023p, svi_vh_2023p_party, svi_vh_2023...
+## lgl  (5): svi_vh_2021p_party, svi_vh_2023p, svi_vh_2023p_party, svi_vh_2023g...
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
 <pre class="r"><code># Histograms, quantiles, prop tables, maps, etc. 
 # TODO: 
+turnout_by_age &lt;- tx_fl |&gt;
+  group_by(sii_age_range)
 
 # What state do you want to explore/analyze for 2024?
 # TODO: </code></pre>
@@ -819,10 +818,9 @@ d_test &lt;- d |&gt;
   filter(year == 2024)
 
 # Example pooled model with turnout and demographics. 
-mod_lm_dem &lt;- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout + total_pop + white + black + american_indian + 
-                 asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
-                 less_than_college + bachelors + graduate + incumbent + incumbent_party, 
-                 data = d_train)
+mod_lm_dem &lt;- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout + total_pop + white + black + american_indian + asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
+less_than_college + bachelors + graduate + incumbent + incumbent_party, data = d_train)
+
 summary(mod_lm_dem)</code></pre>
 <pre><code>## 
 ## Call:
@@ -864,10 +862,9 @@ summary(mod_lm_dem)</code></pre>
 ##   (101 observations deleted due to missingness)
 ## Multiple R-squared:  0.9442, Adjusted R-squared:  0.9319 
 ## F-statistic: 77.06 on 18 and 82 DF,  p-value: &lt; 2.2e-16</code></pre>
-<pre class="r"><code>mod_lm_rep &lt;- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout + total_pop + white + black + american_indian + 
-                 asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
-                   less_than_college + bachelors + graduate,
-                 data = d_train)
+<pre class="r"><code>mod_lm_rep &lt;- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout + total_pop + white + black + american_indian + asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
+less_than_college + bachelors + graduate, data = d_train)
+
 summary(mod_lm_rep)</code></pre>
 <pre><code>## 
 ## Call:
@@ -916,13 +913,11 @@ summary(mod_lm_rep)</code></pre>
 # (3.) Simulate plausible values for variables based on historical averages or more advanced model. 
 
 # Simple simulation example: 
-simp.vars &lt;- c(&quot;D_pv2p_lag1&quot;, &quot;D_pv2p_lag2&quot;, &quot;latest_pollav_DEM&quot;, &quot;mean_pollav_DEM&quot;,
-               &quot;R_pv2p_lag1&quot;, &quot;R_pv2p_lag2&quot;, &quot;latest_pollav_REP&quot;, &quot;mean_pollav_REP&quot;,
-               &quot;vep_turnout&quot;)
-mod_lm_dem_simp &lt;- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout,
-                      data = d_train)
-mod_lm_rep_simp &lt;- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout,
-                      data = d_train)
+simp.vars &lt;- c(&quot;D_pv2p_lag1&quot;, &quot;D_pv2p_lag2&quot;, &quot;latest_pollav_DEM&quot;, &quot;mean_pollav_DEM&quot;, &quot;R_pv2p_lag1&quot;, &quot;R_pv2p_lag2&quot;, &quot;latest_pollav_REP&quot;, &quot;mean_pollav_REP&quot;, &quot;vep_turnout&quot;)
+
+mod_lm_dem_simp &lt;- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout, data = d_train)
+
+mod_lm_rep_simp &lt;- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout, data = d_train)
 
 # What data do we have for 2024? 
 d_test |&gt; select(all_of(simp.vars)) |&gt; view()

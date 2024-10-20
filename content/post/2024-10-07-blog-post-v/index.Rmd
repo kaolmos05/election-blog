@@ -3,10 +3,11 @@ title: Blog Post V
 author: Package Build
 date: '2024-10-07'
 slug: blog-post-v
+outputs: ["md"]
 categories: []
 tags: []
 ---
-```{r}
+```{r setup}
 #' @title GOV 1347: Week 5 (Demographics) Laboratory Session
 #' @author Matthew E. Dardet
 #' @date October 2, 2024
@@ -39,7 +40,7 @@ library(viridis)
 
 ```
 
-```{r}
+```{r data-processing}
 
 ####----------------------------------------------------------#
 #### Read, merge, and process data.
@@ -74,7 +75,10 @@ d_pollav_state <- d_state_polls |>
   rename(latest_pollav = poll_support) |>
   select(-c(weeks_left, days_left, poll_date, candidate, before_convention)) |>
   pivot_wider(names_from = party, values_from = c(latest_pollav, mean_pollav))
-                             
+```
+
+
+```{r replication}
 ####----------------------------------------------------------#
 #### Replication of Kim & Zilinsky (2023).
 ####----------------------------------------------------------#
@@ -113,8 +117,7 @@ anes <- anes |>
          # 3-point ideology. 
          ideo = VCF0804 # 0, 9 = DK; 1 = Liberal; 2 = Moderate; 3 = Conservative
          ) |> 
-  select(year, pres_vote, age, gender, race, educ, income, religion, attend_church, southern, 
-         region, work_status, homeowner, married, pid7, pid3, ideo)
+  select(year, pres_vote, age, gender, race, educ, income, religion, attend_church, southern, region, work_status, homeowner, married, pid7, pid3, ideo)
 
 # How well do demographics predict vote choice? 
 anes_year <- anes[anes$year == 2016,] |> 
@@ -140,13 +143,13 @@ logit_fit <- glm(pres_vote ~ .,
 summary(logit_fit)
 
 # In-sample accuracy.
-logit.is <- factor(ifelse(predict(logit_fit, type = "response") > 0.5, 2, 1), 
-                   levels = c(1, 2), labels = c("Democrat", "Republican"))
+logit.is <- factor(ifelse(predict(logit_fit, type = "response") > 0.5, 2, 1), levels = c(1, 2), labels = c("Democrat", "Republican"))
+
 (cm.rf.logit.is <- confusionMatrix(logit.is, anes_train$pres_vote))
 
 # Out-of-sample accuracy. 
-logit_pred <- factor(ifelse(predict(logit_fit, anes_test, type = "response") > 0.5, 2, 1), 
-                     levels = c(1, 2), labels = c("Democrat", "Republican"))
+logit_pred <- factor(ifelse(predict(logit_fit, anes_test, type = "response") > 0.5, 2, 1), levels = c(1, 2), labels = c("Democrat", "Republican"))
+
 (cm.rf.logit.oos <- confusionMatrix(logit_pred, anes_test$pres_vote))
 
 # RANDOM FOREST: 
@@ -165,7 +168,9 @@ rf_pred <- predict(rf_fit, data = anes_test)
 (cm.rf.oos <- confusionMatrix(rf_pred$predictions, anes_test$pres_vote))
 
 # Can also write loop to compute values by year and replicate plots from Kim & Zilinsky's (2023) paper.
+```
 
+```{r voterfile}
 ####----------------------------------------------------------#
 #### Voterfile loading/descriptives/analysis. 
 ####----------------------------------------------------------#
@@ -174,17 +179,20 @@ rf_pred <- predict(rf_fit, data = anes_test)
 voterfile.sample.files <- list.files("state_1pc_samples_aug24")
 
 # Florida example. 
-vf_fl <- read_csv("state_1pc_samples_aug24/FL_sample.csv")
+tx_fl <- read_csv("state_1pc_samples_aug24/TX_sample.csv")
+
 
 # Histograms, quantiles, prop tables, maps, etc. 
 # TODO: 
+turnout_by_age <- tx_fl |>
+  group_by(sii_age_range)
 
 # What state do you want to explore/analyze for 2024?
 # TODO: 
 
 ```
 
-```{r}
+```{r simulation}
 
 ####----------------------------------------------------------#
 #### Simulation examples. 
@@ -213,15 +221,13 @@ d_test <- d |>
   filter(year == 2024)
 
 # Example pooled model with turnout and demographics. 
-mod_lm_dem <- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout + total_pop + white + black + american_indian + 
-                 asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
-                 less_than_college + bachelors + graduate + incumbent + incumbent_party, 
-                 data = d_train)
+mod_lm_dem <- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout + total_pop + white + black + american_indian + asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
+less_than_college + bachelors + graduate + incumbent + incumbent_party, data = d_train)
+
 summary(mod_lm_dem)
-mod_lm_rep <- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout + total_pop + white + black + american_indian + 
-                 asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
-                   less_than_college + bachelors + graduate,
-                 data = d_train)
+mod_lm_rep <- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout + total_pop + white + black + american_indian + asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
+less_than_college + bachelors + graduate, data = d_train)
+
 summary(mod_lm_rep)
 
 # Most demographic variables and turnout are not significant for Democrats, but they are for Republicans.
@@ -233,13 +239,11 @@ summary(mod_lm_rep)
 # (3.) Simulate plausible values for variables based on historical averages or more advanced model. 
 
 # Simple simulation example: 
-simp.vars <- c("D_pv2p_lag1", "D_pv2p_lag2", "latest_pollav_DEM", "mean_pollav_DEM",
-               "R_pv2p_lag1", "R_pv2p_lag2", "latest_pollav_REP", "mean_pollav_REP",
-               "vep_turnout")
-mod_lm_dem_simp <- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout,
-                      data = d_train)
-mod_lm_rep_simp <- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout,
-                      data = d_train)
+simp.vars <- c("D_pv2p_lag1", "D_pv2p_lag2", "latest_pollav_DEM", "mean_pollav_DEM", "R_pv2p_lag1", "R_pv2p_lag2", "latest_pollav_REP", "mean_pollav_REP", "vep_turnout")
+
+mod_lm_dem_simp <- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout, data = d_train)
+
+mod_lm_rep_simp <- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout, data = d_train)
 
 # What data do we have for 2024? 
 d_test |> select(all_of(simp.vars)) |> view()
