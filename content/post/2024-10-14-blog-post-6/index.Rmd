@@ -5,7 +5,6 @@ date: '2024-10-14'
 slug: blog-post-6
 categories: []
 tags: []
-output: md_document
 ---
 
 ```{r setup}
@@ -325,7 +324,7 @@ lm(D_pv2p ~ log(contribution_receipt_amount) + factor(state),
 
 ```
 
-```{r bayesianism}
+```{r bayesianism, cache=TRUE}
 
 ####--------------------------------------------------------------#
 #### Bayesianism.
