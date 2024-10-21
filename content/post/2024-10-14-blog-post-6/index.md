@@ -1,157 +1,56 @@
-```         
+---
+title: "Blog Post 6"
+author: "Kelly Olmos"
+date: "2024-10-14"
+categories: []
+tags: []
+slug: "blog-post-6"
+---
+
+
+``` r
 # Load libraries.
 ## install via `install.packages("name")`
 library(car)
-
-## Loading required package: carData
-
 library(caret)
-
-## Loading required package: ggplot2
-
-## Loading required package: lattice
-
 library(cowplot)
 library(curl)
-
-## Using libcurl 8.7.1 with LibreSSL/3.3.6
-
 library(CVXR)
-
-## 
-## Attaching package: 'CVXR'
-
-## The following object is masked from 'package:stats':
-## 
-##     power
-
 library(foreign)
 library(geofacet)
 library(glmnet)
-
-## Loading required package: Matrix
-
-## Loaded glmnet 4.1-8
-
 library(haven)
 library(janitor)
-
-## 
-## Attaching package: 'janitor'
-
-## The following objects are masked from 'package:stats':
-## 
-##     chisq.test, fisher.test
-
 library(kableExtra)
 library(maps)
 library(mlr3)
 library(randomForest)
-
-## randomForest 4.7-1.2
-
-## Type rfNews() to see new features/changes/bug fixes.
-
-## 
-## Attaching package: 'randomForest'
-
-## The following object is masked from 'package:ggplot2':
-## 
-##     margin
-
 library(ranger)
-
-## 
-## Attaching package: 'ranger'
-
-## The following object is masked from 'package:randomForest':
-## 
-##     importance
-
 library(RColorBrewer)
 library(rstan)
-
-## Loading required package: StanHeaders
-
-## 
-## rstan version 2.32.6 (Stan version 2.32.2)
-
-## For execution on a local, multicore CPU with excess RAM we recommend calling
-## options(mc.cores = parallel::detectCores()).
-## To avoid recompilation of unchanged Stan programs, we recommend calling
-## rstan_options(auto_write = TRUE)
-## For within-chain threading using `reduce_sum()` or `map_rect()` Stan functions,
-## change `threads_per_chain` option:
-## rstan_options(threads_per_chain = 1)
-
 library(scales)
 library(sf)
-
-## Linking to GEOS 3.11.0, GDAL 3.5.3, PROJ 9.1.0; sf_use_s2() is TRUE
-
 library(shinystan)
-
-## Loading required package: shiny
-
-## 
-## This is shinystan version 2.6.0
-
 library(tidyverse)
-
-## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-## ✔ lubridate 1.9.3     ✔ tibble    3.2.1
-## ✔ purrr     1.0.2     ✔ tidyr     1.3.1
-
-## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-## ✖ readr::col_factor()    masks scales::col_factor()
-## ✖ dplyr::combine()       masks randomForest::combine()
-## ✖ purrr::discard()       masks scales::discard()
-## ✖ tidyr::expand()        masks Matrix::expand()
-## ✖ tidyr::extract()       masks rstan::extract()
-## ✖ dplyr::filter()        masks stats::filter()
-## ✖ dplyr::group_rows()    masks kableExtra::group_rows()
-## ✖ dplyr::id()            masks CVXR::id()
-## ✖ purrr::is_vector()     masks CVXR::is_vector()
-## ✖ dplyr::lag()           masks stats::lag()
-## ✖ purrr::lift()          masks caret::lift()
-## ✖ purrr::map()           masks maps::map()
-## ✖ randomForest::margin() masks ggplot2::margin()
-## ✖ tidyr::pack()          masks Matrix::pack()
-## ✖ readr::parse_date()    masks curl::parse_date()
-## ✖ dplyr::recode()        masks car::recode()
-## ✖ purrr::some()          masks car::some()
-## ✖ lubridate::stamp()     masks cowplot::stamp()
-## ✖ tidyr::unpack()        masks Matrix::unpack()
-## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-
 library(viridis)
-
-## Loading required package: viridisLite
-## 
-## Attaching package: 'viridis'
-## 
-## The following object is masked from 'package:scales':
-## 
-##     viridis_pal
-## 
-## The following object is masked from 'package:maps':
-## 
-##     unemp
 
 ## set working directory here
 # setwd("~")
+```
 
+
+``` r
 ####----------------------------------------------------------#
 #### Read, merge, and process data.
 ####----------------------------------------------------------#
 
 # Read popular vote datasets. 
 d_popvote <- read_csv("popvote_1948_2020.csv")
+```
 
+```
 ## Rows: 40 Columns: 11
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr (2): party, candidate
 ## dbl (5): year, pv, pv2p, deminc, juneapp
@@ -159,35 +58,47 @@ d_popvote <- read_csv("popvote_1948_2020.csv")
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
 
+``` r
 d_state_popvote <- read_csv("state_popvote_1948_2020.csv")
+```
 
+```
 ## Rows: 959 Columns: 16
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr  (2): state, winner
-## dbl (14): year, D_pv, R_pv, D_pv2p, R_pv2p, D_pv_lag1, R_pv_lag1, D_pv2p_lag...
+## dbl (14): year, D_pv, R_pv, D_pv2p, R_pv2p, D_pv_lag1, R_pv_lag1, D_pv2p_l...
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
 
+``` r
 # Read elector distribution dataset. 
 d_ec <- read_csv("corrected_ec_1948_2024.csv")
+```
 
+```
 ## Rows: 1010 Columns: 4
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr (2): state, stateab
 ## dbl (2): year, electors
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
 
+``` r
 # Read ads datasets. 
 ad_campaigns <- read_csv("ad_campaigns_2000-2012.csv")
+```
 
+```
 ## Rows: 166078 Columns: 10
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr  (4): party, sponsor, state, creative
 ## dbl  (5): n_markets, n_stations, total_cost, after_primary, cycle
@@ -195,22 +106,30 @@ ad_campaigns <- read_csv("ad_campaigns_2000-2012.csv")
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
 
+``` r
 ad_creative <- read_csv("ad_creative_2000-2012.csv")
+```
 
+```
 ## Rows: 8857 Columns: 6
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr (5): creative, party, ad_issue, ad_purpose, ad_tone
 ## dbl (1): cycle
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
 
+``` r
 ads_2020 <- read_csv("ads_2020.csv")
+```
 
+```
 ## Rows: 96 Columns: 7
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr  (1): state
 ## dbl  (4): biden_airings, trump_airings, total_airings, total_cost
@@ -218,11 +137,15 @@ ads_2020 <- read_csv("ads_2020.csv")
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
 
+``` r
 facebook_ads_2020 <- read_csv("facebook_ads_2020.csv")
+```
 
+```
 ## Rows: 2304323 Columns: 7
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr  (3): pd_id, page_name, disclaimer
 ## dbl  (2): new_spend, num_of_new_ads
@@ -230,36 +153,50 @@ facebook_ads_2020 <- read_csv("facebook_ads_2020.csv")
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
 
+``` r
 facebook_ads_biden_2020 <- read_csv("facebook_ads_biden_2020.csv")
+```
 
+```
 ## New names:
 ## Rows: 984 Columns: 8
 ## ── Column specification
-## ──────────────────────────────────────────────────────── Delimiter: "," chr
-## (3): pd_id, page_name, disclaimer dbl (3): ...1, new_spend, num_of_new_ads date
-## (2): from_date, to_date
+## ────────────────────────────────────────────────────── Delimiter: "," chr
+## (3): pd_id, page_name, disclaimer dbl (3): ...1, new_spend, num_of_new_ads
+## date (2): from_date, to_date
 ## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
-## Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## Specify the column types or set `show_col_types = FALSE` to quiet this
+## message.
 ## • `` -> `...1`
+```
 
+``` r
 campaign_spending <- read_csv("FEC_contributions_by_state_2008_2024.csv")
+```
 
+```
 ## New names:
 ## Rows: 510 Columns: 6
 ## ── Column specification
-## ──────────────────────────────────────────────────────── Delimiter: "," chr
+## ────────────────────────────────────────────────────── Delimiter: "," chr
 ## (3): candidate_id, contribution_state, party dbl (3): ...1,
 ## contribution_receipt_amount, election_year
 ## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
-## Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## Specify the column types or set `show_col_types = FALSE` to quiet this
+## message.
 ## • `` -> `...1`
+```
 
+``` r
 # Read polling data. 
 d_polls <- read_csv("national_polls_1968-2024.csv")
+```
 
+```
 ## Rows: 7420 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr  (3): state, party, candidate
 ## dbl  (4): year, weeks_left, days_left, poll_support
@@ -268,11 +205,15 @@ d_polls <- read_csv("national_polls_1968-2024.csv")
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
 
+``` r
 d_state_polls <- read_csv("state_polls_1968-2024.csv")
+```
 
+```
 ## Rows: 205342 Columns: 9
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr  (3): state, party, candidate
 ## dbl  (4): year, weeks_left, days_left, poll_support
@@ -281,20 +222,27 @@ d_state_polls <- read_csv("state_polls_1968-2024.csv")
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
 
+``` r
 # Read turnout data. 
 d_turnout <- read_csv("state_turnout_1980_2022.csv")
+```
 
+```
 ## Rows: 1144 Columns: 15
-## ── Column specification ────────────────────────────────────────────────────────
+## ── Column specification ──────────────────────────────────────────────────────
 ## Delimiter: ","
-## chr (5): state, vep_turnout, vep_highest_office, vap_highest_office, noncitizen
+## chr (5): state, vep_turnout, vep_highest_office, vap_highest_office, nonci...
 ## dbl (1): year
-## num (9): total_ballots, highest_office_ballots, vep, vap, prison, probation,...
+## num (9): total_ballots, highest_office_ballots, vep, vap, prison, probatio...
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+```
 
+
+``` r
 ####--------------------------------------------------------------#
 #### Descriptive statistics on ads and campaign spending over time. 
 ####--------------------------------------------------------------#
@@ -315,22 +263,28 @@ ad_campaigns |>
   theme(axis.title = element_text(size=20),
         axis.text = element_text(size=15),
         strip.text.x = element_text(size = 20))
+```
 
+```
 ## Joining with `by = join_by(party, creative, cycle)`
+```
 
+```
 ## Warning in left_join(ad_campaigns, ad_creative): Detected an unexpected many-to-many relationship between `x` and `y`.
 ## ℹ Row 1 of `x` matches multiple rows in `y`.
 ## ℹ Row 102 of `y` matches multiple rows in `x`.
 ## ℹ If a many-to-many relationship is expected, set `relationship =
 ##   "many-to-many"` to silence this warning.
+```
 
+```
 ## `summarise()` has grouped output by 'cycle', 'party'. You can override using
 ## the `.groups` argument.
 ```
 
-![](index_files/figure-markdown_strict/descriptive-statistics-1.png)
+![plot of chunk descriptive-statistics](figure/descriptive-statistics-1.png)
 
-```         
+``` r
 ## The Purpose of Political Ads
 ad_campaigns |>
   left_join(ad_creative) |>
@@ -355,39 +309,53 @@ ad_campaigns |>
   theme(axis.title = element_text(size=20),
         axis.text = element_text(size=15),
         strip.text.x = element_text(size = 20))
+```
 
+```
 ## Joining with `by = join_by(party, creative, cycle)`
+```
 
+```
 ## Warning in left_join(ad_campaigns, ad_creative): Detected an unexpected many-to-many relationship between `x` and `y`.
 ## ℹ Row 1 of `x` matches multiple rows in `y`.
 ## ℹ Row 102 of `y` matches multiple rows in `x`.
 ## ℹ If a many-to-many relationship is expected, set `relationship =
 ##   "many-to-many"` to silence this warning.
+```
 
+```
 ## `summarise()` has grouped output by 'cycle', 'party'. You can override using
 ## the `.groups` argument.
 ```
 
-![](index_files/figure-markdown_strict/descriptive-statistics-2.png)
+![plot of chunk descriptive-statistics](figure/descriptive-statistics-2.png)
 
-```         
+``` r
 ## The Elections and Their Issues
 top_issues <- ad_campaigns |> 
   left_join(ad_creative) |>
   filter(!grepl("None|Other", ad_issue)) |>
   group_by(cycle, ad_issue) |> summarise(n=n()) |> top_n(5, n)
+```
 
+```
 ## Joining with `by = join_by(party, creative, cycle)`
+```
 
+```
 ## Warning in left_join(ad_campaigns, ad_creative): Detected an unexpected many-to-many relationship between `x` and `y`.
 ## ℹ Row 1 of `x` matches multiple rows in `y`.
 ## ℹ Row 102 of `y` matches multiple rows in `x`.
 ## ℹ If a many-to-many relationship is expected, set `relationship =
 ##   "many-to-many"` to silence this warning.
+```
 
+```
 ## `summarise()` has grouped output by 'cycle'. You can override using the
 ## `.groups` argument.
+```
 
+``` r
 ### making each plot in a grid to have its own x-axis (issue name)
 ### is tricky with `facet_wrap`, so we use this package `cowplot`
 ### which allows us to take a list of separate plots and grid them together
@@ -401,9 +369,9 @@ plist <- lapply(c(2000,2004,2008,2012), function(c) {
 cowplot::plot_grid(plotlist = plist, nrow = 2, ncol = 2, align = "hv")
 ```
 
-![](index_files/figure-markdown_strict/descriptive-statistics-3.png)
+![plot of chunk descriptive-statistics](figure/descriptive-statistics-3.png)
 
-```         
+``` r
 ## Campaign Ads Aired By Issue and Party: 2000
 party_issues2000 <- ad_campaigns |>
   filter(cycle == 2000) |>
@@ -416,18 +384,26 @@ party_issues2000 <- ad_campaigns |>
   ## finally, this one so we can sort the issue names
   ## by D% of issue ad-share instead of alphabetically
   group_by(ad_issue) |> mutate(Dp_n = ifelse(first(party) == "democrat", first(p_n), 0))
+```
 
+```
 ## Joining with `by = join_by(party, creative, cycle)`
+```
 
+```
 ## Warning in left_join(filter(ad_campaigns, cycle == 2000), ad_creative): Detected an unexpected many-to-many relationship between `x` and `y`.
 ## ℹ Row 1 of `x` matches multiple rows in `y`.
 ## ℹ Row 102 of `y` matches multiple rows in `x`.
 ## ℹ If a many-to-many relationship is expected, set `relationship =
 ##   "many-to-many"` to silence this warning.
+```
 
+```
 ## `summarise()` has grouped output by 'ad_issue'. You can override using the
 ## `.groups` argument.
+```
 
+``` r
 ggplot(party_issues2000, aes(x = reorder(ad_issue, Dp_n), y = p_n, fill = party)) + 
   geom_bar(stat = "identity") +
   scale_fill_manual(values = c("blue", "red")) +
@@ -437,9 +413,9 @@ ggplot(party_issues2000, aes(x = reorder(ad_issue, Dp_n), y = p_n, fill = party)
   theme_bw()
 ```
 
-![](index_files/figure-markdown_strict/descriptive-statistics-4.png)
+![plot of chunk descriptive-statistics](figure/descriptive-statistics-4.png)
 
-```         
+``` r
 ## Campaign Ads Aired By Issue and Party: 2012
 party_issues2012 <- ad_campaigns |>
   filter(cycle == 2012) |>
@@ -448,18 +424,26 @@ party_issues2012 <- ad_campaigns |>
   group_by(cycle, ad_issue) |> mutate(tot_n=n()) |> ungroup() |>
   group_by(cycle, ad_issue, party) |> summarise(p_n=n()*100/first(tot_n)) |> ungroup() |>
   group_by(cycle, ad_issue) |> mutate(Dp_n = ifelse(first(party) == "democrat", first(p_n), 0))
+```
 
+```
 ## Joining with `by = join_by(party, creative, cycle)`
+```
 
+```
 ## Warning in left_join(filter(ad_campaigns, cycle == 2012), ad_creative): Detected an unexpected many-to-many relationship between `x` and `y`.
 ## ℹ Row 7 of `x` matches multiple rows in `y`.
 ## ℹ Row 8259 of `y` matches multiple rows in `x`.
 ## ℹ If a many-to-many relationship is expected, set `relationship =
 ##   "many-to-many"` to silence this warning.
+```
 
-## `summarise()` has grouped output by 'cycle', 'ad_issue'. You can override using
-## the `.groups` argument.
+```
+## `summarise()` has grouped output by 'cycle', 'ad_issue'. You can override
+## using the `.groups` argument.
+```
 
+``` r
 ggplot(party_issues2012, aes(x = reorder(ad_issue, Dp_n), y = p_n, fill = party)) + 
   geom_bar(stat = "identity") +
   scale_fill_manual(values = c("blue", "red")) +
@@ -469,9 +453,9 @@ ggplot(party_issues2012, aes(x = reorder(ad_issue, Dp_n), y = p_n, fill = party)
   theme_bw()
 ```
 
-![](index_files/figure-markdown_strict/descriptive-statistics-5.png)
+![plot of chunk descriptive-statistics](figure/descriptive-statistics-5.png)
 
-```         
+``` r
 ## When to Buy Ads? 
 ad_campaigns |>
   mutate(year = as.numeric(substr(air_date, 1, 4))) |>
@@ -490,14 +474,16 @@ ad_campaigns |>
   theme(axis.title = element_text(size=20),
         axis.text = element_text(size=11),
         strip.text.x = element_text(size = 20))
-
-## `summarise()` has grouped output by 'cycle', 'air_date'. You can override using
-## the `.groups` argument.
 ```
 
-![](index_files/figure-markdown_strict/descriptive-statistics-6.png)
+```
+## `summarise()` has grouped output by 'cycle', 'air_date'. You can override
+## using the `.groups` argument.
+```
 
-```         
+![plot of chunk descriptive-statistics](figure/descriptive-statistics-6.png)
+
+``` r
 ## Tone in Political Ads
 ad_campaigns |>
   left_join(ad_creative) |>
@@ -521,22 +507,28 @@ ad_campaigns |>
   theme(axis.title = element_text(size=20),
         axis.text = element_text(size=10),
         strip.text.x = element_text(size = 20))
+```
 
+```
 ## Joining with `by = join_by(party, creative, cycle)`
+```
 
+```
 ## Warning in left_join(ad_campaigns, ad_creative): Detected an unexpected many-to-many relationship between `x` and `y`.
 ## ℹ Row 1 of `x` matches multiple rows in `y`.
 ## ℹ Row 102 of `y` matches multiple rows in `x`.
 ## ℹ If a many-to-many relationship is expected, set `relationship =
 ##   "many-to-many"` to silence this warning.
-
-## `summarise()` has grouped output by 'cycle', 'air_date'. You can override using
-## the `.groups` argument.
 ```
 
-![](index_files/figure-markdown_strict/descriptive-statistics-7.png)
+```
+## `summarise()` has grouped output by 'cycle', 'air_date'. You can override
+## using the `.groups` argument.
+```
 
-```         
+![plot of chunk descriptive-statistics](figure/descriptive-statistics-7.png)
+
+``` r
 ## The State-level Air War in 2008 (Obama vs. McCain)
 ad_campaigns |>
   mutate(year = as.numeric(substr(air_date, 1, 4))) |>
@@ -560,14 +552,16 @@ ad_campaigns |>
   theme(axis.title.x=element_blank(),
         axis.text.x=element_blank(),
         axis.ticks.x=element_blank())
-
-## `summarise()` has grouped output by 'cycle', 'state', 'air_date', 'party'. You
-## can override using the `.groups` argument.
 ```
 
-![](index_files/figure-markdown_strict/descriptive-statistics-8.png)
+```
+## `summarise()` has grouped output by 'cycle', 'state', 'air_date', 'party'.
+## You can override using the `.groups` argument.
+```
 
-```         
+![plot of chunk descriptive-statistics](figure/descriptive-statistics-8.png)
+
+``` r
 # Visualizing Facebook ads and Biden Facebook ads in 2020. 
 d_facebook <- facebook_ads_2020 |> 
   rename(date = from_date, new_ads = num_of_new_ads) |> 
@@ -582,13 +576,15 @@ d_facebook |>
   labs(x = "Date", 
        y = "New Facebook Ads") +
   theme_minimal()
+```
 
+```
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![](index_files/figure-markdown_strict/descriptive-statistics-9.png)
+![plot of chunk descriptive-statistics](figure/descriptive-statistics-9.png)
 
-```         
+``` r
 d_facebook |> 
   ggplot(aes(x = date, y = new_spend)) +
   geom_line() +
@@ -597,13 +593,15 @@ d_facebook |>
   labs(x = "Date", 
        y = "New Facebook Ad Spending") +
   theme_minimal()
+```
 
+```
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![](index_files/figure-markdown_strict/descriptive-statistics-10.png)
+![plot of chunk descriptive-statistics](figure/descriptive-statistics-10.png)
 
-```         
+``` r
 d_facebook_biden <- facebook_ads_biden_2020 |> 
   rename(date = from_date, new_ads = num_of_new_ads) |> 
   group_by(date) |> 
@@ -617,13 +615,15 @@ d_facebook_biden |>
   labs(x = "Date", 
        y = "New Facebook Ads (Biden Only)") +
   theme_minimal()
+```
 
+```
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![](index_files/figure-markdown_strict/descriptive-statistics-11.png)
+![plot of chunk descriptive-statistics](figure/descriptive-statistics-11.png)
 
-```         
+``` r
 d_facebook_biden |>
   ggplot(aes(x = date, y = new_spend)) +
   geom_line() +
@@ -631,15 +631,19 @@ d_facebook_biden |>
   geom_smooth(method = "lm", se = TRUE) + 
   labs(x = "Date", 
        y = "New Facebook Ad Spending (Biden Only)")
+```
 
+```
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![](index_files/figure-markdown_strict/descriptive-statistics-12.png)
+![plot of chunk descriptive-statistics](figure/descriptive-statistics-12.png)
 
-```         
+``` r
   theme_minimal()
+```
 
+```
 ## List of 136
 ##  $ line                            :List of 6
 ##   ..$ colour       : chr "black"
@@ -935,7 +939,9 @@ d_facebook_biden |>
 ##  - attr(*, "class")= chr [1:2] "theme" "gg"
 ##  - attr(*, "complete")= logi TRUE
 ##  - attr(*, "validate")= logi TRUE
+```
 
+``` r
 # Visualizing FEC contributions by state in 2020, 2024, over time. 
 # dataset: campaign_spending
 # TODO
@@ -948,7 +954,9 @@ d_campaign_spending <- d_state_popvote |>
 
 lm(D_pv ~ contribution_receipt_amount, 
    data = d_campaign_spending) |> summary()
+```
 
+```
 ## 
 ## Call:
 ## lm(formula = D_pv ~ contribution_receipt_amount, data = d_campaign_spending)
@@ -966,12 +974,16 @@ lm(D_pv ~ contribution_receipt_amount,
 ## 
 ## Residual standard error: 9.407 on 198 degrees of freedom
 ##   (4 observations deleted due to missingness)
-## Multiple R-squared:  0.163,  Adjusted R-squared:  0.1588 
+## Multiple R-squared:  0.163,	Adjusted R-squared:  0.1588 
 ## F-statistic: 38.56 on 1 and 198 DF,  p-value: 3.065e-09
+```
 
+``` r
 lm(D_pv2p ~ contribution_receipt_amount, 
    data = d_campaign_spending) |> summary()
+```
 
+```
 ## 
 ## Call:
 ## lm(formula = D_pv2p ~ contribution_receipt_amount, data = d_campaign_spending)
@@ -989,12 +1001,16 @@ lm(D_pv2p ~ contribution_receipt_amount,
 ## 
 ## Residual standard error: 9.611 on 198 degrees of freedom
 ##   (4 observations deleted due to missingness)
-## Multiple R-squared:  0.1677, Adjusted R-squared:  0.1635 
+## Multiple R-squared:  0.1677,	Adjusted R-squared:  0.1635 
 ## F-statistic: 39.89 on 1 and 198 DF,  p-value: 1.738e-09
+```
 
+``` r
 lm(D_pv ~ contribution_receipt_amount + factor(state), 
    data = d_campaign_spending) |> summary()
+```
 
+```
 ## 
 ## Call:
 ## lm(formula = D_pv ~ contribution_receipt_amount + factor(state), 
@@ -1062,12 +1078,16 @@ lm(D_pv ~ contribution_receipt_amount + factor(state),
 ## 
 ## Residual standard error: 3.647 on 149 degrees of freedom
 ##   (4 observations deleted due to missingness)
-## Multiple R-squared:  0.9053, Adjusted R-squared:  0.8736 
+## Multiple R-squared:  0.9053,	Adjusted R-squared:  0.8736 
 ## F-statistic:  28.5 on 50 and 149 DF,  p-value: < 2.2e-16
+```
 
+``` r
 lm(D_pv2p ~ contribution_receipt_amount + factor(state), 
    data = d_campaign_spending) |> summary()
+```
 
+```
 ## 
 ## Call:
 ## lm(formula = D_pv2p ~ contribution_receipt_amount + factor(state), 
@@ -1135,13 +1155,17 @@ lm(D_pv2p ~ contribution_receipt_amount + factor(state),
 ## 
 ## Residual standard error: 3.031 on 149 degrees of freedom
 ##   (4 observations deleted due to missingness)
-## Multiple R-squared:  0.9377, Adjusted R-squared:  0.9168 
+## Multiple R-squared:  0.9377,	Adjusted R-squared:  0.9168 
 ## F-statistic: 44.87 on 50 and 149 DF,  p-value: < 2.2e-16
+```
 
+``` r
 # Log transformation of spending. 
 lm(D_pv ~ log(contribution_receipt_amount), 
    data = d_campaign_spending) |> summary()
+```
 
+```
 ## 
 ## Call:
 ## lm(formula = D_pv ~ log(contribution_receipt_amount), data = d_campaign_spending)
@@ -1159,12 +1183,16 @@ lm(D_pv ~ log(contribution_receipt_amount),
 ## 
 ## Residual standard error: 8.287 on 198 degrees of freedom
 ##   (4 observations deleted due to missingness)
-## Multiple R-squared:  0.3504, Adjusted R-squared:  0.3471 
+## Multiple R-squared:  0.3504,	Adjusted R-squared:  0.3471 
 ## F-statistic: 106.8 on 1 and 198 DF,  p-value: < 2.2e-16
+```
 
+``` r
 lm(D_pv2p ~ log(contribution_receipt_amount), 
    data = d_campaign_spending) |> summary()
+```
 
+```
 ## 
 ## Call:
 ## lm(formula = D_pv2p ~ log(contribution_receipt_amount), data = d_campaign_spending)
@@ -1182,12 +1210,16 @@ lm(D_pv2p ~ log(contribution_receipt_amount),
 ## 
 ## Residual standard error: 8.552 on 198 degrees of freedom
 ##   (4 observations deleted due to missingness)
-## Multiple R-squared:  0.3409, Adjusted R-squared:  0.3376 
+## Multiple R-squared:  0.3409,	Adjusted R-squared:  0.3376 
 ## F-statistic: 102.4 on 1 and 198 DF,  p-value: < 2.2e-16
+```
 
+``` r
 lm(D_pv ~ log(contribution_receipt_amount) + factor(state), 
    data = d_campaign_spending) |> summary()
+```
 
+```
 ## 
 ## Call:
 ## lm(formula = D_pv ~ log(contribution_receipt_amount) + factor(state), 
@@ -1255,12 +1287,16 @@ lm(D_pv ~ log(contribution_receipt_amount) + factor(state),
 ## 
 ## Residual standard error: 3.577 on 149 degrees of freedom
 ##   (4 observations deleted due to missingness)
-## Multiple R-squared:  0.9089, Adjusted R-squared:  0.8783 
+## Multiple R-squared:  0.9089,	Adjusted R-squared:  0.8783 
 ## F-statistic: 29.73 on 50 and 149 DF,  p-value: < 2.2e-16
+```
 
+``` r
 lm(D_pv2p ~ log(contribution_receipt_amount) + factor(state), 
    data = d_campaign_spending) |> summary() # Why might this be? 
+```
 
+```
 ## 
 ## Call:
 ## lm(formula = D_pv2p ~ log(contribution_receipt_amount) + factor(state), 
@@ -1328,9 +1364,12 @@ lm(D_pv2p ~ log(contribution_receipt_amount) + factor(state),
 ## 
 ## Residual standard error: 3.015 on 149 degrees of freedom
 ##   (4 observations deleted due to missingness)
-## Multiple R-squared:  0.9384, Adjusted R-squared:  0.9177 
+## Multiple R-squared:  0.9384,	Adjusted R-squared:  0.9177 
 ## F-statistic: 45.37 on 50 and 149 DF,  p-value: < 2.2e-16
+```
 
+
+``` r
 ####--------------------------------------------------------------#
 #### Bayesianism.
 ####--------------------------------------------------------------#
@@ -1386,30 +1425,6 @@ d.test <- d.test |>
 reg.ols <- lm(D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2, 
               data = d.train)
 summary(reg.ols)
-
-## 
-## Call:
-## lm(formula = D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + 
-##     D_pv2p_lag2, data = d.train)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -10.4485  -2.0088  -0.4128   1.7700   9.8659 
-## 
-## Coefficients:
-##                   Estimate Std. Error t value Pr(>|t|)    
-## (Intercept)        9.03700    1.84335   4.902 1.97e-06 ***
-## latest_pollav_DEM  0.88022    0.08197  10.739  < 2e-16 ***
-## mean_pollav_DEM   -0.27845    0.07428  -3.749 0.000233 ***
-## D_pv2p_lag1        0.44393    0.04578   9.698  < 2e-16 ***
-## D_pv2p_lag2       -0.17487    0.03974  -4.400 1.77e-05 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 3.383 on 197 degrees of freedom
-## Multiple R-squared:  0.7767, Adjusted R-squared:  0.7722 
-## F-statistic: 171.3 on 4 and 197 DF,  p-value: < 2.2e-16
-
 pred.ols.dem <- predict(reg.ols, newdata = d.test)
 
 # Create dataset to summarize winners and EC vote distributions. 
@@ -1422,67 +1437,17 @@ win_pred <- data.frame(state = d.test$state,
 
 win_pred
 
-##             state year simp_pred_dem simp_pred_rep     winner stateab electors
-## 1         Arizona 2024      52.46572      47.53428   Democrat      AZ       11
-## 2      California 2024      63.98963      36.01037   Democrat      CA       54
-## 3         Florida 2024      51.11625      48.88375   Democrat      FL       30
-## 4         Georgia 2024      53.02358      46.97642   Democrat      GA       16
-## 5        Maryland 2024      65.01586      34.98414   Democrat      MD       10
-## 6        Michigan 2024      53.52353      46.47647   Democrat      MI       15
-## 7       Minnesota 2024      55.22069      44.77931   Democrat      MN       10
-## 8        Missouri 2024      45.74964      54.25036 Republican      MO       10
-## 9         Montana 2024      44.15693      55.84307 Republican      MT        4
-## 10         Nevada 2024      53.72355      46.27645   Democrat      NV        6
-## 11  New Hampshire 2024      54.82356      45.17644   Democrat      NH        4
-## 12     New Mexico 2024      54.27571      45.72429   Democrat      NM        5
-## 13       New York 2024      59.47919      40.52081   Democrat      NY       28
-## 14 North Carolina 2024      52.74411      47.25589   Democrat      NC       16
-## 15           Ohio 2024      48.45776      51.54224 Republican      OH       17
-## 16   Pennsylvania 2024      53.07083      46.92917   Democrat      PA       19
-## 17          Texas 2024      50.34049      49.65951   Democrat      TX       40
-## 18       Virginia 2024      55.23023      44.76977   Democrat      VA       13
-## 19      Wisconsin 2024      53.35418      46.64582   Democrat      WI       10
-
 win_pred |> 
   filter(winner == "Democrat") |> 
   select(state)
-
-##             state
-## 1         Arizona
-## 2      California
-## 3         Florida
-## 4         Georgia
-## 5        Maryland
-## 6        Michigan
-## 7       Minnesota
-## 8          Nevada
-## 9   New Hampshire
-## 10     New Mexico
-## 11       New York
-## 12 North Carolina
-## 13   Pennsylvania
-## 14          Texas
-## 15       Virginia
-## 16      Wisconsin
 
 win_pred |> 
   filter(winner == "Republican") |> 
   select(state)
 
-##      state
-## 1 Missouri
-## 2  Montana
-## 3     Ohio
-
 win_pred |> 
   group_by(winner) |> 
   summarize(n = n(), ec = sum(electors))
-
-## # A tibble: 2 × 3
-##   winner         n    ec
-##   <chr>      <int> <dbl>
-## 1 Democrat      16   287
-## 2 Republican     3    31
 
 # Bayesian linear regression using STAN. 
 stan.data <- list(N = nrow(d.train), 
@@ -1519,142 +1484,14 @@ model {
 
 stan.model <- stan_model(model_code = stan.code)
 
-stan.fit <- sampling(stan.model, data = stan.data, chains = 4, iter = 4000, warmup = 1000)
-
-## 
-## SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 1).
-## Chain 1: 
-## Chain 1: Gradient evaluation took 4.1e-05 seconds
-## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.41 seconds.
-## Chain 1: Adjust your expectations accordingly!
-## Chain 1: 
-## Chain 1: 
-## Chain 1: Iteration:    1 / 4000 [  0%]  (Warmup)
-## Chain 1: Iteration:  400 / 4000 [ 10%]  (Warmup)
-## Chain 1: Iteration:  800 / 4000 [ 20%]  (Warmup)
-## Chain 1: Iteration: 1001 / 4000 [ 25%]  (Sampling)
-## Chain 1: Iteration: 1400 / 4000 [ 35%]  (Sampling)
-## Chain 1: Iteration: 1800 / 4000 [ 45%]  (Sampling)
-## Chain 1: Iteration: 2200 / 4000 [ 55%]  (Sampling)
-## Chain 1: Iteration: 2600 / 4000 [ 65%]  (Sampling)
-## Chain 1: Iteration: 3000 / 4000 [ 75%]  (Sampling)
-## Chain 1: Iteration: 3400 / 4000 [ 85%]  (Sampling)
-## Chain 1: Iteration: 3800 / 4000 [ 95%]  (Sampling)
-## Chain 1: Iteration: 4000 / 4000 [100%]  (Sampling)
-## Chain 1: 
-## Chain 1:  Elapsed Time: 0.911 seconds (Warm-up)
-## Chain 1:                3.515 seconds (Sampling)
-## Chain 1:                4.426 seconds (Total)
-## Chain 1: 
-## 
-## SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 2).
-## Chain 2: 
-## Chain 2: Gradient evaluation took 1e-05 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.1 seconds.
-## Chain 2: Adjust your expectations accordingly!
-## Chain 2: 
-## Chain 2: 
-## Chain 2: Iteration:    1 / 4000 [  0%]  (Warmup)
-## Chain 2: Iteration:  400 / 4000 [ 10%]  (Warmup)
-## Chain 2: Iteration:  800 / 4000 [ 20%]  (Warmup)
-## Chain 2: Iteration: 1001 / 4000 [ 25%]  (Sampling)
-## Chain 2: Iteration: 1400 / 4000 [ 35%]  (Sampling)
-## Chain 2: Iteration: 1800 / 4000 [ 45%]  (Sampling)
-## Chain 2: Iteration: 2200 / 4000 [ 55%]  (Sampling)
-## Chain 2: Iteration: 2600 / 4000 [ 65%]  (Sampling)
-## Chain 2: Iteration: 3000 / 4000 [ 75%]  (Sampling)
-## Chain 2: Iteration: 3400 / 4000 [ 85%]  (Sampling)
-## Chain 2: Iteration: 3800 / 4000 [ 95%]  (Sampling)
-## Chain 2: Iteration: 4000 / 4000 [100%]  (Sampling)
-## Chain 2: 
-## Chain 2:  Elapsed Time: 0.901 seconds (Warm-up)
-## Chain 2:                3.078 seconds (Sampling)
-## Chain 2:                3.979 seconds (Total)
-## Chain 2: 
-## 
-## SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 3).
-## Chain 3: 
-## Chain 3: Gradient evaluation took 1.1e-05 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.11 seconds.
-## Chain 3: Adjust your expectations accordingly!
-## Chain 3: 
-## Chain 3: 
-## Chain 3: Iteration:    1 / 4000 [  0%]  (Warmup)
-## Chain 3: Iteration:  400 / 4000 [ 10%]  (Warmup)
-## Chain 3: Iteration:  800 / 4000 [ 20%]  (Warmup)
-## Chain 3: Iteration: 1001 / 4000 [ 25%]  (Sampling)
-## Chain 3: Iteration: 1400 / 4000 [ 35%]  (Sampling)
-## Chain 3: Iteration: 1800 / 4000 [ 45%]  (Sampling)
-## Chain 3: Iteration: 2200 / 4000 [ 55%]  (Sampling)
-## Chain 3: Iteration: 2600 / 4000 [ 65%]  (Sampling)
-## Chain 3: Iteration: 3000 / 4000 [ 75%]  (Sampling)
-## Chain 3: Iteration: 3400 / 4000 [ 85%]  (Sampling)
-## Chain 3: Iteration: 3800 / 4000 [ 95%]  (Sampling)
-## Chain 3: Iteration: 4000 / 4000 [100%]  (Sampling)
-## Chain 3: 
-## Chain 3:  Elapsed Time: 0.881 seconds (Warm-up)
-## Chain 3:                3.296 seconds (Sampling)
-## Chain 3:                4.177 seconds (Total)
-## Chain 3: 
-## 
-## SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 4).
-## Chain 4: 
-## Chain 4: Gradient evaluation took 1.6e-05 seconds
-## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.16 seconds.
-## Chain 4: Adjust your expectations accordingly!
-## Chain 4: 
-## Chain 4: 
-## Chain 4: Iteration:    1 / 4000 [  0%]  (Warmup)
-## Chain 4: Iteration:  400 / 4000 [ 10%]  (Warmup)
-## Chain 4: Iteration:  800 / 4000 [ 20%]  (Warmup)
-## Chain 4: Iteration: 1001 / 4000 [ 25%]  (Sampling)
-## Chain 4: Iteration: 1400 / 4000 [ 35%]  (Sampling)
-## Chain 4: Iteration: 1800 / 4000 [ 45%]  (Sampling)
-## Chain 4: Iteration: 2200 / 4000 [ 55%]  (Sampling)
-## Chain 4: Iteration: 2600 / 4000 [ 65%]  (Sampling)
-## Chain 4: Iteration: 3000 / 4000 [ 75%]  (Sampling)
-## Chain 4: Iteration: 3400 / 4000 [ 85%]  (Sampling)
-## Chain 4: Iteration: 3800 / 4000 [ 95%]  (Sampling)
-## Chain 4: Iteration: 4000 / 4000 [100%]  (Sampling)
-## Chain 4: 
-## Chain 4:  Elapsed Time: 0.984 seconds (Warm-up)
-## Chain 4:                3.52 seconds (Sampling)
-## Chain 4:                4.504 seconds (Total)
-## Chain 4:
+#changed to 400 instead of 4000
+stan.fit <- sampling(stan.model, data = stan.data, chains = 4, iter = 1000, warmup = 500)
 
 # Compare coefficients from frequentist and Bayesian linear regressions. 
 coef(reg.ols)
-
-##       (Intercept) latest_pollav_DEM   mean_pollav_DEM       D_pv2p_lag1 
-##         9.0369974         0.8802244        -0.2784522         0.4439321 
-##       D_pv2p_lag2 
-##        -0.1748684
-
 confint(reg.ols)
-
-##                        2.5 %      97.5 %
-## (Intercept)        5.4017628 12.67223205
-## latest_pollav_DEM  0.7185804  1.04186839
-## mean_pollav_DEM   -0.4249335 -0.13197084
-## D_pv2p_lag1        0.3536576  0.53420663
-## D_pv2p_lag2       -0.2532440 -0.09649291
-
 print(stan.fit, pars = c("alpha", "beta1", "beta2", "beta3", "beta4", "sigma"))
-
-## Inference for Stan model: anon_model.
-## 4 chains, each with iter=4000; warmup=1000; thin=1; 
-## post-warmup draws per chain=3000, total post-warmup draws=12000.
-## 
-##        mean se_mean   sd  2.5%   25%   50%   75% 97.5% n_eff Rhat
-## alpha  9.07    0.02 1.82  5.54  7.85  9.03 10.29 12.62  8814    1
-## beta1  0.88    0.00 0.08  0.72  0.82  0.88  0.94  1.04  7378    1
-## beta2 -0.28    0.00 0.08 -0.43 -0.33 -0.28 -0.23 -0.13  7580    1
-## beta3  0.44    0.00 0.05  0.35  0.41  0.44  0.48  0.54  8440    1
-## beta4 -0.18    0.00 0.04 -0.26 -0.20 -0.17 -0.15 -0.09  9488    1
-## sigma  3.41    0.00 0.17  3.10  3.29  3.40  3.52  3.77  8995    1
-## 
-## Samples were drawn using NUTS(diag_e) at Sun Oct 20 17:18:20 2024.
-## For each parameter, n_eff is a crude measure of effective sample size,
-## and Rhat is the potential scale reduction factor on split chains (at 
-## convergence, Rhat=1).
 ```
+
+
+

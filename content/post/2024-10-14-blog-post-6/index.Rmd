@@ -1,10 +1,10 @@
 ---
-title: Blog Post 6
-author: Kelly Olmos
-date: '2024-10-14'
-slug: blog-post-6
+title: "Blog Post 6"
+author: "Kelly Olmos"
+date: "2024-10-14"
 categories: []
 tags: []
+slug: "blog-post-6"
 ---
 
 ```{r setup}
@@ -324,7 +324,7 @@ lm(D_pv2p ~ log(contribution_receipt_amount) + factor(state),
 
 ```
 
-```{r bayesianism, cache=TRUE}
+```{r bayesianism, cache=TRUE, eval=FALSE}
 
 ####--------------------------------------------------------------#
 #### Bayesianism.
@@ -440,7 +440,8 @@ model {
 
 stan.model <- stan_model(model_code = stan.code)
 
-stan.fit <- sampling(stan.model, data = stan.data, chains = 4, iter = 4000, warmup = 1000)
+#changed to 400 instead of 4000
+stan.fit <- sampling(stan.model, data = stan.data, chains = 4, iter = 1000, warmup = 500)
 
 # Compare coefficients from frequentist and Bayesian linear regressions. 
 coef(reg.ols)
