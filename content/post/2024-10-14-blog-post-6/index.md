@@ -12,28 +12,220 @@ slug: "blog-post-6"
 # Load libraries.
 ## install via `install.packages("name")`
 library(car)
+```
+
+```
+## Loading required package: carData
+```
+
+``` r
 library(caret)
+```
+
+```
+## Loading required package: ggplot2
+```
+
+```
+## Loading required package: lattice
+```
+
+``` r
 library(cowplot)
 library(curl)
+```
+
+```
+## Using libcurl 8.7.1 with LibreSSL/3.3.6
+```
+
+``` r
 library(CVXR)
+```
+
+```
+## 
+## Attaching package: 'CVXR'
+```
+
+```
+## The following object is masked from 'package:stats':
+## 
+##     power
+```
+
+``` r
 library(foreign)
 library(geofacet)
 library(glmnet)
+```
+
+```
+## Loading required package: Matrix
+```
+
+```
+## Loaded glmnet 4.1-8
+```
+
+``` r
 library(haven)
 library(janitor)
+```
+
+```
+## 
+## Attaching package: 'janitor'
+```
+
+```
+## The following objects are masked from 'package:stats':
+## 
+##     chisq.test, fisher.test
+```
+
+``` r
 library(kableExtra)
 library(maps)
 library(mlr3)
 library(randomForest)
+```
+
+```
+## randomForest 4.7-1.2
+```
+
+```
+## Type rfNews() to see new features/changes/bug fixes.
+```
+
+```
+## 
+## Attaching package: 'randomForest'
+```
+
+```
+## The following object is masked from 'package:ggplot2':
+## 
+##     margin
+```
+
+``` r
 library(ranger)
+```
+
+```
+## 
+## Attaching package: 'ranger'
+```
+
+```
+## The following object is masked from 'package:randomForest':
+## 
+##     importance
+```
+
+``` r
 library(RColorBrewer)
 library(rstan)
+```
+
+```
+## Loading required package: StanHeaders
+```
+
+```
+## 
+## rstan version 2.32.6 (Stan version 2.32.2)
+```
+
+```
+## For execution on a local, multicore CPU with excess RAM we recommend calling
+## options(mc.cores = parallel::detectCores()).
+## To avoid recompilation of unchanged Stan programs, we recommend calling
+## rstan_options(auto_write = TRUE)
+## For within-chain threading using `reduce_sum()` or `map_rect()` Stan functions,
+## change `threads_per_chain` option:
+## rstan_options(threads_per_chain = 1)
+```
+
+``` r
 library(scales)
 library(sf)
-library(shinystan)
-library(tidyverse)
-library(viridis)
+```
 
+```
+## Linking to GEOS 3.11.0, GDAL 3.5.3, PROJ 9.1.0; sf_use_s2() is TRUE
+```
+
+``` r
+library(shinystan)
+```
+
+```
+## Loading required package: shiny
+```
+
+```
+## 
+## This is shinystan version 2.6.0
+```
+
+``` r
+library(tidyverse)
+```
+
+```
+## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+## ✔ lubridate 1.9.3     ✔ tibble    3.2.1
+## ✔ purrr     1.0.2     ✔ tidyr     1.3.1
+```
+
+```
+## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ readr::col_factor()    masks scales::col_factor()
+## ✖ dplyr::combine()       masks randomForest::combine()
+## ✖ purrr::discard()       masks scales::discard()
+## ✖ tidyr::expand()        masks Matrix::expand()
+## ✖ tidyr::extract()       masks rstan::extract()
+## ✖ dplyr::filter()        masks stats::filter()
+## ✖ dplyr::group_rows()    masks kableExtra::group_rows()
+## ✖ dplyr::id()            masks CVXR::id()
+## ✖ purrr::is_vector()     masks CVXR::is_vector()
+## ✖ dplyr::lag()           masks stats::lag()
+## ✖ purrr::lift()          masks caret::lift()
+## ✖ purrr::map()           masks maps::map()
+## ✖ randomForest::margin() masks ggplot2::margin()
+## ✖ tidyr::pack()          masks Matrix::pack()
+## ✖ readr::parse_date()    masks curl::parse_date()
+## ✖ dplyr::recode()        masks car::recode()
+## ✖ purrr::some()          masks car::some()
+## ✖ lubridate::stamp()     masks cowplot::stamp()
+## ✖ tidyr::unpack()        masks Matrix::unpack()
+## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
+```
+
+``` r
+library(viridis)
+```
+
+```
+## Loading required package: viridisLite
+## 
+## Attaching package: 'viridis'
+## 
+## The following object is masked from 'package:scales':
+## 
+##     viridis_pal
+## 
+## The following object is masked from 'package:maps':
+## 
+##     unemp
+```
+
+``` r
 ## set working directory here
 # setwd("~")
 ```
@@ -50,7 +242,7 @@ d_popvote <- read_csv("popvote_1948_2020.csv")
 
 ```
 ## Rows: 40 Columns: 11
-## ── Column specification ──────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr (2): party, candidate
 ## dbl (5): year, pv, pv2p, deminc, juneapp
@@ -66,10 +258,10 @@ d_state_popvote <- read_csv("state_popvote_1948_2020.csv")
 
 ```
 ## Rows: 959 Columns: 16
-## ── Column specification ──────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr  (2): state, winner
-## dbl (14): year, D_pv, R_pv, D_pv2p, R_pv2p, D_pv_lag1, R_pv_lag1, D_pv2p_l...
+## dbl (14): year, D_pv, R_pv, D_pv2p, R_pv2p, D_pv_lag1, R_pv_lag1, D_pv2p_lag...
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
@@ -82,7 +274,7 @@ d_ec <- read_csv("corrected_ec_1948_2024.csv")
 
 ```
 ## Rows: 1010 Columns: 4
-## ── Column specification ──────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr (2): state, stateab
 ## dbl (2): year, electors
@@ -98,7 +290,7 @@ ad_campaigns <- read_csv("ad_campaigns_2000-2012.csv")
 
 ```
 ## Rows: 166078 Columns: 10
-## ── Column specification ──────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr  (4): party, sponsor, state, creative
 ## dbl  (5): n_markets, n_stations, total_cost, after_primary, cycle
@@ -114,7 +306,7 @@ ad_creative <- read_csv("ad_creative_2000-2012.csv")
 
 ```
 ## Rows: 8857 Columns: 6
-## ── Column specification ──────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr (5): creative, party, ad_issue, ad_purpose, ad_tone
 ## dbl (1): cycle
@@ -129,7 +321,7 @@ ads_2020 <- read_csv("ads_2020.csv")
 
 ```
 ## Rows: 96 Columns: 7
-## ── Column specification ──────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr  (1): state
 ## dbl  (4): biden_airings, trump_airings, total_airings, total_cost
@@ -145,7 +337,7 @@ facebook_ads_2020 <- read_csv("facebook_ads_2020.csv")
 
 ```
 ## Rows: 2304323 Columns: 7
-## ── Column specification ──────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr  (3): pd_id, page_name, disclaimer
 ## dbl  (2): new_spend, num_of_new_ads
@@ -163,12 +355,11 @@ facebook_ads_biden_2020 <- read_csv("facebook_ads_biden_2020.csv")
 ## New names:
 ## Rows: 984 Columns: 8
 ## ── Column specification
-## ────────────────────────────────────────────────────── Delimiter: "," chr
-## (3): pd_id, page_name, disclaimer dbl (3): ...1, new_spend, num_of_new_ads
-## date (2): from_date, to_date
+## ──────────────────────────────────────────────────────── Delimiter: "," chr
+## (3): pd_id, page_name, disclaimer dbl (3): ...1, new_spend, num_of_new_ads date
+## (2): from_date, to_date
 ## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
-## Specify the column types or set `show_col_types = FALSE` to quiet this
-## message.
+## Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ## • `` -> `...1`
 ```
 
@@ -180,12 +371,11 @@ campaign_spending <- read_csv("FEC_contributions_by_state_2008_2024.csv")
 ## New names:
 ## Rows: 510 Columns: 6
 ## ── Column specification
-## ────────────────────────────────────────────────────── Delimiter: "," chr
+## ──────────────────────────────────────────────────────── Delimiter: "," chr
 ## (3): candidate_id, contribution_state, party dbl (3): ...1,
 ## contribution_receipt_amount, election_year
 ## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
-## Specify the column types or set `show_col_types = FALSE` to quiet this
-## message.
+## Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ## • `` -> `...1`
 ```
 
@@ -196,7 +386,7 @@ d_polls <- read_csv("national_polls_1968-2024.csv")
 
 ```
 ## Rows: 7420 Columns: 9
-## ── Column specification ──────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr  (3): state, party, candidate
 ## dbl  (4): year, weeks_left, days_left, poll_support
@@ -213,7 +403,7 @@ d_state_polls <- read_csv("state_polls_1968-2024.csv")
 
 ```
 ## Rows: 205342 Columns: 9
-## ── Column specification ──────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
 ## chr  (3): state, party, candidate
 ## dbl  (4): year, weeks_left, days_left, poll_support
@@ -231,11 +421,11 @@ d_turnout <- read_csv("state_turnout_1980_2022.csv")
 
 ```
 ## Rows: 1144 Columns: 15
-## ── Column specification ──────────────────────────────────────────────────────
+## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
-## chr (5): state, vep_turnout, vep_highest_office, vap_highest_office, nonci...
+## chr (5): state, vep_turnout, vep_highest_office, vap_highest_office, noncitizen
 ## dbl (1): year
-## num (9): total_ballots, highest_office_ballots, vep, vap, prison, probatio...
+## num (9): total_ballots, highest_office_ballots, vep, vap, prison, probation,...
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
@@ -282,7 +472,7 @@ ad_campaigns |>
 ## the `.groups` argument.
 ```
 
-![plot of chunk descriptive-statistics](figure/descriptive-statistics-1.png)
+<img src="{{< blogdown/postref >}}index_files/figure-html/descriptive-statistics-1.png" width="672" />
 
 ``` r
 ## The Purpose of Political Ads
@@ -328,7 +518,7 @@ ad_campaigns |>
 ## the `.groups` argument.
 ```
 
-![plot of chunk descriptive-statistics](figure/descriptive-statistics-2.png)
+<img src="{{< blogdown/postref >}}index_files/figure-html/descriptive-statistics-2.png" width="672" />
 
 ``` r
 ## The Elections and Their Issues
@@ -369,7 +559,7 @@ plist <- lapply(c(2000,2004,2008,2012), function(c) {
 cowplot::plot_grid(plotlist = plist, nrow = 2, ncol = 2, align = "hv")
 ```
 
-![plot of chunk descriptive-statistics](figure/descriptive-statistics-3.png)
+<img src="{{< blogdown/postref >}}index_files/figure-html/descriptive-statistics-3.png" width="672" />
 
 ``` r
 ## Campaign Ads Aired By Issue and Party: 2000
@@ -413,7 +603,7 @@ ggplot(party_issues2000, aes(x = reorder(ad_issue, Dp_n), y = p_n, fill = party)
   theme_bw()
 ```
 
-![plot of chunk descriptive-statistics](figure/descriptive-statistics-4.png)
+<img src="{{< blogdown/postref >}}index_files/figure-html/descriptive-statistics-4.png" width="672" />
 
 ``` r
 ## Campaign Ads Aired By Issue and Party: 2012
@@ -439,8 +629,8 @@ party_issues2012 <- ad_campaigns |>
 ```
 
 ```
-## `summarise()` has grouped output by 'cycle', 'ad_issue'. You can override
-## using the `.groups` argument.
+## `summarise()` has grouped output by 'cycle', 'ad_issue'. You can override using
+## the `.groups` argument.
 ```
 
 ``` r
@@ -453,7 +643,7 @@ ggplot(party_issues2012, aes(x = reorder(ad_issue, Dp_n), y = p_n, fill = party)
   theme_bw()
 ```
 
-![plot of chunk descriptive-statistics](figure/descriptive-statistics-5.png)
+<img src="{{< blogdown/postref >}}index_files/figure-html/descriptive-statistics-5.png" width="672" />
 
 ``` r
 ## When to Buy Ads? 
@@ -477,11 +667,11 @@ ad_campaigns |>
 ```
 
 ```
-## `summarise()` has grouped output by 'cycle', 'air_date'. You can override
-## using the `.groups` argument.
+## `summarise()` has grouped output by 'cycle', 'air_date'. You can override using
+## the `.groups` argument.
 ```
 
-![plot of chunk descriptive-statistics](figure/descriptive-statistics-6.png)
+<img src="{{< blogdown/postref >}}index_files/figure-html/descriptive-statistics-6.png" width="672" />
 
 ``` r
 ## Tone in Political Ads
@@ -522,11 +712,11 @@ ad_campaigns |>
 ```
 
 ```
-## `summarise()` has grouped output by 'cycle', 'air_date'. You can override
-## using the `.groups` argument.
+## `summarise()` has grouped output by 'cycle', 'air_date'. You can override using
+## the `.groups` argument.
 ```
 
-![plot of chunk descriptive-statistics](figure/descriptive-statistics-7.png)
+<img src="{{< blogdown/postref >}}index_files/figure-html/descriptive-statistics-7.png" width="672" />
 
 ``` r
 ## The State-level Air War in 2008 (Obama vs. McCain)
@@ -555,11 +745,11 @@ ad_campaigns |>
 ```
 
 ```
-## `summarise()` has grouped output by 'cycle', 'state', 'air_date', 'party'.
-## You can override using the `.groups` argument.
+## `summarise()` has grouped output by 'cycle', 'state', 'air_date', 'party'. You
+## can override using the `.groups` argument.
 ```
 
-![plot of chunk descriptive-statistics](figure/descriptive-statistics-8.png)
+<img src="{{< blogdown/postref >}}index_files/figure-html/descriptive-statistics-8.png" width="672" />
 
 ``` r
 # Visualizing Facebook ads and Biden Facebook ads in 2020. 
@@ -582,7 +772,7 @@ d_facebook |>
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![plot of chunk descriptive-statistics](figure/descriptive-statistics-9.png)
+<img src="{{< blogdown/postref >}}index_files/figure-html/descriptive-statistics-9.png" width="672" />
 
 ``` r
 d_facebook |> 
@@ -599,7 +789,7 @@ d_facebook |>
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![plot of chunk descriptive-statistics](figure/descriptive-statistics-10.png)
+<img src="{{< blogdown/postref >}}index_files/figure-html/descriptive-statistics-10.png" width="672" />
 
 ``` r
 d_facebook_biden <- facebook_ads_biden_2020 |> 
@@ -621,7 +811,7 @@ d_facebook_biden |>
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![plot of chunk descriptive-statistics](figure/descriptive-statistics-11.png)
+<img src="{{< blogdown/postref >}}index_files/figure-html/descriptive-statistics-11.png" width="672" />
 
 ``` r
 d_facebook_biden |>
@@ -637,7 +827,7 @@ d_facebook_biden |>
 ## `geom_smooth()` using formula = 'y ~ x'
 ```
 
-![plot of chunk descriptive-statistics](figure/descriptive-statistics-12.png)
+<img src="{{< blogdown/postref >}}index_files/figure-html/descriptive-statistics-12.png" width="672" />
 
 ``` r
   theme_minimal()
