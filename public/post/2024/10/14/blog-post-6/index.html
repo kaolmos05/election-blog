@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=4321&amp;path=livereload" data-no-instant defer></script>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Blog Post 6 | A minimal Hugo website</title>
@@ -354,7 +354,7 @@ ad_campaigns |&gt;
 <pre><code>## `summarise()` has grouped output by 'cycle', 'party'. You can override using
 ## the `.groups` argument.
 </code></pre>
-<img src="index_files/figure-html/descriptive-statistics-1.png" width="672" />
+<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-1.png" width="672" />
 <pre><code class="language-r">## The Purpose of Political Ads
 ad_campaigns |&gt;
   left_join(ad_creative) |&gt;
@@ -391,7 +391,7 @@ ad_campaigns |&gt;
 <pre><code>## `summarise()` has grouped output by 'cycle', 'party'. You can override using
 ## the `.groups` argument.
 </code></pre>
-<img src="index_files/figure-html/descriptive-statistics-2.png" width="672" />
+<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-2.png" width="672" />
 <pre><code class="language-r">## The Elections and Their Issues
 top_issues &lt;- ad_campaigns |&gt; 
   left_join(ad_creative) |&gt;
@@ -421,7 +421,7 @@ plist &lt;- lapply(c(2000,2004,2008,2012), function(c) {
 })
 cowplot::plot_grid(plotlist = plist, nrow = 2, ncol = 2, align = &quot;hv&quot;)
 </code></pre>
-<img src="index_files/figure-html/descriptive-statistics-3.png" width="672" />
+<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-3.png" width="672" />
 <pre><code class="language-r">## Campaign Ads Aired By Issue and Party: 2000
 party_issues2000 &lt;- ad_campaigns |&gt;
   filter(cycle == 2000) |&gt;
@@ -454,7 +454,7 @@ party_issues2000 &lt;- ad_campaigns |&gt;
   coord_flip() + 
   theme_bw()
 </code></pre>
-<img src="index_files/figure-html/descriptive-statistics-4.png" width="672" />
+<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-4.png" width="672" />
 <pre><code class="language-r">## Campaign Ads Aired By Issue and Party: 2012
 party_issues2012 &lt;- ad_campaigns |&gt;
   filter(cycle == 2012) |&gt;
@@ -483,7 +483,7 @@ party_issues2012 &lt;- ad_campaigns |&gt;
   coord_flip() + 
   theme_bw()
 </code></pre>
-<img src="index_files/figure-html/descriptive-statistics-5.png" width="672" />
+<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-5.png" width="672" />
 <pre><code class="language-r">## When to Buy Ads? 
 ad_campaigns |&gt;
   mutate(year = as.numeric(substr(air_date, 1, 4))) |&gt;
@@ -506,7 +506,7 @@ ad_campaigns |&gt;
 <pre><code>## `summarise()` has grouped output by 'cycle', 'air_date'. You can override using
 ## the `.groups` argument.
 </code></pre>
-<img src="index_files/figure-html/descriptive-statistics-6.png" width="672" />
+<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-6.png" width="672" />
 <pre><code class="language-r">## Tone in Political Ads
 ad_campaigns |&gt;
   left_join(ad_creative) |&gt;
@@ -542,7 +542,7 @@ ad_campaigns |&gt;
 <pre><code>## `summarise()` has grouped output by 'cycle', 'air_date'. You can override using
 ## the `.groups` argument.
 </code></pre>
-<img src="index_files/figure-html/descriptive-statistics-7.png" width="672" />
+<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-7.png" width="672" />
 <pre><code class="language-r">## The State-level Air War in 2008 (Obama vs. McCain)
 ad_campaigns |&gt;
   mutate(year = as.numeric(substr(air_date, 1, 4))) |&gt;
@@ -570,7 +570,7 @@ ad_campaigns |&gt;
 <pre><code>## `summarise()` has grouped output by 'cycle', 'state', 'air_date', 'party'. You
 ## can override using the `.groups` argument.
 </code></pre>
-<img src="index_files/figure-html/descriptive-statistics-8.png" width="672" />
+<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-8.png" width="672" />
 <pre><code class="language-r"># Visualizing Facebook ads and Biden Facebook ads in 2020. 
 d_facebook &lt;- facebook_ads_2020 |&gt; 
   rename(date = from_date, new_ads = num_of_new_ads) |&gt; 
@@ -588,7 +588,7 @@ d_facebook |&gt;
 </code></pre>
 <pre><code>## `geom_smooth()` using formula = 'y ~ x'
 </code></pre>
-<img src="index_files/figure-html/descriptive-statistics-9.png" width="672" />
+<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-9.png" width="672" />
 <pre><code class="language-r">d_facebook |&gt; 
   ggplot(aes(x = date, y = new_spend)) +
   geom_line() +
@@ -600,7 +600,7 @@ d_facebook |&gt;
 </code></pre>
 <pre><code>## `geom_smooth()` using formula = 'y ~ x'
 </code></pre>
-<img src="index_files/figure-html/descriptive-statistics-10.png" width="672" />
+<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-10.png" width="672" />
 <pre><code class="language-r">d_facebook_biden &lt;- facebook_ads_biden_2020 |&gt; 
   rename(date = from_date, new_ads = num_of_new_ads) |&gt; 
   group_by(date) |&gt; 
@@ -617,7 +617,7 @@ d_facebook_biden |&gt;
 </code></pre>
 <pre><code>## `geom_smooth()` using formula = 'y ~ x'
 </code></pre>
-<img src="index_files/figure-html/descriptive-statistics-11.png" width="672" />
+<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-11.png" width="672" />
 <pre><code class="language-r">d_facebook_biden |&gt;
   ggplot(aes(x = date, y = new_spend)) +
   geom_line() +
@@ -628,7 +628,7 @@ d_facebook_biden |&gt;
 </code></pre>
 <pre><code>## `geom_smooth()` using formula = 'y ~ x'
 </code></pre>
-<img src="index_files/figure-html/descriptive-statistics-12.png" width="672" />
+<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-12.png" width="672" />
 <pre><code class="language-r">  theme_minimal()
 </code></pre>
 <pre><code>## List of 136
@@ -1377,31 +1377,7 @@ d.test &lt;- d.test |&gt;
 reg.ols &lt;- lm(D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2, 
               data = d.train)
 summary(reg.ols)
-</code></pre>
-<pre><code>## 
-## Call:
-## lm(formula = D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + 
-##     D_pv2p_lag2, data = d.train)
-## 
-## Residuals:
-##      Min       1Q   Median       3Q      Max 
-## -10.4485  -2.0088  -0.4128   1.7700   9.8659 
-## 
-## Coefficients:
-##                   Estimate Std. Error t value Pr(&gt;|t|)    
-## (Intercept)        9.03700    1.84335   4.902 1.97e-06 ***
-## latest_pollav_DEM  0.88022    0.08197  10.739  &lt; 2e-16 ***
-## mean_pollav_DEM   -0.27845    0.07428  -3.749 0.000233 ***
-## D_pv2p_lag1        0.44393    0.04578   9.698  &lt; 2e-16 ***
-## D_pv2p_lag2       -0.17487    0.03974  -4.400 1.77e-05 ***
-## ---
-## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-## 
-## Residual standard error: 3.383 on 197 degrees of freedom
-## Multiple R-squared:  0.7767,	Adjusted R-squared:  0.7722 
-## F-statistic: 171.3 on 4 and 197 DF,  p-value: &lt; 2.2e-16
-</code></pre>
-<pre><code class="language-r">pred.ols.dem &lt;- predict(reg.ols, newdata = d.test)
+pred.ols.dem &lt;- predict(reg.ols, newdata = d.test)
 
 # Create dataset to summarize winners and EC vote distributions. 
 win_pred &lt;- data.frame(state = d.test$state,
@@ -1412,70 +1388,20 @@ win_pred &lt;- data.frame(state = d.test$state,
             left_join(d_ec, by = c(&quot;state&quot;, &quot;year&quot;))
 
 win_pred
-</code></pre>
-<pre><code>##             state year simp_pred_dem simp_pred_rep     winner stateab electors
-## 1         Arizona 2024      52.46572      47.53428   Democrat      AZ       11
-## 2      California 2024      63.98963      36.01037   Democrat      CA       54
-## 3         Florida 2024      51.11625      48.88375   Democrat      FL       30
-## 4         Georgia 2024      53.02358      46.97642   Democrat      GA       16
-## 5        Maryland 2024      65.01586      34.98414   Democrat      MD       10
-## 6        Michigan 2024      53.52353      46.47647   Democrat      MI       15
-## 7       Minnesota 2024      55.22069      44.77931   Democrat      MN       10
-## 8        Missouri 2024      45.74964      54.25036 Republican      MO       10
-## 9         Montana 2024      44.15693      55.84307 Republican      MT        4
-## 10         Nevada 2024      53.72355      46.27645   Democrat      NV        6
-## 11  New Hampshire 2024      54.82356      45.17644   Democrat      NH        4
-## 12     New Mexico 2024      54.27571      45.72429   Democrat      NM        5
-## 13       New York 2024      59.47919      40.52081   Democrat      NY       28
-## 14 North Carolina 2024      52.74411      47.25589   Democrat      NC       16
-## 15           Ohio 2024      48.45776      51.54224 Republican      OH       17
-## 16   Pennsylvania 2024      53.07083      46.92917   Democrat      PA       19
-## 17          Texas 2024      50.34049      49.65951   Democrat      TX       40
-## 18       Virginia 2024      55.23023      44.76977   Democrat      VA       13
-## 19      Wisconsin 2024      53.35418      46.64582   Democrat      WI       10
-</code></pre>
-<pre><code class="language-r">win_pred |&gt; 
+
+win_pred |&gt; 
   filter(winner == &quot;Democrat&quot;) |&gt; 
   select(state)
-</code></pre>
-<pre><code>##             state
-## 1         Arizona
-## 2      California
-## 3         Florida
-## 4         Georgia
-## 5        Maryland
-## 6        Michigan
-## 7       Minnesota
-## 8          Nevada
-## 9   New Hampshire
-## 10     New Mexico
-## 11       New York
-## 12 North Carolina
-## 13   Pennsylvania
-## 14          Texas
-## 15       Virginia
-## 16      Wisconsin
-</code></pre>
-<pre><code class="language-r">win_pred |&gt; 
+
+win_pred |&gt; 
   filter(winner == &quot;Republican&quot;) |&gt; 
   select(state)
-</code></pre>
-<pre><code>##      state
-## 1 Missouri
-## 2  Montana
-## 3     Ohio
-</code></pre>
-<pre><code class="language-r">win_pred |&gt; 
+
+win_pred |&gt; 
   group_by(winner) |&gt; 
   summarize(n = n(), ec = sum(electors))
-</code></pre>
-<pre><code>## # A tibble: 2 × 3
-##   winner         n    ec
-##   &lt;chr&gt;      &lt;int&gt; &lt;dbl&gt;
-## 1 Democrat      16   287
-## 2 Republican     3    31
-</code></pre>
-<pre><code class="language-r"># Bayesian linear regression using STAN. 
+
+# Bayesian linear regression using STAN. 
 stan.data &lt;- list(N = nrow(d.train), 
                   D_pv2p = d.train$D_pv2p, 
                   latest_pollav_DEM = d.train$latest_pollav_DEM, 
@@ -1509,161 +1435,14 @@ model {
 } &quot;)
 
 stan.model &lt;- stan_model(model_code = stan.code)
-</code></pre>
-<pre><code>## Trying to compile a simple C file
-</code></pre>
-<pre><code>## Running /Library/Frameworks/R.framework/Resources/bin/R CMD SHLIB foo.c
-## using C compiler: ‘Apple clang version 15.0.0 (clang-1500.3.9.4)’
-## using SDK: ‘’
-## clang -arch arm64 -I&quot;/Library/Frameworks/R.framework/Resources/include&quot; -DNDEBUG   -I&quot;/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/Rcpp/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/RcppEigen/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/RcppEigen/include/unsupported&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/BH/include&quot; -I&quot;/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/StanHeaders/include/src/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/StanHeaders/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/RcppParallel/include/&quot;  -I&quot;/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/rstan/include&quot; -DEIGEN_NO_DEBUG  -DBOOST_DISABLE_ASSERTS  -DBOOST_PENDING_INTEGER_LOG2_HPP  -DSTAN_THREADS  -DUSE_STANC3 -DSTRICT_R_HEADERS  -DBOOST_PHOENIX_NO_VARIADIC_EXPRESSION  -D_HAS_AUTO_PTR_ETC=0  -include '/Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp'  -D_REENTRANT -DRCPP_PARALLEL_USE_TBB=1   -I/opt/R/arm64/include    -fPIC  -falign-functions=64 -Wall -g -O2  -c foo.c -o foo.o
-## In file included from &lt;built-in&gt;:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/StanHeaders/include/stan/math/prim/fun/Eigen.hpp:22:
-## In file included from /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/RcppEigen/include/Eigen/Dense:1:
-## In file included from /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/RcppEigen/include/Eigen/Core:19:
-## /Library/Frameworks/R.framework/Versions/4.4-arm64/Resources/library/RcppEigen/include/Eigen/src/Core/util/Macros.h:679:10: fatal error: 'cmath' file not found
-## #include &lt;cmath&gt;
-##          ^~~~~~~
-## 1 error generated.
-## make: *** [foo.o] Error 1
-</code></pre>
-<pre><code class="language-r">stan.fit &lt;- sampling(stan.model, data = stan.data, chains = 4, iter = 4000, warmup = 1000)
-</code></pre>
-<pre><code>## 
-## SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 1).
-## Chain 1: 
-## Chain 1: Gradient evaluation took 6.6e-05 seconds
-## Chain 1: 1000 transitions using 10 leapfrog steps per transition would take 0.66 seconds.
-## Chain 1: Adjust your expectations accordingly!
-## Chain 1: 
-## Chain 1: 
-## Chain 1: Iteration:    1 / 4000 [  0%]  (Warmup)
-## Chain 1: Iteration:  400 / 4000 [ 10%]  (Warmup)
-## Chain 1: Iteration:  800 / 4000 [ 20%]  (Warmup)
-## Chain 1: Iteration: 1001 / 4000 [ 25%]  (Sampling)
-## Chain 1: Iteration: 1400 / 4000 [ 35%]  (Sampling)
-## Chain 1: Iteration: 1800 / 4000 [ 45%]  (Sampling)
-## Chain 1: Iteration: 2200 / 4000 [ 55%]  (Sampling)
-## Chain 1: Iteration: 2600 / 4000 [ 65%]  (Sampling)
-## Chain 1: Iteration: 3000 / 4000 [ 75%]  (Sampling)
-## Chain 1: Iteration: 3400 / 4000 [ 85%]  (Sampling)
-## Chain 1: Iteration: 3800 / 4000 [ 95%]  (Sampling)
-## Chain 1: Iteration: 4000 / 4000 [100%]  (Sampling)
-## Chain 1: 
-## Chain 1:  Elapsed Time: 1.568 seconds (Warm-up)
-## Chain 1:                3.955 seconds (Sampling)
-## Chain 1:                5.523 seconds (Total)
-## Chain 1: 
-## 
-## SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 2).
-## Chain 2: 
-## Chain 2: Gradient evaluation took 2.2e-05 seconds
-## Chain 2: 1000 transitions using 10 leapfrog steps per transition would take 0.22 seconds.
-## Chain 2: Adjust your expectations accordingly!
-## Chain 2: 
-## Chain 2: 
-## Chain 2: Iteration:    1 / 4000 [  0%]  (Warmup)
-## Chain 2: Iteration:  400 / 4000 [ 10%]  (Warmup)
-## Chain 2: Iteration:  800 / 4000 [ 20%]  (Warmup)
-## Chain 2: Iteration: 1001 / 4000 [ 25%]  (Sampling)
-## Chain 2: Iteration: 1400 / 4000 [ 35%]  (Sampling)
-## Chain 2: Iteration: 1800 / 4000 [ 45%]  (Sampling)
-## Chain 2: Iteration: 2200 / 4000 [ 55%]  (Sampling)
-## Chain 2: Iteration: 2600 / 4000 [ 65%]  (Sampling)
-## Chain 2: Iteration: 3000 / 4000 [ 75%]  (Sampling)
-## Chain 2: Iteration: 3400 / 4000 [ 85%]  (Sampling)
-## Chain 2: Iteration: 3800 / 4000 [ 95%]  (Sampling)
-## Chain 2: Iteration: 4000 / 4000 [100%]  (Sampling)
-## Chain 2: 
-## Chain 2:  Elapsed Time: 1.374 seconds (Warm-up)
-## Chain 2:                6.225 seconds (Sampling)
-## Chain 2:                7.599 seconds (Total)
-## Chain 2: 
-## 
-## SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 3).
-## Chain 3: 
-## Chain 3: Gradient evaluation took 2.4e-05 seconds
-## Chain 3: 1000 transitions using 10 leapfrog steps per transition would take 0.24 seconds.
-## Chain 3: Adjust your expectations accordingly!
-## Chain 3: 
-## Chain 3: 
-## Chain 3: Iteration:    1 / 4000 [  0%]  (Warmup)
-## Chain 3: Iteration:  400 / 4000 [ 10%]  (Warmup)
-## Chain 3: Iteration:  800 / 4000 [ 20%]  (Warmup)
-## Chain 3: Iteration: 1001 / 4000 [ 25%]  (Sampling)
-## Chain 3: Iteration: 1400 / 4000 [ 35%]  (Sampling)
-## Chain 3: Iteration: 1800 / 4000 [ 45%]  (Sampling)
-## Chain 3: Iteration: 2200 / 4000 [ 55%]  (Sampling)
-## Chain 3: Iteration: 2600 / 4000 [ 65%]  (Sampling)
-## Chain 3: Iteration: 3000 / 4000 [ 75%]  (Sampling)
-## Chain 3: Iteration: 3400 / 4000 [ 85%]  (Sampling)
-## Chain 3: Iteration: 3800 / 4000 [ 95%]  (Sampling)
-## Chain 3: Iteration: 4000 / 4000 [100%]  (Sampling)
-## Chain 3: 
-## Chain 3:  Elapsed Time: 1.629 seconds (Warm-up)
-## Chain 3:                4.76 seconds (Sampling)
-## Chain 3:                6.389 seconds (Total)
-## Chain 3: 
-## 
-## SAMPLING FOR MODEL 'anon_model' NOW (CHAIN 4).
-## Chain 4: 
-## Chain 4: Gradient evaluation took 1.6e-05 seconds
-## Chain 4: 1000 transitions using 10 leapfrog steps per transition would take 0.16 seconds.
-## Chain 4: Adjust your expectations accordingly!
-## Chain 4: 
-## Chain 4: 
-## Chain 4: Iteration:    1 / 4000 [  0%]  (Warmup)
-## Chain 4: Iteration:  400 / 4000 [ 10%]  (Warmup)
-## Chain 4: Iteration:  800 / 4000 [ 20%]  (Warmup)
-## Chain 4: Iteration: 1001 / 4000 [ 25%]  (Sampling)
-## Chain 4: Iteration: 1400 / 4000 [ 35%]  (Sampling)
-## Chain 4: Iteration: 1800 / 4000 [ 45%]  (Sampling)
-## Chain 4: Iteration: 2200 / 4000 [ 55%]  (Sampling)
-## Chain 4: Iteration: 2600 / 4000 [ 65%]  (Sampling)
-## Chain 4: Iteration: 3000 / 4000 [ 75%]  (Sampling)
-## Chain 4: Iteration: 3400 / 4000 [ 85%]  (Sampling)
-## Chain 4: Iteration: 3800 / 4000 [ 95%]  (Sampling)
-## Chain 4: Iteration: 4000 / 4000 [100%]  (Sampling)
-## Chain 4: 
-## Chain 4:  Elapsed Time: 1.323 seconds (Warm-up)
-## Chain 4:                3.823 seconds (Sampling)
-## Chain 4:                5.146 seconds (Total)
-## Chain 4:
-</code></pre>
-<pre><code class="language-r"># Compare coefficients from frequentist and Bayesian linear regressions. 
+
+#changed to 400 instead of 4000
+stan.fit &lt;- sampling(stan.model, data = stan.data, chains = 4, iter = 1000, warmup = 500)
+
+# Compare coefficients from frequentist and Bayesian linear regressions. 
 coef(reg.ols)
-</code></pre>
-<pre><code>##       (Intercept) latest_pollav_DEM   mean_pollav_DEM       D_pv2p_lag1 
-##         9.0369974         0.8802244        -0.2784522         0.4439321 
-##       D_pv2p_lag2 
-##        -0.1748684
-</code></pre>
-<pre><code class="language-r">confint(reg.ols)
-</code></pre>
-<pre><code>##                        2.5 %      97.5 %
-## (Intercept)        5.4017628 12.67223205
-## latest_pollav_DEM  0.7185804  1.04186839
-## mean_pollav_DEM   -0.4249335 -0.13197084
-## D_pv2p_lag1        0.3536576  0.53420663
-## D_pv2p_lag2       -0.2532440 -0.09649291
-</code></pre>
-<pre><code class="language-r">print(stan.fit, pars = c(&quot;alpha&quot;, &quot;beta1&quot;, &quot;beta2&quot;, &quot;beta3&quot;, &quot;beta4&quot;, &quot;sigma&quot;))
-</code></pre>
-<pre><code>## Inference for Stan model: anon_model.
-## 4 chains, each with iter=4000; warmup=1000; thin=1; 
-## post-warmup draws per chain=3000, total post-warmup draws=12000.
-## 
-##        mean se_mean   sd  2.5%   25%   50%   75% 97.5% n_eff Rhat
-## alpha  9.02    0.02 1.83  5.45  7.80  9.04 10.25 12.63  9306    1
-## beta1  0.88    0.00 0.08  0.72  0.83  0.88  0.94  1.05  6257    1
-## beta2 -0.28    0.00 0.08 -0.43 -0.33 -0.28 -0.23 -0.13  6611    1
-## beta3  0.44    0.00 0.05  0.35  0.41  0.44  0.47  0.53  8445    1
-## beta4 -0.17    0.00 0.04 -0.25 -0.20 -0.17 -0.15 -0.10  8355    1
-## sigma  3.41    0.00 0.17  3.09  3.29  3.40  3.52  3.77  8876    1
-## 
-## Samples were drawn using NUTS(diag_e) at Sun Oct 20 13:30:40 2024.
-## For each parameter, n_eff is a crude measure of effective sample size,
-## and Rhat is the potential scale reduction factor on split chains (at 
-## convergence, Rhat=1).
+confint(reg.ols)
+print(stan.fit, pars = c(&quot;alpha&quot;, &quot;beta1&quot;, &quot;beta2&quot;, &quot;beta3&quot;, &quot;beta4&quot;, &quot;sigma&quot;))
 </code></pre>
 
 </main>
