@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head>
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Blog Post 6 | A minimal Hugo website</title>
@@ -354,7 +354,7 @@ ad_campaigns |&gt;
 <pre><code>## `summarise()` has grouped output by 'cycle', 'party'. You can override using
 ## the `.groups` argument.
 </code></pre>
-<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-1.png" width="672" />
+<img src="http://localhost:1313/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-1.png" width="672" />
 <pre><code class="language-r">## The Purpose of Political Ads
 ad_campaigns |&gt;
   left_join(ad_creative) |&gt;
@@ -391,7 +391,7 @@ ad_campaigns |&gt;
 <pre><code>## `summarise()` has grouped output by 'cycle', 'party'. You can override using
 ## the `.groups` argument.
 </code></pre>
-<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-2.png" width="672" />
+<img src="http://localhost:1313/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-2.png" width="672" />
 <pre><code class="language-r">## The Elections and Their Issues
 top_issues &lt;- ad_campaigns |&gt; 
   left_join(ad_creative) |&gt;
@@ -421,7 +421,7 @@ plist &lt;- lapply(c(2000,2004,2008,2012), function(c) {
 })
 cowplot::plot_grid(plotlist = plist, nrow = 2, ncol = 2, align = &quot;hv&quot;)
 </code></pre>
-<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-3.png" width="672" />
+<img src="http://localhost:1313/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-3.png" width="672" />
 <pre><code class="language-r">## Campaign Ads Aired By Issue and Party: 2000
 party_issues2000 &lt;- ad_campaigns |&gt;
   filter(cycle == 2000) |&gt;
@@ -454,7 +454,7 @@ party_issues2000 &lt;- ad_campaigns |&gt;
   coord_flip() + 
   theme_bw()
 </code></pre>
-<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-4.png" width="672" />
+<img src="http://localhost:1313/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-4.png" width="672" />
 <pre><code class="language-r">## Campaign Ads Aired By Issue and Party: 2012
 party_issues2012 &lt;- ad_campaigns |&gt;
   filter(cycle == 2012) |&gt;
@@ -483,7 +483,7 @@ party_issues2012 &lt;- ad_campaigns |&gt;
   coord_flip() + 
   theme_bw()
 </code></pre>
-<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-5.png" width="672" />
+<img src="http://localhost:1313/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-5.png" width="672" />
 <pre><code class="language-r">## When to Buy Ads? 
 ad_campaigns |&gt;
   mutate(year = as.numeric(substr(air_date, 1, 4))) |&gt;
@@ -506,7 +506,7 @@ ad_campaigns |&gt;
 <pre><code>## `summarise()` has grouped output by 'cycle', 'air_date'. You can override using
 ## the `.groups` argument.
 </code></pre>
-<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-6.png" width="672" />
+<img src="http://localhost:1313/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-6.png" width="672" />
 <pre><code class="language-r">## Tone in Political Ads
 ad_campaigns |&gt;
   left_join(ad_creative) |&gt;
@@ -542,7 +542,7 @@ ad_campaigns |&gt;
 <pre><code>## `summarise()` has grouped output by 'cycle', 'air_date'. You can override using
 ## the `.groups` argument.
 </code></pre>
-<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-7.png" width="672" />
+<img src="http://localhost:1313/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-7.png" width="672" />
 <pre><code class="language-r">## The State-level Air War in 2008 (Obama vs. McCain)
 ad_campaigns |&gt;
   mutate(year = as.numeric(substr(air_date, 1, 4))) |&gt;
@@ -570,7 +570,7 @@ ad_campaigns |&gt;
 <pre><code>## `summarise()` has grouped output by 'cycle', 'state', 'air_date', 'party'. You
 ## can override using the `.groups` argument.
 </code></pre>
-<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-8.png" width="672" />
+<img src="http://localhost:1313/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-8.png" width="672" />
 <pre><code class="language-r"># Visualizing Facebook ads and Biden Facebook ads in 2020. 
 d_facebook &lt;- facebook_ads_2020 |&gt; 
   rename(date = from_date, new_ads = num_of_new_ads) |&gt; 
@@ -588,7 +588,7 @@ d_facebook |&gt;
 </code></pre>
 <pre><code>## `geom_smooth()` using formula = 'y ~ x'
 </code></pre>
-<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-9.png" width="672" />
+<img src="http://localhost:1313/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-9.png" width="672" />
 <pre><code class="language-r">d_facebook |&gt; 
   ggplot(aes(x = date, y = new_spend)) +
   geom_line() +
@@ -600,7 +600,7 @@ d_facebook |&gt;
 </code></pre>
 <pre><code>## `geom_smooth()` using formula = 'y ~ x'
 </code></pre>
-<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-10.png" width="672" />
+<img src="http://localhost:1313/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-10.png" width="672" />
 <pre><code class="language-r">d_facebook_biden &lt;- facebook_ads_biden_2020 |&gt; 
   rename(date = from_date, new_ads = num_of_new_ads) |&gt; 
   group_by(date) |&gt; 
@@ -617,7 +617,7 @@ d_facebook_biden |&gt;
 </code></pre>
 <pre><code>## `geom_smooth()` using formula = 'y ~ x'
 </code></pre>
-<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-11.png" width="672" />
+<img src="http://localhost:1313/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-11.png" width="672" />
 <pre><code class="language-r">d_facebook_biden |&gt;
   ggplot(aes(x = date, y = new_spend)) +
   geom_line() +
@@ -628,7 +628,7 @@ d_facebook_biden |&gt;
 </code></pre>
 <pre><code>## `geom_smooth()` using formula = 'y ~ x'
 </code></pre>
-<img src="https://example.org/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-12.png" width="672" />
+<img src="http://localhost:1313/post/2024/10/14/blog-post-6/index_files/figure-html/descriptive-statistics-12.png" width="672" />
 <pre><code class="language-r">  theme_minimal()
 </code></pre>
 <pre><code>## List of 136
