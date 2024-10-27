@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=4321&amp;path=livereload" data-no-instant defer></script>
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Blog Post V | A minimal Hugo website</title>
+    <title>Blog Post Five | A minimal Hugo website</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
     
@@ -20,8 +20,8 @@
     </nav>
 
 <div class="article-meta">
-<h1><span class="title">Blog Post V</span></h1>
-<h2 class="author">Package Build</h2>
+<h1><span class="title">Blog Post Five</span></h1>
+<h2 class="author">Kelly Olmos</h2>
 <h2 class="date">2024/10/07</h2>
 </div>
 
@@ -137,7 +137,10 @@ library(sf)
 ## 
 ##     unemp
 </code></pre>
-<pre><code class="language-r">## set working directory here
+<pre><code class="language-r">library(usmap)
+
+
+## set working directory here
 # setwd(&quot;~&quot;)
 </code></pre>
 <pre><code class="language-r">####----------------------------------------------------------#
@@ -256,8 +259,8 @@ d_pollav_state &lt;- d_state_polls |&gt;
   rename(latest_pollav = poll_support) |&gt;
   select(-c(weeks_left, days_left, poll_date, candidate, before_convention)) |&gt;
   pivot_wider(names_from = party, values_from = c(latest_pollav, mean_pollav))
-                             
-####----------------------------------------------------------#
+</code></pre>
+<pre><code class="language-r">####----------------------------------------------------------#
 #### Replication of Kim &amp; Zilinsky (2023).
 ####----------------------------------------------------------#
                              
@@ -295,8 +298,7 @@ anes &lt;- anes |&gt;
          # 3-point ideology. 
          ideo = VCF0804 # 0, 9 = DK; 1 = Liberal; 2 = Moderate; 3 = Conservative
          ) |&gt; 
-  select(year, pres_vote, age, gender, race, educ, income, religion, attend_church, southern, 
-         region, work_status, homeowner, married, pid7, pid3, ideo)
+  select(year, pres_vote, age, gender, race, educ, income, religion, attend_church, southern, region, work_status, homeowner, married, pid7, pid3, ideo)
 
 # How well do demographics predict vote choice? 
 anes_year &lt;- anes[anes$year == 2016,] |&gt; 
@@ -352,8 +354,8 @@ summary(logit_fit)
 ## Number of Fisher Scoring iterations: 4
 </code></pre>
 <pre><code class="language-r"># In-sample accuracy.
-logit.is &lt;- factor(ifelse(predict(logit_fit, type = &quot;response&quot;) &gt; 0.5, 2, 1), 
-                   levels = c(1, 2), labels = c(&quot;Democrat&quot;, &quot;Republican&quot;))
+logit.is &lt;- factor(ifelse(predict(logit_fit, type = &quot;response&quot;) &gt; 0.5, 2, 1), levels = c(1, 2), labels = c(&quot;Democrat&quot;, &quot;Republican&quot;))
+
 (cm.rf.logit.is &lt;- confusionMatrix(logit.is, anes_train$pres_vote))
 </code></pre>
 <pre><code>## Confusion Matrix and Statistics
@@ -385,8 +387,8 @@ logit.is &lt;- factor(ifelse(predict(logit_fit, type = &quot;response&quot;) &gt
 ## 
 </code></pre>
 <pre><code class="language-r"># Out-of-sample accuracy. 
-logit_pred &lt;- factor(ifelse(predict(logit_fit, anes_test, type = &quot;response&quot;) &gt; 0.5, 2, 1), 
-                     levels = c(1, 2), labels = c(&quot;Democrat&quot;, &quot;Republican&quot;))
+logit_pred &lt;- factor(ifelse(predict(logit_fit, anes_test, type = &quot;response&quot;) &gt; 0.5, 2, 1), levels = c(1, 2), labels = c(&quot;Democrat&quot;, &quot;Republican&quot;))
+
 (cm.rf.logit.oos &lt;- confusionMatrix(logit_pred, anes_test$pres_vote))
 </code></pre>
 <pre><code>## Confusion Matrix and Statistics
@@ -489,8 +491,8 @@ rf_pred &lt;- predict(rf_fit, data = anes_test)
 ## 
 </code></pre>
 <pre><code class="language-r"># Can also write loop to compute values by year and replicate plots from Kim &amp; Zilinsky's (2023) paper.
-
-####----------------------------------------------------------#
+</code></pre>
+<pre><code class="language-r">####----------------------------------------------------------#
 #### Voterfile loading/descriptives/analysis. 
 ####----------------------------------------------------------#
 
@@ -498,27 +500,366 @@ rf_pred &lt;- predict(rf_fit, data = anes_test)
 voterfile.sample.files &lt;- list.files(&quot;state_1pc_samples_aug24&quot;)
 
 # Florida example. 
-vf_fl &lt;- read_csv(&quot;state_1pc_samples_aug24/FL_sample.csv&quot;)
+tx_fl &lt;- read_csv(&quot;state_1pc_samples_aug24/TX_sample.csv&quot;)
 </code></pre>
 <pre><code>## Warning: One or more parsing issues, call `problems()` on your data frame for details,
 ## e.g.:
 ##   dat &lt;- vroom(...)
 ##   problems(dat)
 </code></pre>
-<pre><code>## Rows: 216941 Columns: 43
+<pre><code>## Rows: 253672 Columns: 43
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: &quot;,&quot;
 ## chr (22): sii_state, sii_age_range, sii_gender, sii_race, svi_party_registra...
 ## dbl (16): sii_deceased, sii_age, sii_married, svi_vote_all_general, svi_vote...
-## lgl  (5): svi_vh_2020pp_party, svi_vh_2023p, svi_vh_2023p_party, svi_vh_2023...
+## lgl  (5): svi_vh_2021p_party, svi_vh_2023p, svi_vh_2023p_party, svi_vh_2023g...
 ## 
 ## ℹ Use `spec()` to retrieve the full column specification for this data.
 ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 </code></pre>
+<pre><code class="language-r">tx_fl &lt;- tx_fl |&gt;
+  select(svi_vh_2020g, svi_vh_2022g, sii_age_range ,sii_gender, sii_race,sii_education_level, svi_vh_2024g) |&gt;
+  mutate(
+    voted_2020 = ifelse(is.na(svi_vh_2020g), 0, 1),
+    voted_2022 = ifelse(is.na(svi_vh_2022g), 0, 1),
+    ) |&gt;
+  filter(!is.na(voted_2022) &amp; !is.na(sii_age_range) &amp; !is.na(sii_gender) &amp;
+           !is.na(sii_race) &amp; !is.na(sii_education_level))
+
+
+model_fit &lt;- glm(voted_2020 ~ sii_age_range + sii_gender + sii_race + sii_education_level, family = binomial(link = &quot;logit&quot;), data = tx_fl)
+
+model_fit 
+</code></pre>
+<pre><code>## 
+## Call:  glm(formula = voted_2020 ~ sii_age_range + sii_gender + sii_race + 
+##     sii_education_level, family = binomial(link = &quot;logit&quot;), data = tx_fl)
+## 
+## Coefficients:
+##          (Intercept)        sii_age_rangeB        sii_age_rangeC  
+##              -1.2141                0.7860                1.0306  
+##       sii_age_rangeD        sii_age_rangeE        sii_age_rangeF  
+##               1.2071                1.4015                1.0440  
+##          sii_genderM           sii_genderU           sii_genderX  
+##              -0.2827               -0.3438                1.5734  
+##            sii_raceB             sii_raceH             sii_raceN  
+##               0.1872               -0.1463                0.2791  
+##            sii_raceO             sii_raceU             sii_raceW  
+##               0.7097               -0.6247                0.5452  
+## sii_education_levelB  sii_education_levelC  sii_education_levelD  
+##               0.7303                1.0251                0.6771  
+## sii_education_levelE  
+##               0.4725  
+## 
+## Degrees of Freedom: 227445 Total (i.e. Null);  227427 Residual
+## Null Deviance:	    314400 
+## Residual Deviance: 287600 	AIC: 287700
+</code></pre>
+<pre><code class="language-r">#The code below converts the log-odds into probabilities to make it easier to interpret and understand intuitively. It is modeled off R code from https://www.montana.edu/rotella/documents/502/Lecture_03_R_code.pdf
+
+log_odds &lt;- coef(model_fit)
+
+#Converting log-odds to probabilities w/ plogis
+probabilities &lt;- plogis(log_odds)
+
+#Making a table with log-odds and probabilities 
+results &lt;- data.frame(log_odds, probabilities)
+
+#Present table w/ kable 
+row.names(results) &lt;- c(&quot;Intercept&quot;, &quot;Age Range 30-39&quot;, &quot;Age Range 40-49&quot;, &quot;Age Range 50-64&quot;, &quot;Age Range 65-74&quot;, &quot;Age Range 75+&quot;, &quot;Male&quot;, &quot;Expansive&quot;, &quot;Unknown1&quot;, &quot;African-American&quot;, &quot;Caucasian&quot;, &quot;Hispanic&quot;, &quot;Native American&quot;, &quot;Unknown2&quot;, &quot;Other&quot;, &quot;Some College or Higher&quot;, &quot;Completed College&quot;, &quot;Completed Graduate School&quot;, &quot;Attended Vocational/Technical&quot;)
+
+colnames(results) &lt;- c(&quot;Log odds&quot;, &quot;Probabilities&quot;)
+              
+
+kable(results)
+</code></pre>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left"></th>
+          <th style="text-align: right">Log odds</th>
+          <th style="text-align: right">Probabilities</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">Intercept</td>
+          <td style="text-align: right">-1.2141138</td>
+          <td style="text-align: right">0.2289740</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Age Range 30-39</td>
+          <td style="text-align: right">0.7860256</td>
+          <td style="text-align: right">0.6869773</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Age Range 40-49</td>
+          <td style="text-align: right">1.0305721</td>
+          <td style="text-align: right">0.7370268</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Age Range 50-64</td>
+          <td style="text-align: right">1.2070943</td>
+          <td style="text-align: right">0.7697844</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Age Range 65-74</td>
+          <td style="text-align: right">1.4014692</td>
+          <td style="text-align: right">0.8024169</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Age Range 75+</td>
+          <td style="text-align: right">1.0439784</td>
+          <td style="text-align: right">0.7396169</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Male</td>
+          <td style="text-align: right">-0.2827494</td>
+          <td style="text-align: right">0.4297799</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Expansive</td>
+          <td style="text-align: right">-0.3438069</td>
+          <td style="text-align: right">0.4148850</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Unknown1</td>
+          <td style="text-align: right">1.5734212</td>
+          <td style="text-align: right">0.8282708</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">African-American</td>
+          <td style="text-align: right">0.1872100</td>
+          <td style="text-align: right">0.5466663</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Caucasian</td>
+          <td style="text-align: right">-0.1463079</td>
+          <td style="text-align: right">0.4634881</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Hispanic</td>
+          <td style="text-align: right">0.2790825</td>
+          <td style="text-align: right">0.5693213</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Native American</td>
+          <td style="text-align: right">0.7097148</td>
+          <td style="text-align: right">0.6703381</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Unknown2</td>
+          <td style="text-align: right">-0.6246810</td>
+          <td style="text-align: right">0.3487176</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Other</td>
+          <td style="text-align: right">0.5452111</td>
+          <td style="text-align: right">0.6330238</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Some College or Higher</td>
+          <td style="text-align: right">0.7302751</td>
+          <td style="text-align: right">0.6748656</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Completed College</td>
+          <td style="text-align: right">1.0250856</td>
+          <td style="text-align: right">0.7359620</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Completed Graduate School</td>
+          <td style="text-align: right">0.6770579</td>
+          <td style="text-align: right">0.6630817</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Attended Vocational/Technical</td>
+          <td style="text-align: right">0.4725291</td>
+          <td style="text-align: right">0.6159822</td>
+      </tr>
+  </tbody>
+</table>
 <pre><code class="language-r"># Histograms, quantiles, prop tables, maps, etc. 
 # TODO: 
 
-# What state do you want to explore/analyze for 2024?
+#ggplot(tx_fl, aes(x = sii_age)) +
+  #geom_histogram(binwidth = 5, fill = &quot;orchid&quot;, color = &quot;orchid4&quot;) +
+  #labs(title = &quot;Age Distribution of Texas Voters&quot;, x = &quot;Age&quot;, y = &quot;Voters&quot;)
+
+#age_percentages &lt;- tx_fl |&gt;
+  #group_by(sii_gender) |&gt;
+  #summarise(count = n()) |&gt;
+  #mutate(percentage = (count / sum(count)) * 100)
+
+#kable(age_percentages)
+
+ggplot(tx_fl, aes(x = sii_race)) +
+  geom_bar(fill = &quot;turquoise&quot;) +
+  labs(title = &quot;Race Distribution of Texas Voters&quot;, x = &quot;Race&quot;, y = &quot;Voters&quot;)
+</code></pre>
+<img src="index_files/figure-html/voterfile-1.png" width="672" />
+<pre><code class="language-r">race_percentages &lt;- tx_fl |&gt;
+  group_by(sii_race) |&gt;
+  summarise(count = n()) |&gt;
+  mutate(percentage = (count / sum(count)) * 100)
+
+kable(race_percentages)
+</code></pre>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left">sii_race</th>
+          <th style="text-align: right">count</th>
+          <th style="text-align: right">percentage</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">A</td>
+          <td style="text-align: right">8956</td>
+          <td style="text-align: right">3.9376379</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">B</td>
+          <td style="text-align: right">23473</td>
+          <td style="text-align: right">10.3202518</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">H</td>
+          <td style="text-align: right">66608</td>
+          <td style="text-align: right">29.2851930</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">N</td>
+          <td style="text-align: right">139</td>
+          <td style="text-align: right">0.0611134</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">O</td>
+          <td style="text-align: right">84</td>
+          <td style="text-align: right">0.0369318</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">U</td>
+          <td style="text-align: right">5507</td>
+          <td style="text-align: right">2.4212341</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">W</td>
+          <td style="text-align: right">122679</td>
+          <td style="text-align: right">53.9376379</td>
+      </tr>
+  </tbody>
+</table>
+<pre><code class="language-r">ggplot(tx_fl, aes(x = sii_education_level)) +
+  geom_bar(fill = &quot;skyblue&quot;) +
+  labs(title = &quot;Education Level of Texas Voters&quot;, x = &quot;Education Level&quot;, y = &quot;Voters&quot;)
+</code></pre>
+<img src="index_files/figure-html/voterfile-2.png" width="672" />
+<pre><code class="language-r">education_level_percentages &lt;- tx_fl |&gt;
+  group_by(sii_race) |&gt;
+  summarise(count = n()) |&gt;
+  mutate(percentage = (count / sum(count)) * 100)
+
+kable(education_level_percentages)
+</code></pre>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left">sii_race</th>
+          <th style="text-align: right">count</th>
+          <th style="text-align: right">percentage</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">A</td>
+          <td style="text-align: right">8956</td>
+          <td style="text-align: right">3.9376379</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">B</td>
+          <td style="text-align: right">23473</td>
+          <td style="text-align: right">10.3202518</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">H</td>
+          <td style="text-align: right">66608</td>
+          <td style="text-align: right">29.2851930</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">N</td>
+          <td style="text-align: right">139</td>
+          <td style="text-align: right">0.0611134</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">O</td>
+          <td style="text-align: right">84</td>
+          <td style="text-align: right">0.0369318</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">U</td>
+          <td style="text-align: right">5507</td>
+          <td style="text-align: right">2.4212341</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">W</td>
+          <td style="text-align: right">122679</td>
+          <td style="text-align: right">53.9376379</td>
+      </tr>
+  </tbody>
+</table>
+<pre><code class="language-r">ggplot(tx_fl, aes(x = sii_gender)) +
+  geom_bar(fill = &quot;plum&quot;) +
+  labs(title = &quot;Gender Breakdown of Texas Voters&quot;, x = &quot;Gender&quot;, y = &quot;Count&quot;) 
+</code></pre>
+<img src="index_files/figure-html/voterfile-3.png" width="672" />
+<pre><code class="language-r">gender_percentages &lt;- tx_fl |&gt;
+  group_by(sii_gender) |&gt;
+  summarise(count = n()) |&gt;
+  mutate(percentage = (count / sum(count)) * 100)
+
+gender_percentages &lt;- gender_percentages |&gt;
+  rename(
+    Gender = sii_gender,
+    Count = count,
+    Percentage = percentage
+  )
+
+kable(gender_percentages)
+</code></pre>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left">Gender</th>
+          <th style="text-align: right">Count</th>
+          <th style="text-align: right">Percentage</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">F</td>
+          <td style="text-align: right">113230</td>
+          <td style="text-align: right">49.7832453</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">M</td>
+          <td style="text-align: right">107620</td>
+          <td style="text-align: right">47.3167257</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">U</td>
+          <td style="text-align: right">6591</td>
+          <td style="text-align: right">2.8978307</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">X</td>
+          <td style="text-align: right">5</td>
+          <td style="text-align: right">0.0021983</td>
+      </tr>
+  </tbody>
+</table>
+<pre><code class="language-r"># What state do you want to explore/analyze for 2024?
 # TODO: 
 </code></pre>
 <pre><code class="language-r">####----------------------------------------------------------#
@@ -548,10 +889,9 @@ d_test &lt;- d |&gt;
   filter(year == 2024)
 
 # Example pooled model with turnout and demographics. 
-mod_lm_dem &lt;- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout + total_pop + white + black + american_indian + 
-                 asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
-                 less_than_college + bachelors + graduate + incumbent + incumbent_party, 
-                 data = d_train)
+mod_lm_dem &lt;- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout + total_pop + white + black + american_indian + asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
+less_than_college + bachelors + graduate + incumbent + incumbent_party, data = d_train)
+
 summary(mod_lm_dem)
 </code></pre>
 <pre><code>## 
@@ -595,10 +935,9 @@ summary(mod_lm_dem)
 ## Multiple R-squared:  0.9442,	Adjusted R-squared:  0.9319 
 ## F-statistic: 77.06 on 18 and 82 DF,  p-value: &lt; 2.2e-16
 </code></pre>
-<pre><code class="language-r">mod_lm_rep &lt;- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout + total_pop + white + black + american_indian + 
-                 asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
-                   less_than_college + bachelors + graduate,
-                 data = d_train)
+<pre><code class="language-r">mod_lm_rep &lt;- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout + total_pop + white + black + american_indian + asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
+less_than_college + bachelors + graduate, data = d_train)
+
 summary(mod_lm_rep)
 </code></pre>
 <pre><code>## 
@@ -649,13 +988,11 @@ summary(mod_lm_rep)
 # (3.) Simulate plausible values for variables based on historical averages or more advanced model. 
 
 # Simple simulation example: 
-simp.vars &lt;- c(&quot;D_pv2p_lag1&quot;, &quot;D_pv2p_lag2&quot;, &quot;latest_pollav_DEM&quot;, &quot;mean_pollav_DEM&quot;,
-               &quot;R_pv2p_lag1&quot;, &quot;R_pv2p_lag2&quot;, &quot;latest_pollav_REP&quot;, &quot;mean_pollav_REP&quot;,
-               &quot;vep_turnout&quot;)
-mod_lm_dem_simp &lt;- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout,
-                      data = d_train)
-mod_lm_rep_simp &lt;- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout,
-                      data = d_train)
+simp.vars &lt;- c(&quot;D_pv2p_lag1&quot;, &quot;D_pv2p_lag2&quot;, &quot;latest_pollav_DEM&quot;, &quot;mean_pollav_DEM&quot;, &quot;R_pv2p_lag1&quot;, &quot;R_pv2p_lag2&quot;, &quot;latest_pollav_REP&quot;, &quot;mean_pollav_REP&quot;, &quot;vep_turnout&quot;)
+
+mod_lm_dem_simp &lt;- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout, data = d_train)
+
+mod_lm_rep_simp &lt;- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout, data = d_train)
 
 # What data do we have for 2024? 
 d_test |&gt; select(all_of(simp.vars)) |&gt; view()
@@ -10785,7 +11122,7 @@ pred.mat |&gt;
 ## `.groups` argument.
 </code></pre>
 <pre><code class="language-r"># Now we can calculate confidence intervals for each state.
-pred.mat |&gt;
+electoral_outcomes &lt;- pred.mat |&gt;
   group_by(state) |&gt;
   summarize(mean_dem = mean(simp_pred_dem),
             mean_rep = mean(simp_pred_rep),
@@ -10795,8 +11132,104 @@ pred.mat |&gt;
             upper_dem = mean_dem + 1.96*sd_dem,
             lower_rep = mean_rep - 1.96*sd_rep,
             upper_rep = mean_rep + 1.96*sd_rep) |&gt;
-  view()
+  view() |&gt;
+  mutate(
+    winner = ifelse(mean_dem &gt; mean_rep, &quot;Democrat&quot;, &quot;Republican&quot;)
+  )
+
+electoral_outcomes
 </code></pre>
+<pre><code>## # A tibble: 19 × 10
+##    state mean_dem mean_rep sd_dem sd_rep lower_dem upper_dem lower_rep upper_rep
+##    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+##  1 Ariz…     52.5     52.3 0.0245  0.250      52.5      52.6      51.8      52.7
+##  2 Cali…     64.0     36.6 0.0245  0.249      63.9      64.0      36.1      37.1
+##  3 Flor…     50.5     52.9 0.0246  0.251      50.5      50.6      52.4      53.4
+##  4 Geor…     53.1     52.2 0.0247  0.251      53.0      53.1      51.7      52.7
+##  5 Mary…     66.1     34.6 0.0245  0.249      66.1      66.2      34.1      35.1
+##  6 Mich…     53.7     49.9 0.0244  0.249      53.6      53.7      49.5      50.4
+##  7 Minn…     55.5     47.4 0.0247  0.251      55.4      55.5      46.9      47.9
+##  8 Miss…     46.0     58.7 0.0244  0.249      45.9      46.0      58.2      59.2
+##  9 Mont…     44.4     59.9 0.0247  0.252      44.4      44.5      59.4      60.4
+## 10 Neva…     53.3     50.4 0.0244  0.248      53.3      53.4      49.9      50.9
+## 11 New …     55.8     47.6 0.0244  0.248      55.7      55.8      47.1      48.1
+## 12 New …     54.7     45.6 0.0240  0.245      54.7      54.8      45.2      46.1
+## 13 New …     53.9     38.9 0.0245  0.250      53.8      53.9      38.4      39.4
+## 14 Nort…     52.7     52.4 0.0241  0.245      52.6      52.7      51.9      52.9
+## 15 Ohio      48.2     55.5 0.0242  0.247      48.2      48.3      55.0      55.9
+## 16 Penn…     52.9     51.0 0.0243  0.248      52.9      53.0      50.5      51.4
+## 17 Texas     50.4     54.5 0.0243  0.248      50.3      50.4      54.0      55.0
+## 18 Virg…     55.4     47.1 0.0244  0.249      55.4      55.5      46.6      47.6
+## 19 Wisc…     53.3     50.7 0.0246  0.251      53.3      53.4      50.2      51.1
+## # ℹ 1 more variable: winner &lt;chr&gt;
+</code></pre>
+<pre><code class="language-r">#Since this only gives us the results for 19 states, it includes all swing states so a simple calculation with lagged vote will allow me to fill in the winner for the rest of the US
+#list of all states 
+all_states &lt;- state.name
+
+missing_states &lt;- setdiff(all_states, unique(electoral_outcomes$state))
+missing_states
+</code></pre>
+<pre><code>##  [1] &quot;Alabama&quot;        &quot;Alaska&quot;         &quot;Arkansas&quot;       &quot;Colorado&quot;      
+##  [5] &quot;Connecticut&quot;    &quot;Delaware&quot;       &quot;Hawaii&quot;         &quot;Idaho&quot;         
+##  [9] &quot;Illinois&quot;       &quot;Indiana&quot;        &quot;Iowa&quot;           &quot;Kansas&quot;        
+## [13] &quot;Kentucky&quot;       &quot;Louisiana&quot;      &quot;Maine&quot;          &quot;Massachusetts&quot; 
+## [17] &quot;Mississippi&quot;    &quot;Nebraska&quot;       &quot;New Jersey&quot;     &quot;North Dakota&quot;  
+## [21] &quot;Oklahoma&quot;       &quot;Oregon&quot;         &quot;Rhode Island&quot;   &quot;South Carolina&quot;
+## [25] &quot;South Dakota&quot;   &quot;Tennessee&quot;      &quot;Utah&quot;           &quot;Vermont&quot;       
+## [29] &quot;Washington&quot;     &quot;West Virginia&quot;  &quot;Wyoming&quot;
+</code></pre>
+<pre><code class="language-r">#created a new data frame for the missing states 
+missing_data &lt;- d_state_popvote |&gt;
+  filter(state %in% missing_states) |&gt;
+  filter(year == 2020) |&gt;
+  select(state, D_pv2p_lag1, R_pv2p_lag1)
+
+# Create the winner column based on lagged vote shares
+missing_data &lt;- missing_data|&gt;
+  mutate(
+    winner = ifelse(D_pv2p_lag1 &gt; R_pv2p_lag1, &quot;Democrat&quot;, &quot;Republican&quot;)
+  )
+
+# Combine the electoral outcomes with the missing data
+all_states_pred &lt;- bind_rows(electoral_outcomes, missing_data)
+all_states_pred
+</code></pre>
+<pre><code>## # A tibble: 50 × 12
+##    state mean_dem mean_rep sd_dem sd_rep lower_dem upper_dem lower_rep upper_rep
+##    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
+##  1 Ariz…     52.5     52.3 0.0245  0.250      52.5      52.6      51.8      52.7
+##  2 Cali…     64.0     36.6 0.0245  0.249      63.9      64.0      36.1      37.1
+##  3 Flor…     50.5     52.9 0.0246  0.251      50.5      50.6      52.4      53.4
+##  4 Geor…     53.1     52.2 0.0247  0.251      53.0      53.1      51.7      52.7
+##  5 Mary…     66.1     34.6 0.0245  0.249      66.1      66.2      34.1      35.1
+##  6 Mich…     53.7     49.9 0.0244  0.249      53.6      53.7      49.5      50.4
+##  7 Minn…     55.5     47.4 0.0247  0.251      55.4      55.5      46.9      47.9
+##  8 Miss…     46.0     58.7 0.0244  0.249      45.9      46.0      58.2      59.2
+##  9 Mont…     44.4     59.9 0.0247  0.252      44.4      44.5      59.4      60.4
+## 10 Neva…     53.3     50.4 0.0244  0.248      53.3      53.4      49.9      50.9
+## # ℹ 40 more rows
+## # ℹ 3 more variables: winner &lt;chr&gt;, D_pv2p_lag1 &lt;dbl&gt;, R_pv2p_lag1 &lt;dbl&gt;
+</code></pre>
+<pre><code class="language-r"># Print the missing states
+print(missing_states)
+</code></pre>
+<pre><code>##  [1] &quot;Alabama&quot;        &quot;Alaska&quot;         &quot;Arkansas&quot;       &quot;Colorado&quot;      
+##  [5] &quot;Connecticut&quot;    &quot;Delaware&quot;       &quot;Hawaii&quot;         &quot;Idaho&quot;         
+##  [9] &quot;Illinois&quot;       &quot;Indiana&quot;        &quot;Iowa&quot;           &quot;Kansas&quot;        
+## [13] &quot;Kentucky&quot;       &quot;Louisiana&quot;      &quot;Maine&quot;          &quot;Massachusetts&quot; 
+## [17] &quot;Mississippi&quot;    &quot;Nebraska&quot;       &quot;New Jersey&quot;     &quot;North Dakota&quot;  
+## [21] &quot;Oklahoma&quot;       &quot;Oregon&quot;         &quot;Rhode Island&quot;   &quot;South Carolina&quot;
+## [25] &quot;South Dakota&quot;   &quot;Tennessee&quot;      &quot;Utah&quot;           &quot;Vermont&quot;       
+## [29] &quot;Washington&quot;     &quot;West Virginia&quot;  &quot;Wyoming&quot;
+</code></pre>
+<pre><code class="language-r">plot_usmap(data = all_states_pred, regions = &quot;states&quot;, values = &quot;winner&quot;) + scale_fill_manual(
+    values = c(&quot;Democrat&quot; = &quot;blue&quot;, &quot;Republican&quot; = &quot;red&quot;),
+    name = &quot;Predicted Winner&quot;
+  ) +
+  labs(title = &quot;Electoral College Prediction Map&quot;) 
+</code></pre>
+<img src="index_files/figure-html/simulation-1.png" width="672" />
 
 </main>
 
