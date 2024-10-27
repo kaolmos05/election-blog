@@ -1,10 +1,11 @@
 ---
-title: Blog Post Five
+title: Blog Post 5
 author: Kelly Olmos
 date: '2024-10-07'
 slug: blog-post-v
 categories: []
 tags: []
+output: html_document
 ---
 
 
@@ -11182,49 +11183,53 @@ missing_data <- d_state_popvote |>
   filter(year == 2020) |>
   select(state, D_pv2p_lag1, R_pv2p_lag1)
 
-# Create the winner column based on lagged vote shares
+#Create the winner column based on lagged vote shares. Since these are not swing states, using the outcome from the last election reflects whethere it is a blue/red state
 missing_data <- missing_data|>
   mutate(
     winner = ifelse(D_pv2p_lag1 > R_pv2p_lag1, "Democrat", "Republican")
   )
 
-# Combine the electoral outcomes with the missing data
-all_states_pred <- bind_rows(electoral_outcomes, missing_data)
-all_states_pred
+ec_2024 <- d_ec |>
+  filter(year == 2024) |> 
+  select(state, electors)
+  
+
+
+#Combine datasets 
+all_states_pred <- bind_rows(electoral_outcomes, missing_data) |>
+  left_join(ec_2024, by = "state")
+
+winner <- all_states_pred |>
+  group_by(winner) |>
+  summarize(total_electors = sum(electors))
+
+winner
 ```
 
 ```
-## # A tibble: 50 × 12
-##    state mean_dem mean_rep sd_dem sd_rep lower_dem upper_dem lower_rep upper_rep
-##    <chr>    <dbl>    <dbl>  <dbl>  <dbl>     <dbl>     <dbl>     <dbl>     <dbl>
-##  1 Ariz…     52.5     52.3 0.0245  0.250      52.5      52.6      51.8      52.7
-##  2 Cali…     64.0     36.6 0.0245  0.249      63.9      64.0      36.1      37.1
-##  3 Flor…     50.5     52.9 0.0246  0.251      50.5      50.6      52.4      53.4
-##  4 Geor…     53.1     52.2 0.0247  0.251      53.0      53.1      51.7      52.7
-##  5 Mary…     66.1     34.6 0.0245  0.249      66.1      66.2      34.1      35.1
-##  6 Mich…     53.7     49.9 0.0244  0.249      53.6      53.7      49.5      50.4
-##  7 Minn…     55.5     47.4 0.0247  0.251      55.4      55.5      46.9      47.9
-##  8 Miss…     46.0     58.7 0.0244  0.249      45.9      46.0      58.2      59.2
-##  9 Mont…     44.4     59.9 0.0247  0.252      44.4      44.5      59.4      60.4
-## 10 Neva…     53.3     50.4 0.0244  0.248      53.3      53.4      49.9      50.9
-## # ℹ 40 more rows
-## # ℹ 3 more variables: winner <chr>, D_pv2p_lag1 <dbl>, R_pv2p_lag1 <dbl>
+## # A tibble: 2 × 2
+##   winner     total_electors
+##   <chr>               <dbl>
+## 1 Democrat              316
+## 2 Republican            219
 ```
 
 ``` r
-# Print the missing states
-print(missing_states)
+#DC not included so add 3 for Dem electoral college count
+election_results <- tibble(
+  party = c("Democrat", "Republican"),
+  total_electors = c(winner$total_electors[1] + 3, winner$total_electors[2])
+)
+
+election_results
 ```
 
 ```
-##  [1] "Alabama"        "Alaska"         "Arkansas"       "Colorado"      
-##  [5] "Connecticut"    "Delaware"       "Hawaii"         "Idaho"         
-##  [9] "Illinois"       "Indiana"        "Iowa"           "Kansas"        
-## [13] "Kentucky"       "Louisiana"      "Maine"          "Massachusetts" 
-## [17] "Mississippi"    "Nebraska"       "New Jersey"     "North Dakota"  
-## [21] "Oklahoma"       "Oregon"         "Rhode Island"   "South Carolina"
-## [25] "South Dakota"   "Tennessee"      "Utah"           "Vermont"       
-## [29] "Washington"     "West Virginia"  "Wyoming"
+## # A tibble: 2 × 2
+##   party      total_electors
+##   <chr>               <dbl>
+## 1 Democrat              319
+## 2 Republican            219
 ```
 
 ``` r
@@ -11232,7 +11237,7 @@ plot_usmap(data = all_states_pred, regions = "states", values = "winner") + scal
     values = c("Democrat" = "blue", "Republican" = "red"),
     name = "Predicted Winner"
   ) +
-  labs(title = "Electoral College Prediction Map") 
+  labs(title = "Electoral College Predictions") 
 ```
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/simulation-1.png" width="672" />

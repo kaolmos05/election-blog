@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script>
+  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=4321&amp;path=livereload" data-no-instant defer></script>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Blog Post Five | A minimal Hugo website</title>
+    <title>Blog Post 5 | A minimal Hugo website</title>
     <link rel="stylesheet" href="/css/style.css" />
     <link rel="stylesheet" href="/css/fonts.css" />
     
@@ -20,7 +20,7 @@
     </nav>
 
 <div class="article-meta">
-<h1><span class="title">Blog Post Five</span></h1>
+<h1><span class="title">Blog Post 5</span></h1>
 <h2 class="author">Kelly Olmos</h2>
 <h2 class="date">2024/10/07</h2>
 </div>
@@ -697,7 +697,7 @@ ggplot(tx_fl, aes(x = sii_race)) +
   geom_bar(fill = &quot;turquoise&quot;) +
   labs(title = &quot;Race Distribution of Texas Voters&quot;, x = &quot;Race&quot;, y = &quot;Voters&quot;)
 </code></pre>
-<img src="index_files/figure-html/voterfile-1.png" width="672" />
+<img src="/post/2024/10/07/blog-post-v/index_files/figure-html/voterfile-1.png" width="672" />
 <pre><code class="language-r">race_percentages &lt;- tx_fl |&gt;
   group_by(sii_race) |&gt;
   summarise(count = n()) |&gt;
@@ -755,7 +755,7 @@ kable(race_percentages)
   geom_bar(fill = &quot;skyblue&quot;) +
   labs(title = &quot;Education Level of Texas Voters&quot;, x = &quot;Education Level&quot;, y = &quot;Voters&quot;)
 </code></pre>
-<img src="index_files/figure-html/voterfile-2.png" width="672" />
+<img src="/post/2024/10/07/blog-post-v/index_files/figure-html/voterfile-2.png" width="672" />
 <pre><code class="language-r">education_level_percentages &lt;- tx_fl |&gt;
   group_by(sii_race) |&gt;
   summarise(count = n()) |&gt;
@@ -813,7 +813,7 @@ kable(education_level_percentages)
   geom_bar(fill = &quot;plum&quot;) +
   labs(title = &quot;Gender Breakdown of Texas Voters&quot;, x = &quot;Gender&quot;, y = &quot;Count&quot;) 
 </code></pre>
-<img src="index_files/figure-html/voterfile-3.png" width="672" />
+<img src="/post/2024/10/07/blog-post-v/index_files/figure-html/voterfile-3.png" width="672" />
 <pre><code class="language-r">gender_percentages &lt;- tx_fl |&gt;
   group_by(sii_gender) |&gt;
   summarise(count = n()) |&gt;
@@ -11185,51 +11185,55 @@ missing_data &lt;- d_state_popvote |&gt;
   filter(year == 2020) |&gt;
   select(state, D_pv2p_lag1, R_pv2p_lag1)
 
-# Create the winner column based on lagged vote shares
+#Create the winner column based on lagged vote shares. Since these are not swing states, using the outcome from the last election reflects whethere it is a blue/red state
 missing_data &lt;- missing_data|&gt;
   mutate(
     winner = ifelse(D_pv2p_lag1 &gt; R_pv2p_lag1, &quot;Democrat&quot;, &quot;Republican&quot;)
   )
 
-# Combine the electoral outcomes with the missing data
-all_states_pred &lt;- bind_rows(electoral_outcomes, missing_data)
-all_states_pred
+ec_2024 &lt;- d_ec |&gt;
+  filter(year == 2024) |&gt; 
+  select(state, electors)
+  
+
+
+#Combine datasets 
+all_states_pred &lt;- bind_rows(electoral_outcomes, missing_data) |&gt;
+  left_join(ec_2024, by = &quot;state&quot;)
+
+winner &lt;- all_states_pred |&gt;
+  group_by(winner) |&gt;
+  summarize(total_electors = sum(electors))
+
+winner
 </code></pre>
-<pre><code>## # A tibble: 50 × 12
-##    state mean_dem mean_rep sd_dem sd_rep lower_dem upper_dem lower_rep upper_rep
-##    &lt;chr&gt;    &lt;dbl&gt;    &lt;dbl&gt;  &lt;dbl&gt;  &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;     &lt;dbl&gt;
-##  1 Ariz…     52.5     52.3 0.0245  0.250      52.5      52.6      51.8      52.7
-##  2 Cali…     64.0     36.6 0.0245  0.249      63.9      64.0      36.1      37.1
-##  3 Flor…     50.5     52.9 0.0246  0.251      50.5      50.6      52.4      53.4
-##  4 Geor…     53.1     52.2 0.0247  0.251      53.0      53.1      51.7      52.7
-##  5 Mary…     66.1     34.6 0.0245  0.249      66.1      66.2      34.1      35.1
-##  6 Mich…     53.7     49.9 0.0244  0.249      53.6      53.7      49.5      50.4
-##  7 Minn…     55.5     47.4 0.0247  0.251      55.4      55.5      46.9      47.9
-##  8 Miss…     46.0     58.7 0.0244  0.249      45.9      46.0      58.2      59.2
-##  9 Mont…     44.4     59.9 0.0247  0.252      44.4      44.5      59.4      60.4
-## 10 Neva…     53.3     50.4 0.0244  0.248      53.3      53.4      49.9      50.9
-## # ℹ 40 more rows
-## # ℹ 3 more variables: winner &lt;chr&gt;, D_pv2p_lag1 &lt;dbl&gt;, R_pv2p_lag1 &lt;dbl&gt;
+<pre><code>## # A tibble: 2 × 2
+##   winner     total_electors
+##   &lt;chr&gt;               &lt;dbl&gt;
+## 1 Democrat              316
+## 2 Republican            219
 </code></pre>
-<pre><code class="language-r"># Print the missing states
-print(missing_states)
+<pre><code class="language-r">#DC not included so add 3 for Dem electoral college count
+election_results &lt;- tibble(
+  party = c(&quot;Democrat&quot;, &quot;Republican&quot;),
+  total_electors = c(winner$total_electors[1] + 3, winner$total_electors[2])
+)
+
+election_results
 </code></pre>
-<pre><code>##  [1] &quot;Alabama&quot;        &quot;Alaska&quot;         &quot;Arkansas&quot;       &quot;Colorado&quot;      
-##  [5] &quot;Connecticut&quot;    &quot;Delaware&quot;       &quot;Hawaii&quot;         &quot;Idaho&quot;         
-##  [9] &quot;Illinois&quot;       &quot;Indiana&quot;        &quot;Iowa&quot;           &quot;Kansas&quot;        
-## [13] &quot;Kentucky&quot;       &quot;Louisiana&quot;      &quot;Maine&quot;          &quot;Massachusetts&quot; 
-## [17] &quot;Mississippi&quot;    &quot;Nebraska&quot;       &quot;New Jersey&quot;     &quot;North Dakota&quot;  
-## [21] &quot;Oklahoma&quot;       &quot;Oregon&quot;         &quot;Rhode Island&quot;   &quot;South Carolina&quot;
-## [25] &quot;South Dakota&quot;   &quot;Tennessee&quot;      &quot;Utah&quot;           &quot;Vermont&quot;       
-## [29] &quot;Washington&quot;     &quot;West Virginia&quot;  &quot;Wyoming&quot;
+<pre><code>## # A tibble: 2 × 2
+##   party      total_electors
+##   &lt;chr&gt;               &lt;dbl&gt;
+## 1 Democrat              319
+## 2 Republican            219
 </code></pre>
 <pre><code class="language-r">plot_usmap(data = all_states_pred, regions = &quot;states&quot;, values = &quot;winner&quot;) + scale_fill_manual(
     values = c(&quot;Democrat&quot; = &quot;blue&quot;, &quot;Republican&quot; = &quot;red&quot;),
     name = &quot;Predicted Winner&quot;
   ) +
-  labs(title = &quot;Electoral College Prediction Map&quot;) 
+  labs(title = &quot;Electoral College Predictions&quot;) 
 </code></pre>
-<img src="index_files/figure-html/simulation-1.png" width="672" />
+<img src="/post/2024/10/07/blog-post-v/index_files/figure-html/simulation-1.png" width="672" />
 
 </main>
 

@@ -1,8 +1,0 @@
----
-title: test
-author: Package Build
-date: '2024-10-27'
-slug: test
-categories: []
-tags: []
----
