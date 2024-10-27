@@ -548,106 +548,225 @@
 <table>
 <thead>
 <tr class="header">
-<th style="text-align: left;"></th>
-<th style="text-align: right;">Log odds</th>
-<th style="text-align: right;">Probabilities</th>
+<th style="text-align: left;">
+</th>
+<th style="text-align: right;">
+Log odds
+</th>
+<th style="text-align: right;">
+Probabilities
+</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">Intercept</td>
-<td style="text-align: right;">-1.2141138</td>
-<td style="text-align: right;">0.2289740</td>
+<td style="text-align: left;">
+Intercept
+</td>
+<td style="text-align: right;">
+-1.2141138
+</td>
+<td style="text-align: right;">
+0.2289740
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Age Range 30-39</td>
-<td style="text-align: right;">0.7860256</td>
-<td style="text-align: right;">0.6869773</td>
+<td style="text-align: left;">
+Age Range 30-39
+</td>
+<td style="text-align: right;">
+0.7860256
+</td>
+<td style="text-align: right;">
+0.6869773
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Age Range 40-49</td>
-<td style="text-align: right;">1.0305721</td>
-<td style="text-align: right;">0.7370268</td>
+<td style="text-align: left;">
+Age Range 40-49
+</td>
+<td style="text-align: right;">
+1.0305721
+</td>
+<td style="text-align: right;">
+0.7370268
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Age Range 50-64</td>
-<td style="text-align: right;">1.2070943</td>
-<td style="text-align: right;">0.7697844</td>
+<td style="text-align: left;">
+Age Range 50-64
+</td>
+<td style="text-align: right;">
+1.2070943
+</td>
+<td style="text-align: right;">
+0.7697844
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Age Range 65-74</td>
-<td style="text-align: right;">1.4014692</td>
-<td style="text-align: right;">0.8024169</td>
+<td style="text-align: left;">
+Age Range 65-74
+</td>
+<td style="text-align: right;">
+1.4014692
+</td>
+<td style="text-align: right;">
+0.8024169
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Age Range 75+</td>
-<td style="text-align: right;">1.0439784</td>
-<td style="text-align: right;">0.7396169</td>
+<td style="text-align: left;">
+Age Range 75+
+</td>
+<td style="text-align: right;">
+1.0439784
+</td>
+<td style="text-align: right;">
+0.7396169
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Male</td>
-<td style="text-align: right;">-0.2827494</td>
-<td style="text-align: right;">0.4297799</td>
+<td style="text-align: left;">
+Male
+</td>
+<td style="text-align: right;">
+-0.2827494
+</td>
+<td style="text-align: right;">
+0.4297799
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Expansive</td>
-<td style="text-align: right;">-0.3438069</td>
-<td style="text-align: right;">0.4148850</td>
+<td style="text-align: left;">
+Expansive
+</td>
+<td style="text-align: right;">
+-0.3438069
+</td>
+<td style="text-align: right;">
+0.4148850
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Unknown1</td>
-<td style="text-align: right;">1.5734212</td>
-<td style="text-align: right;">0.8282708</td>
+<td style="text-align: left;">
+Unknown1
+</td>
+<td style="text-align: right;">
+1.5734212
+</td>
+<td style="text-align: right;">
+0.8282708
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">African-American</td>
-<td style="text-align: right;">0.1872100</td>
-<td style="text-align: right;">0.5466663</td>
+<td style="text-align: left;">
+African-American
+</td>
+<td style="text-align: right;">
+0.1872100
+</td>
+<td style="text-align: right;">
+0.5466663
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Caucasian</td>
-<td style="text-align: right;">-0.1463079</td>
-<td style="text-align: right;">0.4634881</td>
+<td style="text-align: left;">
+Caucasian
+</td>
+<td style="text-align: right;">
+-0.1463079
+</td>
+<td style="text-align: right;">
+0.4634881
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Hispanic</td>
-<td style="text-align: right;">0.2790825</td>
-<td style="text-align: right;">0.5693213</td>
+<td style="text-align: left;">
+Hispanic
+</td>
+<td style="text-align: right;">
+0.2790825
+</td>
+<td style="text-align: right;">
+0.5693213
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Native American</td>
-<td style="text-align: right;">0.7097148</td>
-<td style="text-align: right;">0.6703381</td>
+<td style="text-align: left;">
+Native American
+</td>
+<td style="text-align: right;">
+0.7097148
+</td>
+<td style="text-align: right;">
+0.6703381
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Unknown2</td>
-<td style="text-align: right;">-0.6246810</td>
-<td style="text-align: right;">0.3487176</td>
+<td style="text-align: left;">
+Unknown2
+</td>
+<td style="text-align: right;">
+-0.6246810
+</td>
+<td style="text-align: right;">
+0.3487176
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Other</td>
-<td style="text-align: right;">0.5452111</td>
-<td style="text-align: right;">0.6330238</td>
+<td style="text-align: left;">
+Other
+</td>
+<td style="text-align: right;">
+0.5452111
+</td>
+<td style="text-align: right;">
+0.6330238
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Some College or Higher</td>
-<td style="text-align: right;">0.7302751</td>
-<td style="text-align: right;">0.6748656</td>
+<td style="text-align: left;">
+Some College or Higher
+</td>
+<td style="text-align: right;">
+0.7302751
+</td>
+<td style="text-align: right;">
+0.6748656
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Completed College</td>
-<td style="text-align: right;">1.0250856</td>
-<td style="text-align: right;">0.7359620</td>
+<td style="text-align: left;">
+Completed College
+</td>
+<td style="text-align: right;">
+1.0250856
+</td>
+<td style="text-align: right;">
+0.7359620
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">Completed Graduate School</td>
-<td style="text-align: right;">0.6770579</td>
-<td style="text-align: right;">0.6630817</td>
+<td style="text-align: left;">
+Completed Graduate School
+</td>
+<td style="text-align: right;">
+0.6770579
+</td>
+<td style="text-align: right;">
+0.6630817
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Attended Vocational/Technical</td>
-<td style="text-align: right;">0.4725291</td>
-<td style="text-align: right;">0.6159822</td>
+<td style="text-align: left;">
+Attended Vocational/Technical
+</td>
+<td style="text-align: right;">
+0.4725291
+</td>
+<td style="text-align: right;">
+0.6159822
+</td>
 </tr>
 </tbody>
 </table>
@@ -682,46 +801,94 @@
 <table>
 <thead>
 <tr class="header">
-<th style="text-align: left;">sii_race</th>
-<th style="text-align: right;">count</th>
-<th style="text-align: right;">percentage</th>
+<th style="text-align: left;">
+sii\_race
+</th>
+<th style="text-align: right;">
+count
+</th>
+<th style="text-align: right;">
+percentage
+</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">A</td>
-<td style="text-align: right;">8956</td>
-<td style="text-align: right;">3.9376379</td>
+<td style="text-align: left;">
+A
+</td>
+<td style="text-align: right;">
+8956
+</td>
+<td style="text-align: right;">
+3.9376379
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">B</td>
-<td style="text-align: right;">23473</td>
-<td style="text-align: right;">10.3202518</td>
+<td style="text-align: left;">
+B
+</td>
+<td style="text-align: right;">
+23473
+</td>
+<td style="text-align: right;">
+10.3202518
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">H</td>
-<td style="text-align: right;">66608</td>
-<td style="text-align: right;">29.2851930</td>
+<td style="text-align: left;">
+H
+</td>
+<td style="text-align: right;">
+66608
+</td>
+<td style="text-align: right;">
+29.2851930
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">N</td>
-<td style="text-align: right;">139</td>
-<td style="text-align: right;">0.0611134</td>
+<td style="text-align: left;">
+N
+</td>
+<td style="text-align: right;">
+139
+</td>
+<td style="text-align: right;">
+0.0611134
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">O</td>
-<td style="text-align: right;">84</td>
-<td style="text-align: right;">0.0369318</td>
+<td style="text-align: left;">
+O
+</td>
+<td style="text-align: right;">
+84
+</td>
+<td style="text-align: right;">
+0.0369318
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">U</td>
-<td style="text-align: right;">5507</td>
-<td style="text-align: right;">2.4212341</td>
+<td style="text-align: left;">
+U
+</td>
+<td style="text-align: right;">
+5507
+</td>
+<td style="text-align: right;">
+2.4212341
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">W</td>
-<td style="text-align: right;">122679</td>
-<td style="text-align: right;">53.9376379</td>
+<td style="text-align: left;">
+W
+</td>
+<td style="text-align: right;">
+122679
+</td>
+<td style="text-align: right;">
+53.9376379
+</td>
 </tr>
 </tbody>
 </table>
@@ -742,46 +909,94 @@
 <table>
 <thead>
 <tr class="header">
-<th style="text-align: left;">sii_race</th>
-<th style="text-align: right;">count</th>
-<th style="text-align: right;">percentage</th>
+<th style="text-align: left;">
+sii\_race
+</th>
+<th style="text-align: right;">
+count
+</th>
+<th style="text-align: right;">
+percentage
+</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">A</td>
-<td style="text-align: right;">8956</td>
-<td style="text-align: right;">3.9376379</td>
+<td style="text-align: left;">
+A
+</td>
+<td style="text-align: right;">
+8956
+</td>
+<td style="text-align: right;">
+3.9376379
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">B</td>
-<td style="text-align: right;">23473</td>
-<td style="text-align: right;">10.3202518</td>
+<td style="text-align: left;">
+B
+</td>
+<td style="text-align: right;">
+23473
+</td>
+<td style="text-align: right;">
+10.3202518
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">H</td>
-<td style="text-align: right;">66608</td>
-<td style="text-align: right;">29.2851930</td>
+<td style="text-align: left;">
+H
+</td>
+<td style="text-align: right;">
+66608
+</td>
+<td style="text-align: right;">
+29.2851930
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">N</td>
-<td style="text-align: right;">139</td>
-<td style="text-align: right;">0.0611134</td>
+<td style="text-align: left;">
+N
+</td>
+<td style="text-align: right;">
+139
+</td>
+<td style="text-align: right;">
+0.0611134
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">O</td>
-<td style="text-align: right;">84</td>
-<td style="text-align: right;">0.0369318</td>
+<td style="text-align: left;">
+O
+</td>
+<td style="text-align: right;">
+84
+</td>
+<td style="text-align: right;">
+0.0369318
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">U</td>
-<td style="text-align: right;">5507</td>
-<td style="text-align: right;">2.4212341</td>
+<td style="text-align: left;">
+U
+</td>
+<td style="text-align: right;">
+5507
+</td>
+<td style="text-align: right;">
+2.4212341
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">W</td>
-<td style="text-align: right;">122679</td>
-<td style="text-align: right;">53.9376379</td>
+<td style="text-align: left;">
+W
+</td>
+<td style="text-align: right;">
+122679
+</td>
+<td style="text-align: right;">
+53.9376379
+</td>
 </tr>
 </tbody>
 </table>
@@ -809,31 +1024,61 @@
 <table>
 <thead>
 <tr class="header">
-<th style="text-align: left;">Gender</th>
-<th style="text-align: right;">Count</th>
-<th style="text-align: right;">Percentage</th>
+<th style="text-align: left;">
+Gender
+</th>
+<th style="text-align: right;">
+Count
+</th>
+<th style="text-align: right;">
+Percentage
+</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">113230</td>
-<td style="text-align: right;">49.7832453</td>
+<td style="text-align: left;">
+F
+</td>
+<td style="text-align: right;">
+113230
+</td>
+<td style="text-align: right;">
+49.7832453
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">107620</td>
-<td style="text-align: right;">47.3167257</td>
+<td style="text-align: left;">
+M
+</td>
+<td style="text-align: right;">
+107620
+</td>
+<td style="text-align: right;">
+47.3167257
+</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">U</td>
-<td style="text-align: right;">6591</td>
-<td style="text-align: right;">2.8978307</td>
+<td style="text-align: left;">
+U
+</td>
+<td style="text-align: right;">
+6591
+</td>
+<td style="text-align: right;">
+2.8978307
+</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">X</td>
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">0.0021983</td>
+<td style="text-align: left;">
+X
+</td>
+<td style="text-align: right;">
+5
+</td>
+<td style="text-align: right;">
+0.0021983
+</td>
 </tr>
 </tbody>
 </table>

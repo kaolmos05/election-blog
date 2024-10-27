@@ -3,6 +3,7 @@ title: Blog Post Five
 author: Kelly Olmos
 date: '2024-10-07'
 slug: blog-post-v
+output: md_document
 categories: []
 tags: []
 ---
