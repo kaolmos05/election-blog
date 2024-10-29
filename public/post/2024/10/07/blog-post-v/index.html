@@ -11219,14 +11219,26 @@ election_results &lt;- tibble(
   total_electors = c(winner$total_electors[1] + 3, winner$total_electors[2])
 )
 
-election_results
+kable(election_results)
 </code></pre>
-<pre><code>## # A tibble: 2 × 2
-##   party      total_electors
-##   &lt;chr&gt;               &lt;dbl&gt;
-## 1 Democrat              319
-## 2 Republican            219
-</code></pre>
+<table>
+  <thead>
+      <tr>
+          <th style="text-align: left">party</th>
+          <th style="text-align: right">total_electors</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">Democrat</td>
+          <td style="text-align: right">319</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Republican</td>
+          <td style="text-align: right">219</td>
+      </tr>
+  </tbody>
+</table>
 <pre><code class="language-r">plot_usmap(data = all_states_pred, regions = &quot;states&quot;, values = &quot;winner&quot;) + scale_fill_manual(
     values = c(&quot;Democrat&quot; = &quot;blue&quot;, &quot;Republican&quot; = &quot;red&quot;),
     name = &quot;Predicted Winner&quot;
