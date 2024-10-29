@@ -5,6 +5,9 @@ date: '2024-10-07'
 slug: blog-post-v
 categories: []
 tags: []
+output:
+  md_document:
+    variant: gfm
 ---
 In this week's blog post I will explore how demographics provide insight into the electorate and election outcomes. 
 

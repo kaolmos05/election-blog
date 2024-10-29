@@ -1,334 +1,5 @@
-    #' @title GOV 1347: Week 5 (Demographics) Laboratory Session
-    #' @author Matthew E. Dardet
-    #' @date October 2, 2024
-
-    ####----------------------------------------------------------#
-    #### Preamble
-    ####----------------------------------------------------------#
-
-    # Load libraries.
-    ## install via `install.packages("name")`
-    library(car)
-
-    ## Loading required package: carData
-
-    library(caret)
-
-    ## Loading required package: ggplot2
-
-    ## Loading required package: lattice
-
-    library(CVXR)
-
-    ## 
-    ## Attaching package: 'CVXR'
-
-    ## The following object is masked from 'package:stats':
-    ## 
-    ##     power
-
-    library(foreign)
-    library(glmnet)
-
-    ## Loading required package: Matrix
-
-    ## Loaded glmnet 4.1-8
-
-    library(haven)
-    library(janitor)
-
-    ## 
-    ## Attaching package: 'janitor'
-
-    ## The following objects are masked from 'package:stats':
-    ## 
-    ##     chisq.test, fisher.test
-
-    library(kableExtra)
-    library(maps)
-    library(mlr3)
-    library(randomForest)
-
-    ## randomForest 4.7-1.2
-
-    ## Type rfNews() to see new features/changes/bug fixes.
-
-    ## 
-    ## Attaching package: 'randomForest'
-
-    ## The following object is masked from 'package:ggplot2':
-    ## 
-    ##     margin
-
-    library(ranger)
-
-    ## 
-    ## Attaching package: 'ranger'
-
-    ## The following object is masked from 'package:randomForest':
-    ## 
-    ##     importance
-
-    library(RColorBrewer)
-    library(sf)
-
-    ## Linking to GEOS 3.11.0, GDAL 3.5.3, PROJ 9.1.0; sf_use_s2() is TRUE
-
-    library(tidyverse)
-
-    ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-    ## ✔ dplyr     1.1.4     ✔ readr     2.1.5
-    ## ✔ forcats   1.0.0     ✔ stringr   1.5.1
-    ## ✔ lubridate 1.9.3     ✔ tibble    3.2.1
-    ## ✔ purrr     1.0.2     ✔ tidyr     1.3.1
-
-    ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
-    ## ✖ dplyr::combine()       masks randomForest::combine()
-    ## ✖ tidyr::expand()        masks Matrix::expand()
-    ## ✖ dplyr::filter()        masks stats::filter()
-    ## ✖ dplyr::group_rows()    masks kableExtra::group_rows()
-    ## ✖ dplyr::id()            masks CVXR::id()
-    ## ✖ purrr::is_vector()     masks CVXR::is_vector()
-    ## ✖ dplyr::lag()           masks stats::lag()
-    ## ✖ purrr::lift()          masks caret::lift()
-    ## ✖ purrr::map()           masks maps::map()
-    ## ✖ randomForest::margin() masks ggplot2::margin()
-    ## ✖ tidyr::pack()          masks Matrix::pack()
-    ## ✖ dplyr::recode()        masks car::recode()
-    ## ✖ purrr::some()          masks car::some()
-    ## ✖ tidyr::unpack()        masks Matrix::unpack()
-    ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-
-    library(viridis)
-
-    ## Loading required package: viridisLite
-    ## 
-    ## Attaching package: 'viridis'
-    ## 
-    ## The following object is masked from 'package:maps':
-    ## 
-    ##     unemp
-
-    library(usmap)
-
-
-    ## set working directory here
-    # setwd("~")
-
-    ####----------------------------------------------------------#
-    #### Read, merge, and process data.
-    ####----------------------------------------------------------#
-
-    # Read popular vote datasets. 
-    d_popvote <- read_csv("popvote_1948_2020.csv")
-
-    ## Rows: 40 Columns: 11
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (2): party, candidate
-    ## dbl (5): year, pv, pv2p, deminc, juneapp
-    ## lgl (4): winner, incumbent, incumbent_party, prev_admin
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-    d_state_popvote <- read_csv("state_popvote_1948_2020.csv")
-
-    ## Rows: 959 Columns: 16
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr  (2): state, winner
-    ## dbl (14): year, D_pv, R_pv, D_pv2p, R_pv2p, D_pv_lag1, R_pv_lag1, D_pv2p_lag...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-    # Read elector distribution dataset. 
-    d_ec <- read_csv("corrected_ec_1948_2024.csv")
-
-    ## Rows: 1010 Columns: 4
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (2): state, stateab
-    ## dbl (2): year, electors
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-    # Read and merge demographics data. 
-    d_demos <- read_csv("demographics.csv")[,-1]
-
-    ## New names:
-    ## Rows: 663 Columns: 44
-    ## ── Column specification
-    ## ──────────────────────────────────────────────────────── Delimiter: "," chr
-    ## (1): state dbl (43): ...1, year, total_pop, white, black, american_indian,
-    ## asian_pacifi...
-    ## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
-    ## Specify the column types or set `show_col_types = FALSE` to quiet this message.
-    ## • `` -> `...1`
-
-    # Read primary turnout data. 
-    d_turnout <- read_csv("turnout_1789_2020.csv")
-
-    ## Rows: 59 Columns: 4
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## dbl (3): year_pres, year_midterm, vep_turnout_midterm
-    ## num (1): vep_turnout_pres
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-    d_state_turnout <- read_csv("state_turnout_1980_2022.csv")
-
-    ## Rows: 1144 Columns: 15
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (5): state, vep_turnout, vep_highest_office, vap_highest_office, noncitizen
-    ## dbl (1): year
-    ## num (9): total_ballots, highest_office_ballots, vep, vap, prison, probation,...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-    d_state_turnout <- d_state_turnout |> 
-      mutate(vep_turnout = as.numeric(str_remove(vep_turnout, "%"))/100) |> 
-      select(year, state, vep_turnout)
-
-    # Read polling data. 
-    d_polls <- read_csv("national_polls_1968-2024.csv")
-
-    ## Rows: 7408 Columns: 9
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr  (3): state, party, candidate
-    ## dbl  (4): year, weeks_left, days_left, poll_support
-    ## lgl  (1): before_convention
-    ## date (1): poll_date
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-    d_state_polls <- read_csv("state_polls_1968-2024.csv")
-
-    ## Rows: 205100 Columns: 9
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr  (3): state, party, candidate
-    ## dbl  (4): year, weeks_left, days_left, poll_support
-    ## lgl  (1): before_convention
-    ## date (1): poll_date
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
-
-    # Process state-level polling data. 
-    d_pollav_state <- d_state_polls |> 
-      group_by(year, state, party) |>
-      mutate(mean_pollav = mean(poll_support, na.rm = TRUE)) |>
-      top_n(1, poll_date) |> 
-      rename(latest_pollav = poll_support) |>
-      select(-c(weeks_left, days_left, poll_date, candidate, before_convention)) |>
-      pivot_wider(names_from = party, values_from = c(latest_pollav, mean_pollav))
-
-    ####----------------------------------------------------------#
-    #### Replication of Kim & Zilinsky (2023).
-    ####----------------------------------------------------------#
-                                 
-    # Read processed ANES data. 
-    anes <- read_dta("anes_timeseries_cdf_stata_20220916.dta") # Total ANES Cumulative Data File. 
-
-    anes <- anes |> 
-      mutate(year = VCF0004,
-             pres_vote = case_when(VCF0704a == 1 ~ 1, 
-                                   VCF0704a == 2 ~ 2, 
-                                   .default = NA), 
-             # Demographics
-             age = VCF0101, 
-             gender = VCF0104, # 1 = Male; 2 = Female; 3 = Other
-             race = VCF0105b, # 1 = White non-Hispanic; 2 = Black non-Hispanic, 3 == Hispanic; 4 = Other or multiple races, non-Hispanic; 9 = missing/DK
-             educ = VCF0110, # 0 = DK; 1 = Less than high school; 2. High school; 3 = Some college; 4 = College+ 
-             income = VCF0114, # 1 = 0-16 percentile; 2 = 17-33 percentile; 3 = 34-67; 4 = 68 to 95; 5 = 96 to 100. 
-             religion = VCF0128, # 0 = DK; 1 = Protestant; 2 = Catholic; 3 = Jewish; 4 = Other
-             attend_church = case_when(
-               VCF0004 < 1972 ~ as.double(as.character(VCF0131)),
-               TRUE ~ as.double(as.character(VCF0130))
-             ), # 1 = every week - regularly; 2 = almost every week - often; 3 = once or twice a month; 4 = a few times a year - seldom; 5 = never ; 6 = no religious preference
-             southern = VCF0113,
-             region = VCF0113, 
-             work_status = VCF0118,
-             homeowner = VCF0146, 
-             married = VCF0147,
-            
-             # 7-point PID
-             pid7 = VCF0301, # 0 = DK; 1 = Strong Democrat; 2 = Weak Democrat; 3 = Independent - Democrat; 4 = Independent - Independent; 5 = Independent - Republican; 6 = Weak Republican; 7 = Strong Republican
-             
-             # 3-point PID
-             pid3 = VCF0303, # 0 = DK; 1 = Democrats; 2 = Independents; 3 = Republicans. 
-             
-             # 3-point ideology. 
-             ideo = VCF0804 # 0, 9 = DK; 1 = Liberal; 2 = Moderate; 3 = Conservative
-             ) |> 
-      select(year, pres_vote, age, gender, race, educ, income, religion, attend_church, southern, region, work_status, homeowner, married, pid7, pid3, ideo)
-
-    # How well do demographics predict vote choice? 
-    anes_year <- anes[anes$year == 2016,] |> 
-      select(-c(year, pid7, pid3, ideo)) |>
-      mutate(pres_vote = factor(pres_vote, levels = c(1, 2), labels = c("Democrat", "Republican"))) |> 
-      filter(!is.na(pres_vote)) |>
-      clean_names()
-
-    n_features <- length(setdiff(names(anes_year), "pres_vote"))
-
-    set.seed(02138)
-    train.ind <- createDataPartition(anes_year$pres_vote, p = 0.8, list = FALSE)
-
-    anes_train <- anes_year[train.ind,]
-    anes_test <- anes_year[-train.ind,]
-
-    # LOGISTIC REGRESSION: 
-    logit_fit <- glm(pres_vote ~ ., 
-                     family = "binomial", 
-                     data = anes_train)
-
-    # In-sample goodness-of-fit. 
-    summary(logit_fit)
-
-    ## 
-    ## Call:
-    ## glm(formula = pres_vote ~ ., family = "binomial", data = anes_train)
-    ## 
-    ## Coefficients: (1 not defined because of singularities)
-    ##                 Estimate Std. Error z value Pr(>|z|)    
-    ## (Intercept)    4.3583814  0.4366803   9.981  < 2e-16 ***
-    ## age            0.0006984  0.0028117   0.248  0.80383    
-    ## gender        -0.4294732  0.0934585  -4.595 4.32e-06 ***
-    ## race          -0.5482380  0.0605982  -9.047  < 2e-16 ***
-    ## educ          -0.3398141  0.0613322  -5.541 3.02e-08 ***
-    ## income         0.0494349  0.0468039   1.056  0.29087    
-    ## religion      -0.2148136  0.0421012  -5.102 3.36e-07 ***
-    ## attend_church -0.2109916  0.0331518  -6.364 1.96e-10 ***
-    ## southern      -0.4096051  0.1051603  -3.895 9.82e-05 ***
-    ## region                NA         NA      NA       NA    
-    ## work_status    0.0955178  0.0458378   2.084  0.03718 *  
-    ## homeowner     -0.1765531  0.0822755  -2.146  0.03188 *  
-    ## married       -0.0715981  0.0276917  -2.586  0.00972 ** 
-    ## ---
-    ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
-    ## 
-    ## (Dispersion parameter for binomial family taken to be 1)
-    ## 
-    ##     Null deviance: 2890.2  on 2087  degrees of freedom
-    ## Residual deviance: 2564.3  on 2076  degrees of freedom
-    ## AIC: 2588.3
-    ## 
-    ## Number of Fisher Scoring iterations: 4
-
-    # In-sample accuracy.
-    logit.is <- factor(ifelse(predict(logit_fit, type = "response") > 0.5, 2, 1), levels = c(1, 2), labels = c("Democrat", "Republican"))
-
-    (cm.rf.logit.is <- confusionMatrix(logit.is, anes_train$pres_vote))
+In this week’s blog post I will explore how demographics provide insight
+into the electorate and election outcomes.
 
     ## Confusion Matrix and Statistics
     ## 
@@ -358,523 +29,256 @@
     ##        'Positive' Class : Democrat        
     ## 
 
-    # Out-of-sample accuracy. 
-    logit_pred <- factor(ifelse(predict(logit_fit, anes_test, type = "response") > 0.5, 2, 1), levels = c(1, 2), labels = c("Democrat", "Republican"))
+\##Replicating Kim & Zilinsky (2023)
 
-    (cm.rf.logit.oos <- confusionMatrix(logit_pred, anes_test$pres_vote))
+Kim & Zilinsky (2023) co-authored a paper where they concluded that
+demographic information (five key attributes) about a voter can
+accurately predict a voter’s choice with an accuracy of 63.9%.
 
-    ## Confusion Matrix and Statistics
-    ## 
-    ##             Reference
-    ## Prediction   Democrat Republican
-    ##   Democrat        184         80
-    ##   Republican       88        169
-    ##                                           
-    ##                Accuracy : 0.6775          
-    ##                  95% CI : (0.6355, 0.7175)
-    ##     No Information Rate : 0.5221          
-    ##     P-Value [Acc > NIR] : 4.301e-13       
-    ##                                           
-    ##                   Kappa : 0.3547          
-    ##                                           
-    ##  Mcnemar's Test P-Value : 0.5892          
-    ##                                           
-    ##             Sensitivity : 0.6765          
-    ##             Specificity : 0.6787          
-    ##          Pos Pred Value : 0.6970          
-    ##          Neg Pred Value : 0.6576          
-    ##              Prevalence : 0.5221          
-    ##          Detection Rate : 0.3532          
-    ##    Detection Prevalence : 0.5067          
-    ##       Balanced Accuracy : 0.6776          
-    ##                                           
-    ##        'Positive' Class : Democrat        
-    ## 
+The replication above corroborates Kim & Zilinsky’s findings. The 95%
+confidence interval ranges from 65.28% to 69.35%. I personally found
+this interesting because campaigns reach out to likely voters based on
+demographic information. It makes sense for a campaign with limited
+resources to make an educated guess on who to target based on a voter’s
+demographics. Not only that, but when election predictions are being
+made, the demographics of the electorate are frequently cited.
 
-    # RANDOM FOREST: 
-    rf_fit <- ranger(pres_vote ~ ., 
-                     mtry = floor(n_features/3), 
-                     respect.unordered.factors = "order", 
-                     seed <- 02138,
-                     classification = TRUE,
-                     data = anes_train)
+Demographic attributes like race are constantly in the headlines. In one
+CBS article, the headline reads “Kamala Harris turns to her faith in
+outreach to Black voters” One quote from the article highlights the
+importance of reaching out to Black voters, “Her focus underscores the
+importance for her in activating and persuading Black voters, the core
+of her party’s electorate, by going to a stronghold within the
+community.”
 
-    # In-sample accuracy.
-    (cm.rf.is <- confusionMatrix(rf_fit$predictions, anes_train$pres_vote))
+In a country where race impacts the quality of life and experience of
+the voter, it makes sense for race to indicate a partisan preference.
+Especially when we consider political polarization in a two-party
+system.
 
-    ## Confusion Matrix and Statistics
-    ## 
-    ##             Reference
-    ## Prediction   Democrat Republican
-    ##   Democrat        774        302
-    ##   Republican      318        694
-    ##                                          
-    ##                Accuracy : 0.7031         
-    ##                  95% CI : (0.683, 0.7226)
-    ##     No Information Rate : 0.523          
-    ##     P-Value [Acc > NIR] : <2e-16         
-    ##                                          
-    ##                   Kappa : 0.4053         
-    ##                                          
-    ##  Mcnemar's Test P-Value : 0.5469         
-    ##                                          
-    ##             Sensitivity : 0.7088         
-    ##             Specificity : 0.6968         
-    ##          Pos Pred Value : 0.7193         
-    ##          Neg Pred Value : 0.6858         
-    ##              Prevalence : 0.5230         
-    ##          Detection Rate : 0.3707         
-    ##    Detection Prevalence : 0.5153         
-    ##       Balanced Accuracy : 0.7028         
-    ##                                          
-    ##        'Positive' Class : Democrat       
-    ## 
+Call: glm(formula = voted_2020 ~ sii_age_range + sii_gender + sii_race +
+\## sii_education_level, family = binomial, data = tx_fl)
 
-    # Out-of-sample accuracy. 
-    rf_pred <- predict(rf_fit, data = anes_test)
-    (cm.rf.oos <- confusionMatrix(rf_pred$predictions, anes_test$pres_vote))
+|                               |   Log odds | Probabilities |
+|:------------------------------|-----------:|--------------:|
+| Intercept                     | -1.2141138 |     0.2289740 |
+| Age Range 30-39               |  0.7860256 |     0.6869773 |
+| Age Range 40-49               |  1.0305721 |     0.7370268 |
+| Age Range 50-64               |  1.2070943 |     0.7697844 |
+| Age Range 65-74               |  1.4014692 |     0.8024169 |
+| Age Range 75+                 |  1.0439784 |     0.7396169 |
+| Male                          | -0.2827494 |     0.4297799 |
+| Expansive                     | -0.3438069 |     0.4148850 |
+| Unknown1                      |  1.5734212 |     0.8282708 |
+| African-American              |  0.1872100 |     0.5466663 |
+| Hispanic                      | -0.1463079 |     0.4634881 |
+| Native American               |  0.2790825 |     0.5693213 |
+| Other                         |  0.7097148 |     0.6703381 |
+| Unknown2                      | -0.6246810 |     0.3487176 |
+| Caucasian                     |  0.5452111 |     0.6330238 |
+| Some College or Higher        |  0.7302751 |     0.6748656 |
+| Completed College             |  1.0250856 |     0.7359620 |
+| Completed Graduate School     |  0.6770579 |     0.6630817 |
+| Attended Vocational/Technical |  0.4725291 |     0.6159822 |
 
-    ## Confusion Matrix and Statistics
-    ## 
-    ##             Reference
-    ## Prediction   Democrat Republican
-    ##   Democrat        187         70
-    ##   Republican       85        179
-    ##                                           
-    ##                Accuracy : 0.7025          
-    ##                  95% CI : (0.6612, 0.7415)
-    ##     No Information Rate : 0.5221          
-    ##     P-Value [Acc > NIR] : <2e-16          
-    ##                                           
-    ##                   Kappa : 0.4053          
-    ##                                           
-    ##  Mcnemar's Test P-Value : 0.2608          
-    ##                                           
-    ##             Sensitivity : 0.6875          
-    ##             Specificity : 0.7189          
-    ##          Pos Pred Value : 0.7276          
-    ##          Neg Pred Value : 0.6780          
-    ##              Prevalence : 0.5221          
-    ##          Detection Rate : 0.3589          
-    ##    Detection Prevalence : 0.4933          
-    ##       Balanced Accuracy : 0.7032          
-    ##                                           
-    ##        'Positive' Class : Democrat        
-    ## 
+``` r
+# Histograms, quantiles, prop tables, maps, etc. 
 
-    # Can also write loop to compute values by year and replicate plots from Kim & Zilinsky's (2023) paper.
+#Race 
+race_percentages <- tx_fl |>
+  mutate(
+    sii_race = case_when(
+      sii_race == "A" ~ "Asian",
+      sii_race == "B" ~ "African-Amer.",
+      sii_race == "H" ~ "Hispanic",
+      sii_race == "N" ~ "Native Amer.",
+      sii_race == "O" ~ "Other",
+      sii_race == "U" ~ "Unknown",
+      sii_race == "W" ~ "Caucasian"
+    )) |>
+  group_by(sii_race) |>
+  summarise(count = n()) |>
+  mutate(percentage = (count / sum(count)) * 100)
 
-    ####----------------------------------------------------------#
-    #### Voterfile loading/descriptives/analysis. 
-    ####----------------------------------------------------------#
+ggplot(race_percentages, aes(x = sii_race, y = percentage, fill = sii_race)) + geom_bar(stat = "identity") + labs(title = "Texas Voters and Race", x = "Race", y = "Percentage") + scale_y_continuous(breaks = seq(0, 100, by = 10))
+```
 
-    # Read and merge 1% voterfile data into one dataset. 
-    voterfile.sample.files <- list.files("state_1pc_samples_aug24")
+![](index_files/figure-gfm/voterfile-1.png)<!-- -->
 
-    # Florida example. 
-    tx_fl <- read_csv("state_1pc_samples_aug24/TX_sample.csv")
+``` r
+#Education Level   
+education_level_percentages <- tx_fl |>
+  mutate(
+    sii_education_level = case_when(
+      sii_education_level == "A" ~ "High School",
+      sii_education_level == "B" ~ "College",
+      sii_education_level == "C" ~ "Graduate School",
+      sii_education_level == "D" ~ "Vocational",
+      sii_education_level == "E" ~ "Some College"
+    )) |>
+  group_by(sii_education_level) |>
+  summarise(count = n()) |>
+  mutate(percentage = (count / sum(count)) * 100)
 
-    ## Warning: One or more parsing issues, call `problems()` on your data frame for details,
-    ## e.g.:
-    ##   dat <- vroom(...)
-    ##   problems(dat)
+ggplot(education_level_percentages, aes(x = sii_education_level, y = percentage, fill = sii_education_level)) + geom_bar(stat = "identity") + labs(title = "Texas Voters and Education", x = "Education Level of Texas Voters", y = "Percentage") + scale_y_continuous(breaks = seq(0, 100, by = 10))
+```
 
-    ## Rows: 253672 Columns: 43
-    ## ── Column specification ────────────────────────────────────────────────────────
-    ## Delimiter: ","
-    ## chr (22): sii_state, sii_age_range, sii_gender, sii_race, svi_party_registra...
-    ## dbl (16): sii_deceased, sii_age, sii_married, svi_vote_all_general, svi_vote...
-    ## lgl  (5): svi_vh_2021p_party, svi_vh_2023p, svi_vh_2023p_party, svi_vh_2023g...
-    ## 
-    ## ℹ Use `spec()` to retrieve the full column specification for this data.
-    ## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
+![](index_files/figure-gfm/voterfile-2.png)<!-- -->
 
-    tx_fl <- tx_fl |>
-      select(svi_vh_2020g, svi_vh_2022g, sii_age_range ,sii_gender, sii_race,sii_education_level, svi_vh_2024g) |>
-      mutate(
-        voted_2020 = ifelse(is.na(svi_vh_2020g), 0, 1),
-        voted_2022 = ifelse(is.na(svi_vh_2022g), 0, 1),
-        ) |>
-      filter(!is.na(voted_2022) & !is.na(sii_age_range) & !is.na(sii_gender) &
-               !is.na(sii_race) & !is.na(sii_education_level))
+``` r
+#Gender 
+gender_percentages <- tx_fl |>
+  mutate(
+    sii_gender = case_when(
+      sii_gender == "M" ~ "Male",
+      sii_gender == "F" ~ "Female",
+      sii_gender == "U" ~ "Unknown",
+      sii_gender == "X" ~ "Expansive"
+    )) |>
+  group_by(sii_gender) |>
+  summarise(count = n()) |>
+  mutate(percentage = (count / sum(count)) * 100)
 
+kable(gender_percentages)
+```
 
-    model_fit <- glm(voted_2020 ~ sii_age_range + sii_gender + sii_race + sii_education_level, family = binomial(link = "logit"), data = tx_fl)
+| sii_gender |  count | percentage |
+|:-----------|-------:|-----------:|
+| Expansive  |      5 |  0.0021983 |
+| Female     | 113230 | 49.7832453 |
+| Male       | 107620 | 47.3167257 |
+| Unknown    |   6591 |  2.8978307 |
 
-    model_fit 
+``` r
+#Age Range 
+age_range_percentages <- tx_fl |>
+  mutate(
+    sii_age_range = case_when(
+      sii_age_range == "A" ~ "18-29",
+      sii_age_range == "B" ~ "30-39",
+      sii_age_range == "C" ~ "40-49",
+      sii_age_range == "D" ~ "50-64",
+      sii_age_range == "E" ~ "65-74",
+      sii_age_range == "F" ~ "75+"
+    )) |>
+  group_by(sii_age_range) |>
+  summarise(count = n()) |>
+  mutate(percentage = (count / sum(count)) * 100)
 
-    ## 
-    ## Call:  glm(formula = voted_2020 ~ sii_age_range + sii_gender + sii_race + 
-    ##     sii_education_level, family = binomial(link = "logit"), data = tx_fl)
-    ## 
-    ## Coefficients:
-    ##          (Intercept)        sii_age_rangeB        sii_age_rangeC  
-    ##              -1.2141                0.7860                1.0306  
-    ##       sii_age_rangeD        sii_age_rangeE        sii_age_rangeF  
-    ##               1.2071                1.4015                1.0440  
-    ##          sii_genderM           sii_genderU           sii_genderX  
-    ##              -0.2827               -0.3438                1.5734  
-    ##            sii_raceB             sii_raceH             sii_raceN  
-    ##               0.1872               -0.1463                0.2791  
-    ##            sii_raceO             sii_raceU             sii_raceW  
-    ##               0.7097               -0.6247                0.5452  
-    ## sii_education_levelB  sii_education_levelC  sii_education_levelD  
-    ##               0.7303                1.0251                0.6771  
-    ## sii_education_levelE  
-    ##               0.4725  
-    ## 
-    ## Degrees of Freedom: 227445 Total (i.e. Null);  227427 Residual
-    ## Null Deviance:       314400 
-    ## Residual Deviance: 287600    AIC: 287700
+kable(age_range_percentages)
+```
 
-    #The code below converts the log-odds into probabilities to make it easier to interpret and understand intuitively. It is modeled off R code from https://www.montana.edu/rotella/documents/502/Lecture_03_R_code.pdf
+| sii_age_range | count | percentage |
+|:--------------|------:|-----------:|
+| 18-29         | 41925 |   18.43295 |
+| 30-39         | 39333 |   17.29334 |
+| 40-49         | 37634 |   16.54635 |
+| 50-64         | 53892 |   23.69442 |
+| 65-74         | 29703 |   13.05936 |
+| 75+           | 24959 |   10.97359 |
 
-    log_odds <- coef(model_fit)
+``` r
+# What state do you want to explore/analyze for 2024?
+# TODO: 
+```
 
-    #Converting log-odds to probabilities w/ plogis
-    probabilities <- plogis(log_odds)
+\##Analyzing the Texas Voter File
 
-    #Making a table with log-odds and probabilities 
-    results <- data.frame(log_odds, probabilities)
+To explore what insights we can obtain from voter demographics, I will
+analyze the Texas voter file.
 
-    #Present table w/ kable 
-    row.names(results) <- c("Intercept", "Age Range 30-39", "Age Range 40-49", "Age Range 50-64", "Age Range 65-74", "Age Range 75+", "Male", "Expansive", "Unknown1", "African-American", "Caucasian", "Hispanic", "Native American", "Unknown2", "Other", "Some College or Higher", "Completed College", "Completed Graduate School", "Attended Vocational/Technical")
+I ran a binomial logistic regression to estimate the relationship
+between whether a voter voted in 2020 and age range, race, gender, and
+education level. These are four out of the five attributes Kim and
+Zilinsky used for their random forest model. I don’t have information
+about each voter’s income in the file.
 
-    colnames(results) <- c("Log odds", "Probabilities")
-                  
+The binomial logistic regression models how the probability of success
+varies with the independent variables and helps determines whether the
+changes are statistically significant. In this case, success is defined
+as the person voting. The binomial logistic regression produces the
+logarithm of the odds as shown in the table. It’s not simple to
+interpret and visualize the logarithm of the odds so I converted into
+probabilities.
 
-    kable(results)
+Essentially what I can takeaway from this regression is that the
+intercept is the baseline log-odds of voting for the reference group. In
+this case it is the age range 18-29, females, Asian voters, and the
+completed high school categories. The Unknowns in the table represent
+when the voter file had marked unknown race and gender for the voter.
+Since the unknowns do not represent a specific demographic I will ignore
+their associated values in my analysis.
 
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;"></th>
-<th style="text-align: right;">Log odds</th>
-<th style="text-align: right;">Probabilities</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Intercept</td>
-<td style="text-align: right;">-1.2141138</td>
-<td style="text-align: right;">0.2289740</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Age Range 30-39</td>
-<td style="text-align: right;">0.7860256</td>
-<td style="text-align: right;">0.6869773</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Age Range 40-49</td>
-<td style="text-align: right;">1.0305721</td>
-<td style="text-align: right;">0.7370268</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Age Range 50-64</td>
-<td style="text-align: right;">1.2070943</td>
-<td style="text-align: right;">0.7697844</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Age Range 65-74</td>
-<td style="text-align: right;">1.4014692</td>
-<td style="text-align: right;">0.8024169</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Age Range 75+</td>
-<td style="text-align: right;">1.0439784</td>
-<td style="text-align: right;">0.7396169</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Male</td>
-<td style="text-align: right;">-0.2827494</td>
-<td style="text-align: right;">0.4297799</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Expansive</td>
-<td style="text-align: right;">-0.3438069</td>
-<td style="text-align: right;">0.4148850</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Unknown1</td>
-<td style="text-align: right;">1.5734212</td>
-<td style="text-align: right;">0.8282708</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">African-American</td>
-<td style="text-align: right;">0.1872100</td>
-<td style="text-align: right;">0.5466663</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Caucasian</td>
-<td style="text-align: right;">-0.1463079</td>
-<td style="text-align: right;">0.4634881</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Hispanic</td>
-<td style="text-align: right;">0.2790825</td>
-<td style="text-align: right;">0.5693213</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Native American</td>
-<td style="text-align: right;">0.7097148</td>
-<td style="text-align: right;">0.6703381</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Unknown2</td>
-<td style="text-align: right;">-0.6246810</td>
-<td style="text-align: right;">0.3487176</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Other</td>
-<td style="text-align: right;">0.5452111</td>
-<td style="text-align: right;">0.6330238</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Some College or Higher</td>
-<td style="text-align: right;">0.7302751</td>
-<td style="text-align: right;">0.6748656</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Completed College</td>
-<td style="text-align: right;">1.0250856</td>
-<td style="text-align: right;">0.7359620</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Completed Graduate School</td>
-<td style="text-align: right;">0.6770579</td>
-<td style="text-align: right;">0.6630817</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">Attended Vocational/Technical</td>
-<td style="text-align: right;">0.4725291</td>
-<td style="text-align: right;">0.6159822</td>
-</tr>
-</tbody>
-</table>
+The intercept of -1.21 is the log odds of voting for the reference
+groups, which are age group 18-29, female gender, Asian, and completed
+high school. The log-odds can be converted to probabilities by raising e
+to the log-odds and and dividing it by 1 + e raised to the value of the
+log-odds.
 
-    # Histograms, quantiles, prop tables, maps, etc. 
-    # TODO: 
+The age range odds and probabilities demonstrate that older citizens
+tend to vote in higher rates. In this sample of Texas voters, the age
+range with the highest turnout is 65 to 74. This is consistent with the
+available literature on age and voter turnout.
 
-    #ggplot(tx_fl, aes(x = sii_age)) +
-      #geom_histogram(binwidth = 5, fill = "orchid", color = "orchid4") +
-      #labs(title = "Age Distribution of Texas Voters", x = "Age", y = "Voters")
+Males and the other genders in this Texas voter file have negative
+log-odds which means that every other category in this sample have lower
+odds of voting compared to female voters. This too is also consistent
+with the available data on voter turnout (Gender differences in voter
+turnout)
 
-    #age_percentages <- tx_fl |>
-      #group_by(sii_gender) |>
-      #summarise(count = n()) |>
-      #mutate(percentage = (count / sum(count)) * 100)
+All races except Hispanic have a positive coefficient, indicating that
+Hispanics have lower odds and probabilities of voting than the baseline
+group (Asians). It is unclear what demographics are represented under
+the Other category but the next group with highest odds are Caucasian.
 
-    #kable(age_percentages)
+When looking at education, it is consistent with available data and
+literature that those who have completed college and graduate school are
+the groups of registered voters with the highest odds of voting.
 
-    ggplot(tx_fl, aes(x = sii_race)) +
-      geom_bar(fill = "turquoise") +
-      labs(title = "Race Distribution of Texas Voters", x = "Race", y = "Voters")
+I have also included some graphs that provide descriptive statistics
+about the Texas electorate. The majority of registered voters in Texas
+is Caucasian, making up about 53% of registered voters. The next largest
+group is Hispanic voters, making up just under 30% of registered voters.
 
-<img src="{{< blogdown/postref >}}index\_files/figure-html/voterfile-1.png”
-width=“672” /&gt;
+Most of the Texas electorate completed high school and college. In
+regard to gender, there is an almost 50-50 split between female and male
+registered voters. The age range group leading in registered voters is
+50-64, followed by 18-29. Although the 18-29 age range is known for
+being the age range with the lowest voter turnout.
 
-    race_percentages <- tx_fl |>
-      group_by(sii_race) |>
-      summarise(count = n()) |>
-      mutate(percentage = (count / sum(count)) * 100)
+``` r
+####----------------------------------------------------------#
+#### Simulation examples. 
+####----------------------------------------------------------#
 
-    kable(race_percentages)
+# Merge data.
+d <- d_pollav_state |> 
+  left_join(d_state_popvote, by = c("year", "state")) |>  
+  left_join(d_popvote |> filter(party == "democrat"), by = "year") |> 
+  left_join(d_demos, by = c("year", "state")) |> 
+  left_join(d_state_turnout, by = c("year", "state")) |> 
+  filter(year >= 1980) |> 
+  ungroup()
 
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">sii_race</th>
-<th style="text-align: right;">count</th>
-<th style="text-align: right;">percentage</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">A</td>
-<td style="text-align: right;">8956</td>
-<td style="text-align: right;">3.9376379</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">B</td>
-<td style="text-align: right;">23473</td>
-<td style="text-align: right;">10.3202518</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">H</td>
-<td style="text-align: right;">66608</td>
-<td style="text-align: right;">29.2851930</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">N</td>
-<td style="text-align: right;">139</td>
-<td style="text-align: right;">0.0611134</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">O</td>
-<td style="text-align: right;">84</td>
-<td style="text-align: right;">0.0369318</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">U</td>
-<td style="text-align: right;">5507</td>
-<td style="text-align: right;">2.4212341</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">W</td>
-<td style="text-align: right;">122679</td>
-<td style="text-align: right;">53.9376379</td>
-</tr>
-</tbody>
-</table>
+# Sequester states for which we have polling data for 2024. 
+states.2024 <- unique(d$state[d$year == 2024])
+states.2024 <- states.2024[-which(states.2024 == "Nebraska Cd 2")]
 
-    ggplot(tx_fl, aes(x = sii_education_level)) +
-      geom_bar(fill = "skyblue") +
-      labs(title = "Education Level of Texas Voters", x = "Education Level", y = "Voters")
+# Subset and split data.
+d <- d |> 
+  filter(state %in% states.2024)
 
-<img src="{{< blogdown/postref >}}index\_files/figure-html/voterfile-2.png”
-width=“672” /&gt;
+d_train <- d |> 
+  filter(year < 2024)
+d_test <- d |> 
+  filter(year == 2024)
 
-    education_level_percentages <- tx_fl |>
-      group_by(sii_race) |>
-      summarise(count = n()) |>
-      mutate(percentage = (count / sum(count)) * 100)
+# Example pooled model with turnout and demographics. 
+mod_lm_dem <- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout + total_pop + white + black + american_indian + asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
+less_than_college + bachelors + graduate + incumbent + incumbent_party, data = d_train)
 
-    kable(education_level_percentages)
-
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">sii_race</th>
-<th style="text-align: right;">count</th>
-<th style="text-align: right;">percentage</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">A</td>
-<td style="text-align: right;">8956</td>
-<td style="text-align: right;">3.9376379</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">B</td>
-<td style="text-align: right;">23473</td>
-<td style="text-align: right;">10.3202518</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">H</td>
-<td style="text-align: right;">66608</td>
-<td style="text-align: right;">29.2851930</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">N</td>
-<td style="text-align: right;">139</td>
-<td style="text-align: right;">0.0611134</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">O</td>
-<td style="text-align: right;">84</td>
-<td style="text-align: right;">0.0369318</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">U</td>
-<td style="text-align: right;">5507</td>
-<td style="text-align: right;">2.4212341</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">W</td>
-<td style="text-align: right;">122679</td>
-<td style="text-align: right;">53.9376379</td>
-</tr>
-</tbody>
-</table>
-
-    ggplot(tx_fl, aes(x = sii_gender)) +
-      geom_bar(fill = "plum") +
-      labs(title = "Gender Breakdown of Texas Voters", x = "Gender", y = "Count") 
-
-<img src="{{< blogdown/postref >}}index\_files/figure-html/voterfile-3.png”
-width=“672” /&gt;
-
-    gender_percentages <- tx_fl |>
-      group_by(sii_gender) |>
-      summarise(count = n()) |>
-      mutate(percentage = (count / sum(count)) * 100)
-
-    gender_percentages <- gender_percentages |>
-      rename(
-        Gender = sii_gender,
-        Count = count,
-        Percentage = percentage
-      )
-
-    kable(gender_percentages)
-
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">Gender</th>
-<th style="text-align: right;">Count</th>
-<th style="text-align: right;">Percentage</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">F</td>
-<td style="text-align: right;">113230</td>
-<td style="text-align: right;">49.7832453</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">M</td>
-<td style="text-align: right;">107620</td>
-<td style="text-align: right;">47.3167257</td>
-</tr>
-<tr class="odd">
-<td style="text-align: left;">U</td>
-<td style="text-align: right;">6591</td>
-<td style="text-align: right;">2.8978307</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">X</td>
-<td style="text-align: right;">5</td>
-<td style="text-align: right;">0.0021983</td>
-</tr>
-</tbody>
-</table>
-
-    # What state do you want to explore/analyze for 2024?
-    # TODO: 
-
-    ####----------------------------------------------------------#
-    #### Simulation examples. 
-    ####----------------------------------------------------------#
-
-    # Merge data.
-    d <- d_pollav_state |> 
-      left_join(d_state_popvote, by = c("year", "state")) |>  
-      left_join(d_popvote |> filter(party == "democrat"), by = "year") |> 
-      left_join(d_demos, by = c("year", "state")) |> 
-      left_join(d_state_turnout, by = c("year", "state")) |> 
-      filter(year >= 1980) |> 
-      ungroup()
-
-    # Sequester states for which we have polling data for 2024. 
-    states.2024 <- unique(d$state[d$year == 2024])
-    states.2024 <- states.2024[-which(states.2024 == "Nebraska Cd 2")]
-
-    # Subset and split data.
-    d <- d |> 
-      filter(state %in% states.2024)
-
-    d_train <- d |> 
-      filter(year < 2024)
-    d_test <- d |> 
-      filter(year == 2024)
-
-    # Example pooled model with turnout and demographics. 
-    mod_lm_dem <- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout + total_pop + white + black + american_indian + asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
-    less_than_college + bachelors + graduate + incumbent + incumbent_party, data = d_train)
-
-    summary(mod_lm_dem)
+summary(mod_lm_dem)
+```
 
     ## 
     ## Call:
@@ -917,10 +321,12 @@ width=“672” /&gt;
     ## Multiple R-squared:  0.9442, Adjusted R-squared:  0.9319 
     ## F-statistic: 77.06 on 18 and 82 DF,  p-value: < 2.2e-16
 
-    mod_lm_rep <- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout + total_pop + white + black + american_indian + asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
-    less_than_college + bachelors + graduate, data = d_train)
+``` r
+mod_lm_rep <- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout + total_pop + white + black + american_indian + asian_pacific_islander + other_race + two_or_more_races + hispanic_white +
+less_than_college + bachelors + graduate, data = d_train)
 
-    summary(mod_lm_rep)
+summary(mod_lm_rep)
+```
 
     ## 
     ## Call:
@@ -961,71 +367,73 @@ width=“672” /&gt;
     ## Multiple R-squared:  0.9283, Adjusted R-squared:  0.9147 
     ## F-statistic: 68.01 on 16 and 84 DF,  p-value: < 2.2e-16
 
-    # Most demographic variables and turnout are not significant for Democrats, but they are for Republicans.
-    # Problem: we do not have demographic data for 2024. 
-    # What can we do? 
-    # A few options: 
-    # (1.) Estimate state-level demographics from voterfile and plug in for 2024. 
-    # (2.) Interpolate Census demographics using a spline or some type of model. 
-    # (3.) Simulate plausible values for variables based on historical averages or more advanced model. 
+``` r
+# Most demographic variables and turnout are not significant for Democrats, but they are for Republicans.
+# Problem: we do not have demographic data for 2024. 
+# What can we do? 
+# A few options: 
+# (1.) Estimate state-level demographics from voterfile and plug in for 2024. 
+# (2.) Interpolate Census demographics using a spline or some type of model. 
+# (3.) Simulate plausible values for variables based on historical averages or more advanced model. 
 
-    # Simple simulation example: 
-    simp.vars <- c("D_pv2p_lag1", "D_pv2p_lag2", "latest_pollav_DEM", "mean_pollav_DEM", "R_pv2p_lag1", "R_pv2p_lag2", "latest_pollav_REP", "mean_pollav_REP", "vep_turnout")
+# Simple simulation example: 
+simp.vars <- c("D_pv2p_lag1", "D_pv2p_lag2", "latest_pollav_DEM", "mean_pollav_DEM", "R_pv2p_lag1", "R_pv2p_lag2", "latest_pollav_REP", "mean_pollav_REP", "vep_turnout")
 
-    mod_lm_dem_simp <- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout, data = d_train)
+mod_lm_dem_simp <- lm(D_pv2p ~ D_pv2p_lag1 + D_pv2p_lag2 + latest_pollav_DEM + mean_pollav_DEM + vep_turnout, data = d_train)
 
-    mod_lm_rep_simp <- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout, data = d_train)
+mod_lm_rep_simp <- lm(R_pv2p ~ R_pv2p_lag1 + R_pv2p_lag2 + latest_pollav_REP + mean_pollav_REP + vep_turnout, data = d_train)
 
-    # What data do we have for 2024? 
-    d_test |> select(all_of(simp.vars)) |> view()
+# What data do we have for 2024? 
+d_test |> select(all_of(simp.vars)) |> view()
 
-    # Add back in lagged vote share for 2024. 
-    t <- d |> 
-      filter(year >= 2016) |> 
-      arrange(year) |> 
-      group_by(state) |> 
-      mutate(
-        D_pv2p_lag1 = lag(D_pv2p, 1),
-        R_pv2p_lag1 = lag(R_pv2p, 1), 
-        D_pv2p_lag2 = lag(D_pv2p, 2),
-        R_pv2p_lag2 = lag(R_pv2p, 2)) |> 
-      filter(year == 2024) |> 
-      select(state, year, D_pv2p, R_pv2p, D_pv2p_lag1, R_pv2p_lag1, D_pv2p_lag2, R_pv2p_lag2) 
+# Add back in lagged vote share for 2024. 
+t <- d |> 
+  filter(year >= 2016) |> 
+  arrange(year) |> 
+  group_by(state) |> 
+  mutate(
+    D_pv2p_lag1 = lag(D_pv2p, 1),
+    R_pv2p_lag1 = lag(R_pv2p, 1), 
+    D_pv2p_lag2 = lag(D_pv2p, 2),
+    R_pv2p_lag2 = lag(R_pv2p, 2)) |> 
+  filter(year == 2024) |> 
+  select(state, year, D_pv2p, R_pv2p, D_pv2p_lag1, R_pv2p_lag1, D_pv2p_lag2, R_pv2p_lag2) 
 
-    # Subset testing data to only relevant variables for our simple model. 
-    d_test_simp <- d_test |> 
-      select(-c(R_pv2p, R_pv2p_lag1, R_pv2p_lag2, 
-                D_pv2p, D_pv2p_lag1, D_pv2p_lag2)) |> 
-      left_join(t, by = c("state", "year")) |> 
-      select(state, year, all_of(simp.vars))
+# Subset testing data to only relevant variables for our simple model. 
+d_test_simp <- d_test |> 
+  select(-c(R_pv2p, R_pv2p_lag1, R_pv2p_lag2, 
+            D_pv2p, D_pv2p_lag1, D_pv2p_lag2)) |> 
+  left_join(t, by = c("state", "year")) |> 
+  select(state, year, all_of(simp.vars))
 
-    # Get average state-level turnout accross 2020, 2016, 2012.  
-    d_turnout_avg <- d_train |> 
-      filter(year %in% c(2020, 2016, 2012)) |> 
-      filter(state %in% unique(d_test_simp$state)) |> 
-      group_by(state) |> 
-      summarize(vep_turnout = mean(vep_turnout, na.rm = TRUE))
+# Get average state-level turnout accross 2020, 2016, 2012.  
+d_turnout_avg <- d_train |> 
+  filter(year %in% c(2020, 2016, 2012)) |> 
+  filter(state %in% unique(d_test_simp$state)) |> 
+  group_by(state) |> 
+  summarize(vep_turnout = mean(vep_turnout, na.rm = TRUE))
 
-    # Make predictions with simple average turnout. 
-    d_test_simp <- d_test_simp |> 
-      left_join(d_turnout_avg, by = "state") |> 
-      select(-vep_turnout.x) |> 
-      rename(vep_turnout = vep_turnout.y)
+# Make predictions with simple average turnout. 
+d_test_simp <- d_test_simp |> 
+  left_join(d_turnout_avg, by = "state") |> 
+  select(-vep_turnout.x) |> 
+  rename(vep_turnout = vep_turnout.y)
 
-    simp_pred_dem <- predict(mod_lm_dem_simp, d_test_simp)
-    simp_pred_rep <- predict(mod_lm_rep_simp, d_test_simp)
+simp_pred_dem <- predict(mod_lm_dem_simp, d_test_simp)
+simp_pred_rep <- predict(mod_lm_rep_simp, d_test_simp)
 
-    # Create dataset to summarize winners and EC vote distributions. 
-    win_pred <- data.frame(state = d_test_simp$state,
-                           year = rep(2024, length(d_test_simp$state)),
-                           simp_pred_dem = simp_pred_dem,
-                           simp_pred_rep = simp_pred_rep,
-                           winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")) |>
-      left_join(d_ec, by = c("state", "year"))
+# Create dataset to summarize winners and EC vote distributions. 
+win_pred <- data.frame(state = d_test_simp$state,
+                       year = rep(2024, length(d_test_simp$state)),
+                       simp_pred_dem = simp_pred_dem,
+                       simp_pred_rep = simp_pred_rep,
+                       winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")) |>
+  left_join(d_ec, by = c("state", "year"))
 
-    win_pred |> 
-      filter(winner == "Democrat") |> 
-      select(state)
+win_pred |> 
+  filter(winner == "Democrat") |> 
+  select(state)
+```
 
     ##             state
     ## 1         Arizona
@@ -1043,9 +451,11 @@ width=“672” /&gt;
     ## 13      Wisconsin
     ## 14       New York
 
-    win_pred |> 
-      filter(winner == "Republican") |> 
-      select(state)
+``` r
+win_pred |> 
+  filter(winner == "Republican") |> 
+  select(state)
+```
 
     ##      state
     ## 1  Florida
@@ -1054,9 +464,11 @@ width=“672” /&gt;
     ## 4     Ohio
     ## 5    Texas
 
-    win_pred |> 
-      group_by(winner) |> 
-      summarize(n = n(), ec = sum(electors))
+``` r
+win_pred |> 
+  group_by(winner) |> 
+  summarize(n = n(), ec = sum(electors))
+```
 
     ## # A tibble: 2 × 3
     ##   winner         n    ec
@@ -1064,32 +476,34 @@ width=“672” /&gt;
     ## 1 Democrat      14   217
     ## 2 Republican     5   101
 
-    # Now let's simulate this with varying levels of turnout and get both confidence intervals on our predictions
-    # and approximate win percentages for each state. 
-    m <- 1e4 # Number of simulations.
-    pred.mat <- data.frame(state = rep(d_test_simp$state, m),
-                           year = rep(2024, m*length(d_test_simp$state)),
-                           vep_turnout = rep(d_turnout_avg$vep_turnout, m),
-                           simp_pred_dem = rep(simp_pred_dem, m),
-                           simp_pred_rep = rep(simp_pred_rep, m))
+``` r
+# Now let's simulate this with varying levels of turnout and get both confidence intervals on our predictions
+# and approximate win percentages for each state. 
+m <- 1e4 # Number of simulations.
+pred.mat <- data.frame(state = rep(d_test_simp$state, m),
+                       year = rep(2024, m*length(d_test_simp$state)),
+                       vep_turnout = rep(d_turnout_avg$vep_turnout, m),
+                       simp_pred_dem = rep(simp_pred_dem, m),
+                       simp_pred_rep = rep(simp_pred_rep, m))
 
-    j <- 1
-    for (i in 1:m) {
-      print(i)
-      vep_turnout <- sapply(d_turnout_avg$vep_turnout, function(mu) {
-        rnorm(1, mean = mu, sd = 0.05) # Simulate turnout from Gaussian centered on state average with 5% SD.
-      })
+j <- 1
+for (i in 1:m) {
+  print(i)
+  vep_turnout <- sapply(d_turnout_avg$vep_turnout, function(mu) {
+    rnorm(1, mean = mu, sd = 0.05) # Simulate turnout from Gaussian centered on state average with 5% SD.
+  })
 
-      d_test_samp <- d_test_simp
-      d_test_samp$vep_turnout <- vep_turnout
+  d_test_samp <- d_test_simp
+  d_test_samp$vep_turnout <- vep_turnout
 
-      simp_pred_dem <- predict(mod_lm_dem_simp, d_test_samp)
-      simp_pred_rep <- predict(mod_lm_rep_simp, d_test_samp)
+  simp_pred_dem <- predict(mod_lm_dem_simp, d_test_samp)
+  simp_pred_rep <- predict(mod_lm_rep_simp, d_test_samp)
 
-      pred.mat$simp_pred_dem[j:(i*19)] <- simp_pred_dem
-      pred.mat$simp_pred_rep[j:(i*19)] <- simp_pred_rep
-      j <- j + 19 # Hack for filling out matrix.
-    }
+  pred.mat$simp_pred_dem[j:(i*19)] <- simp_pred_dem
+  pred.mat$simp_pred_rep[j:(i*19)] <- simp_pred_rep
+  j <- j + 19 # Hack for filling out matrix.
+}
+```
 
     ## [1] 1
     ## [1] 2
@@ -11092,34 +10506,38 @@ width=“672” /&gt;
     ## [1] 9999
     ## [1] 10000
 
-    pred.mat <- pred.mat |>
-      mutate(winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican"))
+``` r
+pred.mat <- pred.mat |>
+  mutate(winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican"))
 
-    pred.mat |>
-      group_by(state, winner) |>
-      summarize(win_rate = n()/m) |>
-      view()
+pred.mat |>
+  group_by(state, winner) |>
+  summarize(win_rate = n()/m) |>
+  view()
+```
 
     ## `summarise()` has grouped output by 'state'. You can override using the
     ## `.groups` argument.
 
-    # Now we can calculate confidence intervals for each state.
-    electoral_outcomes <- pred.mat |>
-      group_by(state) |>
-      summarize(mean_dem = mean(simp_pred_dem),
-                mean_rep = mean(simp_pred_rep),
-                sd_dem = sd(simp_pred_dem),
-                sd_rep = sd(simp_pred_rep),
-                lower_dem = mean_dem - 1.96*sd_dem,
-                upper_dem = mean_dem + 1.96*sd_dem,
-                lower_rep = mean_rep - 1.96*sd_rep,
-                upper_rep = mean_rep + 1.96*sd_rep) |>
-      view() |>
-      mutate(
-        winner = ifelse(mean_dem > mean_rep, "Democrat", "Republican")
-      )
+``` r
+# Now we can calculate confidence intervals for each state.
+electoral_outcomes <- pred.mat |>
+  group_by(state) |>
+  summarize(mean_dem = mean(simp_pred_dem),
+            mean_rep = mean(simp_pred_rep),
+            sd_dem = sd(simp_pred_dem),
+            sd_rep = sd(simp_pred_rep),
+            lower_dem = mean_dem - 1.96*sd_dem,
+            upper_dem = mean_dem + 1.96*sd_dem,
+            lower_rep = mean_rep - 1.96*sd_rep,
+            upper_rep = mean_rep + 1.96*sd_rep) |>
+  view() |>
+  mutate(
+    winner = ifelse(mean_dem > mean_rep, "Democrat", "Republican")
+  )
 
-    electoral_outcomes
+electoral_outcomes
+```
 
     ## # A tibble: 19 × 10
     ##    state mean_dem mean_rep sd_dem sd_rep lower_dem upper_dem lower_rep upper_rep
@@ -11145,12 +10563,14 @@ width=“672” /&gt;
     ## 19 Wisc…     53.3     50.7 0.0246  0.251      53.3      53.4      50.2      51.1
     ## # ℹ 1 more variable: winner <chr>
 
-    #Since this only gives us the results for 19 states, it includes all swing states so a simple calculation with lagged vote will allow me to fill in the winner for the rest of the US
-    #list of all states 
-    all_states <- state.name
+``` r
+#Since this only gives us the results for 19 states, it includes all swing states so a simple calculation with lagged vote will allow me to fill in the winner for the rest of the US
+#list of all states 
+all_states <- state.name
 
-    missing_states <- setdiff(all_states, unique(electoral_outcomes$state))
-    missing_states
+missing_states <- setdiff(all_states, unique(electoral_outcomes$state))
+missing_states
+```
 
     ##  [1] "Alabama"        "Alaska"         "Arkansas"       "Colorado"      
     ##  [5] "Connecticut"    "Delaware"       "Hawaii"         "Idaho"         
@@ -11161,33 +10581,35 @@ width=“672” /&gt;
     ## [25] "South Dakota"   "Tennessee"      "Utah"           "Vermont"       
     ## [29] "Washington"     "West Virginia"  "Wyoming"
 
-    #created a new data frame for the missing states 
-    missing_data <- d_state_popvote |>
-      filter(state %in% missing_states) |>
-      filter(year == 2020) |>
-      select(state, D_pv2p_lag1, R_pv2p_lag1)
+``` r
+#created a new data frame for the missing states 
+missing_data <- d_state_popvote |>
+  filter(state %in% missing_states) |>
+  filter(year == 2020) |>
+  select(state, D_pv2p_lag1, R_pv2p_lag1)
 
-    #Create the winner column based on lagged vote shares. Since these are not swing states, using the outcome from the last election reflects whethere it is a blue/red state
-    missing_data <- missing_data|>
-      mutate(
-        winner = ifelse(D_pv2p_lag1 > R_pv2p_lag1, "Democrat", "Republican")
-      )
+#Create the winner column based on lagged vote shares. Since these are not swing states, using the outcome from the last election reflects whethere it is a blue/red state
+missing_data <- missing_data|>
+  mutate(
+    winner = ifelse(D_pv2p_lag1 > R_pv2p_lag1, "Democrat", "Republican")
+  )
 
-    ec_2024 <- d_ec |>
-      filter(year == 2024) |> 
-      select(state, electors)
-      
+ec_2024 <- d_ec |>
+  filter(year == 2024) |> 
+  select(state, electors)
+  
 
 
-    #Combine datasets 
-    all_states_pred <- bind_rows(electoral_outcomes, missing_data) |>
-      left_join(ec_2024, by = "state")
+#Combine datasets 
+all_states_pred <- bind_rows(electoral_outcomes, missing_data) |>
+  left_join(ec_2024, by = "state")
 
-    winner <- all_states_pred |>
-      group_by(winner) |>
-      summarize(total_electors = sum(electors))
+winner <- all_states_pred |>
+  group_by(winner) |>
+  summarize(total_electors = sum(electors))
 
-    winner
+winner
+```
 
     ## # A tibble: 2 × 2
     ##   winner     total_electors
@@ -11195,38 +10617,56 @@ width=“672” /&gt;
     ## 1 Democrat              316
     ## 2 Republican            219
 
-    #DC not included so add 3 for Dem electoral college count
-    election_results <- tibble(
-      party = c("Democrat", "Republican"),
-      total_electors = c(winner$total_electors[1] + 3, winner$total_electors[2])
-    )
+``` r
+#DC not included so add 3 for Dem electoral college count
+election_results <- tibble(
+  party = c("Democrat", "Republican"),
+  total_electors = c(winner$total_electors[1] + 3, winner$total_electors[2])
+)
 
-    kable(election_results)
+kable(election_results)
+```
 
-<table>
-<thead>
-<tr class="header">
-<th style="text-align: left;">party</th>
-<th style="text-align: right;">total_electors</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td style="text-align: left;">Democrat</td>
-<td style="text-align: right;">319</td>
-</tr>
-<tr class="even">
-<td style="text-align: left;">Republican</td>
-<td style="text-align: right;">219</td>
-</tr>
-</tbody>
-</table>
+| party      | total_electors |
+|:-----------|---------------:|
+| Democrat   |            319 |
+| Republican |            219 |
 
-    plot_usmap(data = all_states_pred, regions = "states", values = "winner") + scale_fill_manual(
-        values = c("Democrat" = "blue", "Republican" = "red"),
-        name = "Predicted Winner"
-      ) +
-      labs(title = "Electoral College Predictions") 
+``` r
+plot_usmap(data = all_states_pred, regions = "states", values = "winner") + scale_fill_manual(
+    values = c("Democrat" = "blue", "Republican" = "red"),
+    name = "Predicted Winner"
+  ) +
+  labs(title = "Electoral College Predictions") 
+```
 
-<img src="{{< blogdown/postref >}}index\_files/figure-html/simulation-1.png”
-width=“672” /&gt;
+![](index_files/figure-gfm/simulation-1.png)<!-- --> \##Simulation and
+Prediction for this Week
+
+My prediction for this week is based on a simple linear model that uses
+polling data, two-party lagged vote shares, and turnout data. 10,000
+simulations are then run to account for variability in turnout. One of
+the benefits of simulating with turnout variability is that it provides
+a range of plausible turnout percentages which captures how changes in
+voter turnout across states can influence the election outcome. The
+final prediction is that Kamala Harris wins 319 electors and Trump wins
+219. This model predicts that Harris will win in all the swing states
+which is an interesting result that I am hesitant about accepting but
+provokes thoughts about how to refine this model for future iterations.
+
+\##References
+
+“Gender Differences in Voter Turnout.” Center for American Women and
+Politics,
+cawp.rutgers.edu/facts/voters/gender-differences-voter-turnout. Accessed
+28 Oct. 2024.
+
+Kim, Seo-young Silvia, and Jan Zilinsky. “Division Does Not Imply
+Predictability: Demographics Continue to Reveal Little about Voting and
+Partisanship.” Political Behavior, vol. 46, no. 1, 20 Aug. 2022,
+pp. 67–87, <doi:10.1007/s11109-022-09816-z>.
+
+Navarro, Aaron. “Kamala Harris Turns to Her Faith in Outreach to Black
+Voters.” CBS News, CBS Interactive,
+www.cbsnews.com/news/kamala-harris-faith-black-voter-outreach/. Accessed
+27 Oct. 2024.
