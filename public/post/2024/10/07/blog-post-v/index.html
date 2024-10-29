@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="en-us">
-  <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=4321&amp;path=livereload" data-no-instant defer></script>
+  <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Blog Post 5 | A minimal Hugo website</title>
@@ -26,6 +26,7 @@
 </div>
 
 <main>
+<p>In this week&rsquo;s blog post I will explore how demographics provide insight into the electorate and election outcomes.</p>
 <pre><code class="language-r">#' @title GOV 1347: Week 5 (Demographics) Laboratory Session
 #' @author Matthew E. Dardet
 #' @date October 2, 2024
@@ -492,6 +493,11 @@ rf_pred &lt;- predict(rf_fit, data = anes_test)
 </code></pre>
 <pre><code class="language-r"># Can also write loop to compute values by year and replicate plots from Kim &amp; Zilinsky's (2023) paper.
 </code></pre>
+<p>##Replicating Kim &amp; Zilinsky (2023)</p>
+<p>Kim &amp; Zilinsky (2023) co-authored a paper where they concluded that demographic information (five key attributes) about a voter can accurately predict a voter&rsquo;s choice with an accuracy of 63.9%.</p>
+<p>The replication above corroborates Kim &amp; Zilinsky&rsquo;s findings. The 95% confidence interval ranges from 65.28% to 69.35%. I personally found this interesting because campaigns reach out to likely voters based on demographic information. It makes sense for a campaign with limited resources to make an educated guess on who to target based on a voter&rsquo;s demographics. Not only that, but when election predictions are being made, the demographics of the electorate are frequently cited.</p>
+<p>Demographic attributes like race are constantly in the headlines. In one CBS article, the headline reads &ldquo;Kamala Harris turns to her faith in outreach to Black voters&rdquo; One quote from the article highlights the importance of reaching out to Black voters, &ldquo;Her focus underscores the importance for her in activating and persuading Black voters, the core of her party&rsquo;s electorate, by going to a stronghold within the community.&rdquo;</p>
+<p>In a country where race impacts the quality of life and experience of the voter, it makes sense for race to indicate a partisan preference. Especially when we consider political polarization in a two-party system.</p>
 <pre><code class="language-r">####----------------------------------------------------------#
 #### Voterfile loading/descriptives/analysis. 
 ####----------------------------------------------------------#
@@ -527,13 +533,13 @@ tx_fl &lt;- read_csv(&quot;state_1pc_samples_aug24/TX_sample.csv&quot;)
            !is.na(sii_race) &amp; !is.na(sii_education_level))
 
 
-model_fit &lt;- glm(voted_2020 ~ sii_age_range + sii_gender + sii_race + sii_education_level, family = binomial(link = &quot;logit&quot;), data = tx_fl)
+model_fit &lt;- glm(voted_2020 ~ sii_age_range + sii_gender + sii_race + sii_education_level, family = binomial, data = tx_fl)
 
 model_fit 
 </code></pre>
 <pre><code>## 
 ## Call:  glm(formula = voted_2020 ~ sii_age_range + sii_gender + sii_race + 
-##     sii_education_level, family = binomial(link = &quot;logit&quot;), data = tx_fl)
+##     sii_education_level, family = binomial, data = tx_fl)
 ## 
 ## Coefficients:
 ##          (Intercept)        sii_age_rangeB        sii_age_rangeC  
@@ -566,11 +572,10 @@ probabilities &lt;- plogis(log_odds)
 results &lt;- data.frame(log_odds, probabilities)
 
 #Present table w/ kable 
-row.names(results) &lt;- c(&quot;Intercept&quot;, &quot;Age Range 30-39&quot;, &quot;Age Range 40-49&quot;, &quot;Age Range 50-64&quot;, &quot;Age Range 65-74&quot;, &quot;Age Range 75+&quot;, &quot;Male&quot;, &quot;Expansive&quot;, &quot;Unknown1&quot;, &quot;African-American&quot;, &quot;Caucasian&quot;, &quot;Hispanic&quot;, &quot;Native American&quot;, &quot;Unknown2&quot;, &quot;Other&quot;, &quot;Some College or Higher&quot;, &quot;Completed College&quot;, &quot;Completed Graduate School&quot;, &quot;Attended Vocational/Technical&quot;)
+row.names(results) &lt;- c(&quot;Intercept&quot;, &quot;Age Range 30-39&quot;, &quot;Age Range 40-49&quot;, &quot;Age Range 50-64&quot;, &quot;Age Range 65-74&quot;, &quot;Age Range 75+&quot;, &quot;Male&quot;, &quot;Expansive&quot;, &quot;Unknown1&quot;, &quot;African-American&quot;, &quot;Hispanic&quot;, &quot;Native American&quot;, &quot;Other&quot;, &quot;Unknown2&quot;, &quot;Caucasian&quot;, &quot;Some College or Higher&quot;, &quot;Completed College&quot;, &quot;Completed Graduate School&quot;, &quot;Attended Vocational/Technical&quot;)
 
 colnames(results) &lt;- c(&quot;Log odds&quot;, &quot;Probabilities&quot;)
               
-
 kable(results)
 </code></pre>
 <table>
@@ -633,17 +638,17 @@ kable(results)
           <td style="text-align: right">0.5466663</td>
       </tr>
       <tr>
-          <td style="text-align: left">Caucasian</td>
+          <td style="text-align: left">Hispanic</td>
           <td style="text-align: right">-0.1463079</td>
           <td style="text-align: right">0.4634881</td>
       </tr>
       <tr>
-          <td style="text-align: left">Hispanic</td>
+          <td style="text-align: left">Native American</td>
           <td style="text-align: right">0.2790825</td>
           <td style="text-align: right">0.5693213</td>
       </tr>
       <tr>
-          <td style="text-align: left">Native American</td>
+          <td style="text-align: left">Other</td>
           <td style="text-align: right">0.7097148</td>
           <td style="text-align: right">0.6703381</td>
       </tr>
@@ -653,7 +658,7 @@ kable(results)
           <td style="text-align: right">0.3487176</td>
       </tr>
       <tr>
-          <td style="text-align: left">Other</td>
+          <td style="text-align: left">Caucasian</td>
           <td style="text-align: right">0.5452111</td>
           <td style="text-align: right">0.6330238</td>
       </tr>
@@ -680,188 +685,162 @@ kable(results)
   </tbody>
 </table>
 <pre><code class="language-r"># Histograms, quantiles, prop tables, maps, etc. 
-# TODO: 
 
-#ggplot(tx_fl, aes(x = sii_age)) +
-  #geom_histogram(binwidth = 5, fill = &quot;orchid&quot;, color = &quot;orchid4&quot;) +
-  #labs(title = &quot;Age Distribution of Texas Voters&quot;, x = &quot;Age&quot;, y = &quot;Voters&quot;)
-
-#age_percentages &lt;- tx_fl |&gt;
-  #group_by(sii_gender) |&gt;
-  #summarise(count = n()) |&gt;
-  #mutate(percentage = (count / sum(count)) * 100)
-
-#kable(age_percentages)
-
-ggplot(tx_fl, aes(x = sii_race)) +
-  geom_bar(fill = &quot;turquoise&quot;) +
-  labs(title = &quot;Race Distribution of Texas Voters&quot;, x = &quot;Race&quot;, y = &quot;Voters&quot;)
-</code></pre>
-<img src="/post/2024/10/07/blog-post-v/index_files/figure-html/voterfile-1.png" width="672" />
-<pre><code class="language-r">race_percentages &lt;- tx_fl |&gt;
+#Race 
+race_percentages &lt;- tx_fl |&gt;
+  mutate(
+    sii_race = case_when(
+      sii_race == &quot;A&quot; ~ &quot;Asian&quot;,
+      sii_race == &quot;B&quot; ~ &quot;African-Amer.&quot;,
+      sii_race == &quot;H&quot; ~ &quot;Hispanic&quot;,
+      sii_race == &quot;N&quot; ~ &quot;Native Amer.&quot;,
+      sii_race == &quot;O&quot; ~ &quot;Other&quot;,
+      sii_race == &quot;U&quot; ~ &quot;Unknown&quot;,
+      sii_race == &quot;W&quot; ~ &quot;Caucasian&quot;
+    )) |&gt;
   group_by(sii_race) |&gt;
   summarise(count = n()) |&gt;
   mutate(percentage = (count / sum(count)) * 100)
 
-kable(race_percentages)
+ggplot(race_percentages, aes(x = sii_race, y = percentage, fill = sii_race)) + geom_bar(stat = &quot;identity&quot;) + labs(title = &quot;Texas Voters and Race&quot;, x = &quot;Race&quot;, y = &quot;Percentage&quot;) + scale_y_continuous(breaks = seq(0, 100, by = 10))
 </code></pre>
-<table>
-  <thead>
-      <tr>
-          <th style="text-align: left">sii_race</th>
-          <th style="text-align: right">count</th>
-          <th style="text-align: right">percentage</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td style="text-align: left">A</td>
-          <td style="text-align: right">8956</td>
-          <td style="text-align: right">3.9376379</td>
-      </tr>
-      <tr>
-          <td style="text-align: left">B</td>
-          <td style="text-align: right">23473</td>
-          <td style="text-align: right">10.3202518</td>
-      </tr>
-      <tr>
-          <td style="text-align: left">H</td>
-          <td style="text-align: right">66608</td>
-          <td style="text-align: right">29.2851930</td>
-      </tr>
-      <tr>
-          <td style="text-align: left">N</td>
-          <td style="text-align: right">139</td>
-          <td style="text-align: right">0.0611134</td>
-      </tr>
-      <tr>
-          <td style="text-align: left">O</td>
-          <td style="text-align: right">84</td>
-          <td style="text-align: right">0.0369318</td>
-      </tr>
-      <tr>
-          <td style="text-align: left">U</td>
-          <td style="text-align: right">5507</td>
-          <td style="text-align: right">2.4212341</td>
-      </tr>
-      <tr>
-          <td style="text-align: left">W</td>
-          <td style="text-align: right">122679</td>
-          <td style="text-align: right">53.9376379</td>
-      </tr>
-  </tbody>
-</table>
-<pre><code class="language-r">ggplot(tx_fl, aes(x = sii_education_level)) +
-  geom_bar(fill = &quot;skyblue&quot;) +
-  labs(title = &quot;Education Level of Texas Voters&quot;, x = &quot;Education Level&quot;, y = &quot;Voters&quot;)
-</code></pre>
-<img src="/post/2024/10/07/blog-post-v/index_files/figure-html/voterfile-2.png" width="672" />
-<pre><code class="language-r">education_level_percentages &lt;- tx_fl |&gt;
-  group_by(sii_race) |&gt;
+<img src="https://example.org/post/2024/10/07/blog-post-v/index_files/figure-html/voterfile-1.png" width="672" />
+<pre><code class="language-r">#Education Level   
+education_level_percentages &lt;- tx_fl |&gt;
+  mutate(
+    sii_education_level = case_when(
+      sii_education_level == &quot;A&quot; ~ &quot;High School&quot;,
+      sii_education_level == &quot;B&quot; ~ &quot;College&quot;,
+      sii_education_level == &quot;C&quot; ~ &quot;Graduate School&quot;,
+      sii_education_level == &quot;D&quot; ~ &quot;Vocational&quot;,
+      sii_education_level == &quot;E&quot; ~ &quot;Some College&quot;
+    )) |&gt;
+  group_by(sii_education_level) |&gt;
   summarise(count = n()) |&gt;
   mutate(percentage = (count / sum(count)) * 100)
 
-kable(education_level_percentages)
+ggplot(education_level_percentages, aes(x = sii_education_level, y = percentage, fill = sii_education_level)) + geom_bar(stat = &quot;identity&quot;) + labs(title = &quot;Texas Voters and Education&quot;, x = &quot;Education Level of Texas Voters&quot;, y = &quot;Percentage&quot;) + scale_y_continuous(breaks = seq(0, 100, by = 10))
 </code></pre>
-<table>
-  <thead>
-      <tr>
-          <th style="text-align: left">sii_race</th>
-          <th style="text-align: right">count</th>
-          <th style="text-align: right">percentage</th>
-      </tr>
-  </thead>
-  <tbody>
-      <tr>
-          <td style="text-align: left">A</td>
-          <td style="text-align: right">8956</td>
-          <td style="text-align: right">3.9376379</td>
-      </tr>
-      <tr>
-          <td style="text-align: left">B</td>
-          <td style="text-align: right">23473</td>
-          <td style="text-align: right">10.3202518</td>
-      </tr>
-      <tr>
-          <td style="text-align: left">H</td>
-          <td style="text-align: right">66608</td>
-          <td style="text-align: right">29.2851930</td>
-      </tr>
-      <tr>
-          <td style="text-align: left">N</td>
-          <td style="text-align: right">139</td>
-          <td style="text-align: right">0.0611134</td>
-      </tr>
-      <tr>
-          <td style="text-align: left">O</td>
-          <td style="text-align: right">84</td>
-          <td style="text-align: right">0.0369318</td>
-      </tr>
-      <tr>
-          <td style="text-align: left">U</td>
-          <td style="text-align: right">5507</td>
-          <td style="text-align: right">2.4212341</td>
-      </tr>
-      <tr>
-          <td style="text-align: left">W</td>
-          <td style="text-align: right">122679</td>
-          <td style="text-align: right">53.9376379</td>
-      </tr>
-  </tbody>
-</table>
-<pre><code class="language-r">ggplot(tx_fl, aes(x = sii_gender)) +
-  geom_bar(fill = &quot;plum&quot;) +
-  labs(title = &quot;Gender Breakdown of Texas Voters&quot;, x = &quot;Gender&quot;, y = &quot;Count&quot;) 
-</code></pre>
-<img src="/post/2024/10/07/blog-post-v/index_files/figure-html/voterfile-3.png" width="672" />
-<pre><code class="language-r">gender_percentages &lt;- tx_fl |&gt;
+<img src="https://example.org/post/2024/10/07/blog-post-v/index_files/figure-html/voterfile-2.png" width="672" />
+<pre><code class="language-r">#Gender 
+gender_percentages &lt;- tx_fl |&gt;
+  mutate(
+    sii_gender = case_when(
+      sii_gender == &quot;M&quot; ~ &quot;Male&quot;,
+      sii_gender == &quot;F&quot; ~ &quot;Female&quot;,
+      sii_gender == &quot;U&quot; ~ &quot;Unknown&quot;,
+      sii_gender == &quot;X&quot; ~ &quot;Expansive&quot;
+    )) |&gt;
   group_by(sii_gender) |&gt;
   summarise(count = n()) |&gt;
   mutate(percentage = (count / sum(count)) * 100)
-
-gender_percentages &lt;- gender_percentages |&gt;
-  rename(
-    Gender = sii_gender,
-    Count = count,
-    Percentage = percentage
-  )
 
 kable(gender_percentages)
 </code></pre>
 <table>
   <thead>
       <tr>
-          <th style="text-align: left">Gender</th>
-          <th style="text-align: right">Count</th>
-          <th style="text-align: right">Percentage</th>
+          <th style="text-align: left">sii_gender</th>
+          <th style="text-align: right">count</th>
+          <th style="text-align: right">percentage</th>
       </tr>
   </thead>
   <tbody>
       <tr>
-          <td style="text-align: left">F</td>
+          <td style="text-align: left">Expansive</td>
+          <td style="text-align: right">5</td>
+          <td style="text-align: right">0.0021983</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">Female</td>
           <td style="text-align: right">113230</td>
           <td style="text-align: right">49.7832453</td>
       </tr>
       <tr>
-          <td style="text-align: left">M</td>
+          <td style="text-align: left">Male</td>
           <td style="text-align: right">107620</td>
           <td style="text-align: right">47.3167257</td>
       </tr>
       <tr>
-          <td style="text-align: left">U</td>
+          <td style="text-align: left">Unknown</td>
           <td style="text-align: right">6591</td>
           <td style="text-align: right">2.8978307</td>
       </tr>
+  </tbody>
+</table>
+<pre><code class="language-r">#Age Range 
+age_range_percentages &lt;- tx_fl |&gt;
+  mutate(
+    sii_age_range = case_when(
+      sii_age_range == &quot;A&quot; ~ &quot;18-29&quot;,
+      sii_age_range == &quot;B&quot; ~ &quot;30-39&quot;,
+      sii_age_range == &quot;C&quot; ~ &quot;40-49&quot;,
+      sii_age_range == &quot;D&quot; ~ &quot;50-64&quot;,
+      sii_age_range == &quot;E&quot; ~ &quot;65-74&quot;,
+      sii_age_range == &quot;F&quot; ~ &quot;75+&quot;
+    )) |&gt;
+  group_by(sii_age_range) |&gt;
+  summarise(count = n()) |&gt;
+  mutate(percentage = (count / sum(count)) * 100)
+
+kable(age_range_percentages)
+</code></pre>
+<table>
+  <thead>
       <tr>
-          <td style="text-align: left">X</td>
-          <td style="text-align: right">5</td>
-          <td style="text-align: right">0.0021983</td>
+          <th style="text-align: left">sii_age_range</th>
+          <th style="text-align: right">count</th>
+          <th style="text-align: right">percentage</th>
+      </tr>
+  </thead>
+  <tbody>
+      <tr>
+          <td style="text-align: left">18-29</td>
+          <td style="text-align: right">41925</td>
+          <td style="text-align: right">18.43295</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">30-39</td>
+          <td style="text-align: right">39333</td>
+          <td style="text-align: right">17.29334</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">40-49</td>
+          <td style="text-align: right">37634</td>
+          <td style="text-align: right">16.54635</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">50-64</td>
+          <td style="text-align: right">53892</td>
+          <td style="text-align: right">23.69442</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">65-74</td>
+          <td style="text-align: right">29703</td>
+          <td style="text-align: right">13.05936</td>
+      </tr>
+      <tr>
+          <td style="text-align: left">75+</td>
+          <td style="text-align: right">24959</td>
+          <td style="text-align: right">10.97359</td>
       </tr>
   </tbody>
 </table>
 <pre><code class="language-r"># What state do you want to explore/analyze for 2024?
 # TODO: 
 </code></pre>
+<p>##Analyzing the Texas Voter File</p>
+<p>To explore what insights we can obtain from voter demographics, I will analyze the Texas voter file.</p>
+<p>I ran a binomial logistic regression to estimate the relationship between whether a voter voted in 2020 and age range, race, gender, and education level. These are four out of the five attributes Kim and Zilinsky used for their random forest model. I don&rsquo;t have information about each voter&rsquo;s income in the file.</p>
+<p>The binomial logistic regression models how the probability of success varies with the independent variables and helps determines whether the changes are statistically significant. In this case, success is defined as the person voting. The binomial logistic regression produces the logarithm of the odds as shown in the table. It&rsquo;s not simple to interpret and visualize the logarithm of the odds so I converted into probabilities.</p>
+<p>Essentially what I can takeaway from this regression is that the intercept is the baseline log-odds of voting for the reference group. In this case it is the age range 18-29, females, Asian voters, and the completed high school categories. The Unknowns in the table represent when the voter file had marked unknown race and gender for the voter. Since the unknowns do not represent a specific demographic I will ignore their associated values in my analysis.</p>
+<p>The intercept of -1.21 is the log odds of voting for the reference groups, which are age group 18-29, female gender, Asian, and completed high school. The log-odds can be converted to probabilities by raising e to the log-odds and and dividing it by 1 + e raised to the value of the log-odds.</p>
+<p>The age range odds and probabilities demonstrate that older citizens tend to vote in higher rates. In this sample of Texas voters, the age range with the highest turnout is 65 to 74. This is consistent with the available literature on age and voter turnout.</p>
+<p>Males and the other genders in this Texas voter file have negative log-odds which means that every other category in this sample have lower odds of voting compared to female voters. This too is also consistent with the available data on voter turnout (Gender differences in voter turnout)</p>
+<p>All races except Hispanic have a positive coefficient, indicating that Hispanics have lower odds and probabilities of voting than the baseline group (Asians). It is unclear what demographics are represented under the Other category but the next group with highest odds are Caucasian.</p>
+<p>When looking at education, it is consistent with available data and literature that those who have completed college and graduate school are the groups of registered voters with the highest odds of voting.</p>
+<p>I have also included some graphs that provide descriptive statistics about the Texas electorate. The majority of registered voters in Texas is Caucasian, making up about 53% of registered voters. The next largest group is Hispanic voters, making up just under 30% of registered voters.</p>
+<p>Most of the Texas electorate completed high school and college. In regard to gender, there is an almost 50-50 split between female and male registered voters. The age range group leading in registered voters is 50-64, followed by 18-29. Although the 18-29 age range is known for being the age range with the lowest voter turnout.</p>
 <pre><code class="language-r">####----------------------------------------------------------#
 #### Simulation examples. 
 ####----------------------------------------------------------#
@@ -11245,7 +11224,13 @@ kable(election_results)
   ) +
   labs(title = &quot;Electoral College Predictions&quot;) 
 </code></pre>
-<img src="/post/2024/10/07/blog-post-v/index_files/figure-html/simulation-1.png" width="672" />
+<img src="https://example.org/post/2024/10/07/blog-post-v/index_files/figure-html/simulation-1.png" width="672" />
+##Simulation and Prediction for this Week 
+<p>My prediction for this week is based on a simple linear model that uses polling data, two-party lagged vote shares, and turnout data. 10,000 simulations are then run to account for variability in turnout. One of the benefits of simulating with turnout variability is that it provides a range of plausible turnout percentages which captures how changes in voter turnout across states can influence the election outcome. The final prediction is that Kamala Harris wins 319 electors and Trump wins 219. This model predicts that Harris will win in all the swing states which is an interesting result that I am hesitant about accepting but provokes thoughts about how to refine this model for future iterations.</p>
+<p>##References</p>
+<p>“Gender Differences in Voter Turnout.” Center for American Women and Politics, cawp.rutgers.edu/facts/voters/gender-differences-voter-turnout. Accessed 28 Oct. 2024.</p>
+<p>Kim, Seo-young Silvia, and Jan Zilinsky. “Division Does Not Imply Predictability: Demographics Continue to Reveal Little about Voting and Partisanship.” Political Behavior, vol. 46, no. 1, 20 Aug. 2022, pp. 67–87, doi:10.1007/s11109-022-09816-z.</p>
+<p>Navarro, Aaron. “Kamala Harris Turns to Her Faith in Outreach to Black Voters.” CBS News, CBS Interactive, <a href="https://www.cbsnews.com/news/kamala-harris-faith-black-voter-outreach/">www.cbsnews.com/news/kamala-harris-faith-black-voter-outreach/</a>. Accessed 27 Oct. 2024.</p>
 
 </main>
 

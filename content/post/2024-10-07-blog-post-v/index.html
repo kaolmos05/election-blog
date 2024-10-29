@@ -359,6 +359,7 @@ display: none;
 
 <p>In this week’s blog post I will explore how demographics provide
 insight into the electorate and election outcomes.</p>
+<p><strong>Replicating Kim &amp; Zilinsky (2023)</strong></p>
 <pre class="r"><code># In-sample accuracy.
 logit.is &lt;- factor(ifelse(predict(logit_fit, type = &quot;response&quot;) &gt; 0.5, 2, 1), levels = c(1, 2), labels = c(&quot;Democrat&quot;, &quot;Republican&quot;))
 
@@ -390,8 +391,7 @@ logit.is &lt;- factor(ifelse(predict(logit_fit, type = &quot;response&quot;) &gt
 ##                                           
 ##        &#39;Positive&#39; Class : Democrat        
 ## </code></pre>
-<p>##Replicating Kim &amp; Zilinsky (2023)</p>
-<p>Kim &amp; Zilinsky (2023) co-authored a paper where they concluded
+<p>Kim &amp; Zilinsky (2022) co-authored a paper where they concluded
 that demographic information (five key attributes) about a voter can
 accurately predict a voter’s choice with an accuracy of 63.9%.</p>
 <p>The replication above corroborates Kim &amp; Zilinsky’s findings. The
@@ -412,6 +412,7 @@ community.”</p>
 the voter, it makes sense for race to indicate a partisan preference.
 Especially when we consider political polarization in a two-party
 system.</p>
+<p><strong>Analyzing the Texas Voter Fil</strong></p>
 <p>Call: glm(formula = voted_2020 ~ sii_age_range + sii_gender +
 sii_race + sii_education_level, family = binomial, data = tx_fl) | | Log
 odds| Probabilities| |:—————————–|———-:|————-:| |Intercept | -1.2141138|
@@ -502,7 +503,6 @@ width=“672” /&gt;</p>
 </tr>
 </tbody>
 </table>
-<p>##Analyzing the Texas Voter File</p>
 <p>To explore what insights we can obtain from voter demographics, I
 will analyze the Texas voter file.</p>
 <p>I ran a binomial logistic regression to estimate the relationship
@@ -556,19 +556,7 @@ regard to gender, there is an almost 50-50 split between female and male
 registered voters. The age range group leading in registered voters is
 50-64, followed by 18-29. Although the 18-29 age range is known for
 being the age range with the lowest voter turnout.</p>
-<pre><code>## # A tibble: 2 × 2
-##   winner     total_electors
-##   &lt;chr&gt;               &lt;dbl&gt;
-## 1 Democrat              316
-## 2 Republican            219</code></pre>
-<pre class="r"><code>#DC not included so add 3 for Dem electoral college count
-election_results &lt;- tibble(
-  party = c(&quot;Democrat&quot;, &quot;Republican&quot;),
-  total_electors = c(winner$total_electors[1] + 3, winner$total_electors[2])
-)
-
-kable(election_results)</code></pre>
-<p>##Simulation and Prediction for this Week</p>
+<p><strong>Simulation and Prediction for this Week</strong></p>
 <p><img role="img" src="{{&lt; blogdown/postref &gt;}}index_files/figure-html/simulation-1.png”
 width=“672” /&gt;&lt;/p&gt;
 &lt;table&gt;
@@ -603,16 +591,14 @@ future iterations.</p>
 <p>##References</p>
 <p>“Gender Differences in Voter Turnout.” Center for American Women and
 Politics,
-cawp.rutgers.edu/facts/voters/gender-differences-voter-turnout. Accessed
-28 Oct. 2024.</p>
+cawp.rutgers.edu/facts/voters/gender-differences-voter-turnout.</p>
 <p>Kim, Seo-young Silvia, and Jan Zilinsky. “Division Does Not Imply
 Predictability: Demographics Continue to Reveal Little about Voting and
 Partisanship.” Political Behavior, vol. 46, no. 1, 20 Aug. 2022,
 pp. 67–87, <a href="doi:10.1007/s11109-022-09816-z" class="uri">doi:10.1007/s11109-022-09816-z</a>.</p>
 <p>Navarro, Aaron. “Kamala Harris Turns to Her Faith in Outreach to
 Black Voters.” CBS News, CBS Interactive,
-www.cbsnews.com/news/kamala-harris-faith-black-voter-outreach/. Accessed
-27 Oct. 2024.</p>
+www.cbsnews.com/news/kamala-harris-faith-black-voter-outreach/.</p>
 
 
 
