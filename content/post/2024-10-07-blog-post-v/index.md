@@ -8,6 +8,8 @@ tags: []
 ---
 In this week's blog post I will explore how demographics provide insight into the electorate and election outcomes. 
 
+**Replicating Kim & Zilinsky (2023)**
+
 ``` r
 # In-sample accuracy.
 logit.is <- factor(ifelse(predict(logit_fit, type = "response") > 0.5, 2, 1), levels = c(1, 2), labels = c("Democrat", "Republican"))
@@ -45,10 +47,7 @@ logit.is <- factor(ifelse(predict(logit_fit, type = "response") > 0.5, 2, 1), le
 ## 
 ```
 
-
-##Replicating Kim & Zilinsky (2023) 
-
-Kim & Zilinsky (2023) co-authored a paper where they concluded that demographic information (five key attributes) about a voter can accurately predict a voter's choice with an accuracy of 63.9%. 
+Kim & Zilinsky (2022) co-authored a paper where they concluded that demographic information (five key attributes) about a voter can accurately predict a voter's choice with an accuracy of 63.9%. 
 
 The replication above corroborates Kim & Zilinsky's findings. The 95% confidence interval ranges from 65.28% to 69.35%. I personally found this interesting because campaigns reach out to likely voters based on demographic information. It makes sense for a campaign with limited resources to make an educated guess on who to target based on a voter's demographics. Not only that, but when election predictions are being made, the demographics of the electorate are frequently cited. 
 
@@ -57,6 +56,7 @@ Demographic attributes like race are constantly in the headlines. In one CBS art
 In a country where race impacts the quality of life and experience of the voter, it makes sense for race to indicate a partisan preference. Especially when we consider political polarization in a two-party system. 
 
 
+**Analyzing the Texas Voter Fil**
 
 
 Call:  glm(formula = voted_2020 ~ sii_age_range + sii_gender + sii_race + sii_education_level, family = binomial, data = tx_fl)
@@ -82,9 +82,13 @@ Call:  glm(formula = voted_2020 ~ sii_age_range + sii_gender + sii_race + sii_ed
 |Completed Graduate School     |  0.6770579|     0.6630817|
 |Attended Vocational/Technical |  0.4725291|     0.6159822|
 
+
 <img src="{{< blogdown/postref >}}index_files/figure-html/voterfile-1.png" width="672" />
 
+
+
 <img src="{{< blogdown/postref >}}index_files/figure-html/voterfile-2.png" width="672" />
+
 
 
 |sii_gender |  count| percentage|
@@ -93,6 +97,7 @@ Call:  glm(formula = voted_2020 ~ sii_age_range + sii_gender + sii_race + sii_ed
 |Female     | 113230| 49.7832453|
 |Male       | 107620| 47.3167257|
 |Unknown    |   6591|  2.8978307|
+
 
 
 |sii_age_range | count| percentage|
@@ -105,7 +110,6 @@ Call:  glm(formula = voted_2020 ~ sii_age_range + sii_gender + sii_race + sii_ed
 |75+           | 24959|   10.97359|
 
 
-##Analyzing the Texas Voter File 
 
 To explore what insights we can obtain from voter demographics, I will analyze the Texas voter file. 
 
@@ -130,25 +134,8 @@ I have also included some graphs that provide descriptive statistics about the T
 Most of the Texas electorate completed high school and college. In regard to gender, there is an almost 50-50 split between female and male registered voters. The age range group leading in registered voters is 50-64, followed by 18-29. Although the 18-29 age range is known for being the age range with the lowest voter turnout. 
 
 
-```
-## # A tibble: 2 × 2
-##   winner     total_electors
-##   <chr>               <dbl>
-## 1 Democrat              316
-## 2 Republican            219
-```
 
-``` r
-#DC not included so add 3 for Dem electoral college count
-election_results <- tibble(
-  party = c("Democrat", "Republican"),
-  total_electors = c(winner$total_electors[1] + 3, winner$total_electors[2])
-)
-
-kable(election_results)
-```
-
-##Simulation and Prediction for this Week 
+**Simulation and Prediction for this Week**
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/simulation-1.png" width="672" />
 
@@ -165,9 +152,9 @@ My prediction for this week is based on a simple linear model that uses polling 
 
 ##References 
 
-“Gender Differences in Voter Turnout.” Center for American Women and Politics, cawp.rutgers.edu/facts/voters/gender-differences-voter-turnout. Accessed 28 Oct. 2024. 
+“Gender Differences in Voter Turnout.” Center for American Women and Politics, cawp.rutgers.edu/facts/voters/gender-differences-voter-turnout. 
 
 Kim, Seo-young Silvia, and Jan Zilinsky. “Division Does Not Imply Predictability: Demographics Continue to Reveal Little about Voting and Partisanship.” Political Behavior, vol. 46, no. 1, 20 Aug. 2022, pp. 67–87, doi:10.1007/s11109-022-09816-z. 
 
-Navarro, Aaron. “Kamala Harris Turns to Her Faith in Outreach to Black Voters.” CBS News, CBS Interactive, www.cbsnews.com/news/kamala-harris-faith-black-voter-outreach/. Accessed 27 Oct. 2024. 
+Navarro, Aaron. “Kamala Harris Turns to Her Faith in Outreach to Black Voters.” CBS News, CBS Interactive, www.cbsnews.com/news/kamala-harris-faith-black-voter-outreach/. 
 
