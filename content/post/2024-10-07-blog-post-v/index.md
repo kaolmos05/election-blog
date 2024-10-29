@@ -8,14 +8,7 @@ tags: []
 ---
 In this week's blog post I will explore how demographics provide insight into the electorate and election outcomes. 
 
-**Replicating Kim & Zilinsky (2023)**
-
-``` r
-# In-sample accuracy.
-logit.is <- factor(ifelse(predict(logit_fit, type = "response") > 0.5, 2, 1), levels = c(1, 2), labels = c("Democrat", "Republican"))
-
-(cm.rf.logit.is <- confusionMatrix(logit.is, anes_train$pres_vote))
-```
+**Replicating Kim & Zilinsky (2022)**
 
 ```
 ## Confusion Matrix and Statistics
@@ -56,7 +49,7 @@ Demographic attributes like race are constantly in the headlines. In one CBS art
 In a country where race impacts the quality of life and experience of the voter, it makes sense for race to indicate a partisan preference. Especially when we consider political polarization in a two-party system. 
 
 
-**Analyzing the Texas Voter Fil**
+**Analyzing the Texas Voter File**
 
 
 Call:  glm(formula = voted_2020 ~ sii_age_range + sii_gender + sii_race + sii_education_level, family = binomial, data = tx_fl)
@@ -123,7 +116,7 @@ The intercept of -1.21 is the log odds of voting for the reference groups, which
 
 The age range odds and probabilities demonstrate that older citizens tend to vote in higher rates. In this sample of Texas voters, the age range with the highest turnout is 65 to 74. This is consistent with the available literature on age and voter turnout. 
 
-Males and the other genders in this Texas voter file have negative log-odds which means that every other category in this sample have lower odds of voting compared to female voters. This too is also consistent with the available data on voter turnout (Gender differences in voter turnout)
+Males and the other genders in this Texas voter file have negative log-odds which means that every other category in this sample have lower odds of voting compared to female voters. This too is also consistent with the available data on voter turnout (Gender differences in voter turnout).
 
 All races except Hispanic have a positive coefficient, indicating that Hispanics have lower odds and probabilities of voting than the baseline group (Asians). It is unclear what demographics are represented under the Other category but the next group with highest odds are Caucasian. 
 
@@ -150,7 +143,7 @@ My prediction for this week is based on a simple linear model that uses polling 
 
 
 
-##References 
+**References**
 
 “Gender Differences in Voter Turnout.” Center for American Women and Politics, cawp.rutgers.edu/facts/voters/gender-differences-voter-turnout. 
 
