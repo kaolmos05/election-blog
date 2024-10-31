@@ -7,6 +7,8 @@ tags: []
 slug: "blog-post-6"
 ---
 
+In this week's blog post I will explore how campaign spending on advertisements impacts electoral outcomes.  
+
 ```{r setup}
 
 # Load libraries.
@@ -38,6 +40,7 @@ library(viridis)
 # setwd("~")
 ```
 
+
 ```{r data-processing}
 
 ####----------------------------------------------------------#
@@ -58,6 +61,7 @@ ads_2020 <- read_csv("ads_2020.csv")
 facebook_ads_2020 <- read_csv("facebook_ads_2020.csv")
 facebook_ads_biden_2020 <- read_csv("facebook_ads_biden_2020.csv")
 campaign_spending <- read_csv("FEC_contributions_by_state_2008_2024.csv")
+personal_dis_income <- read_csv("personalIncomeState.csv", skip = 3)
 
 # Read polling data. 
 d_polls <- read_csv("national_polls_1968-2024.csv")
@@ -288,13 +292,26 @@ d_facebook_biden |>
 
 # Visualizing FEC contributions by state in 2020, 2024, over time. 
 # dataset: campaign_spending
-# TODO
+# 
+  
 
 # Estimate state-level regression of vote share on campaign spending. 
 d_campaign_spending <- d_state_popvote |> 
   mutate(state_abb = state.abb[match(d_state_popvote$state, state.name)]) |> 
-  left_join(campaign_spending |> filter(party == "Democrat"), by = c("year" = "election_year", "state_abb" = "contribution_state")) |> 
+  left_join(campaign_spending |>
+              filter(party == "Democrat")|>
+              group_by(election_year, contribution_state) |>
+              summarize(total_amount = sum(contribution_receipt_amount), .groups = 'drop'),
+              by = c("year" = "election_year", "state_abb" = "contribution_state")) |>
   filter(year >= 2008)
+
+d_campaign_spending
+
+d_campaign_spending <- d_campaign_spending |>
+  group_by(year, state) |>
+  summarize(total_amount)
+
+d_campaign_spending 
 
 lm(D_pv ~ contribution_receipt_amount, 
    data = d_campaign_spending) |> summary()
@@ -323,8 +340,34 @@ lm(D_pv2p ~ log(contribution_receipt_amount) + factor(state),
    data = d_campaign_spending) |> summary() # Why might this be? 
 
 ```
+```{r}
+###Personal disposable income per capita 
 
-```{r bayesianism, cache=TRUE, eval=FALSE}
+regions_to_remove <- c(
+  "United States ", "Far West ", "New England", "Mideast", "Great Lakes",
+  "Plains", "Southeast", "Southwest", "Rocky Mountain", "District of Columbia"
+)
+
+#cleaning the data and processing it
+personal_dis_income <- personal_dis_income |>
+  rename(state = GeoName) |>
+  mutate(across(-state, ~ as.numeric(gsub("\\(NA\\)", NA, .)))) |>
+  pivot_longer(
+    cols = -c(state, GeoFips),  
+    names_to = "Year", 
+    values_to = "Disposable_Income" 
+  ) |>
+  mutate(year = as.numeric(Year))   |> #for some reason some years were characters so I made them all numbers
+  mutate(state = gsub("\\*", "", state)) |>
+  filter(year >= 2008) |>
+  filter(!state %in% regions_to_remove & !is.na(state))  
+
+personal_dis_income
+
+```
+
+
+```{r bayesianism}
 
 ####--------------------------------------------------------------#
 #### Bayesianism.
@@ -337,28 +380,42 @@ d_pollav_state <- d_state_polls |>
   top_n(1, poll_date) |>
   rename(latest_pollav = poll_support) |>
   select(-c(weeks_left, days_left, poll_date, candidate, before_convention)) |>
-  pivot_wider(names_from = party, values_from = c(latest_pollav, mean_pollav))
+  pivot_wider(names_from = party, values_from = c(latest_pollav, mean_pollav)) 
 
-# Merge data.
+d_pollav_state
+# Merge data.\
 d <- d_pollav_state |>
-  left_join(d_state_popvote, by = c("year", "state")) |>
-  left_join(d_popvote |> filter(party == "democrat"), by = "year") |>
-  left_join(d_turnout, by = c("year", "state")) |>
+  full_join(d_state_popvote, by = c("year", "state")) |>
+  full_join(d_popvote |> filter(party == "democrat"), by = "year") |>
+  full_join(d_turnout, by = c("year", "state")) |>
+  full_join(personal_dis_income, by = c("state", "year")) |>
   filter(year >= 1980) |>
   ungroup()
 
+d
+
 # Sequester states for which we have polling data for 2024.
-states.2024 <- unique(d$state[d$year == 2024])
+states.2024 <- unique(d_pollav_state$state[d_pollav_state$year == 2024])
+states.2024
+
+
 states.2024 <- states.2024[-which(states.2024 == "Nebraska Cd 2")]
 d <- d |>
   filter(state %in% states.2024)
 
-# Separate into training and testing for simple poll prediction model. 
-d.train <- d |> filter(year < 2024) |> select(year, state, D_pv2p, latest_pollav_DEM, mean_pollav_DEM, 
-                                              D_pv2p_lag1, D_pv2p_lag2) |> drop_na()
-d.test <- d |> filter(year == 2024) |> select(year, state, D_pv2p, latest_pollav_DEM, mean_pollav_DEM, 
-                                              D_pv2p_lag1, D_pv2p_lag2)
+d
 
+
+# Separate into training and testing for simple poll prediction model. 
+d.train <- d |> filter(year >= 2008) |> select(year, state, D_pv2p, latest_pollav_DEM, mean_pollav_DEM, 
+                                              D_pv2p_lag1, D_pv2p_lag2, Disposable_Income) |> drop_na()
+d.train
+
+d
+d.test <- d |> filter(year >= 2016) |> select(year, state, D_pv2p, latest_pollav_DEM, mean_pollav_DEM, 
+                                              D_pv2p_lag1, D_pv2p_lag2) 
+
+d.test
 # Add back in lagged vote share for 2024. 
 t <- d |> 
   filter(year >= 2016) |> 
@@ -370,18 +427,25 @@ t <- d |>
     D_pv2p_lag2 = lag(D_pv2p, 2),
     R_pv2p_lag2 = lag(R_pv2p, 2)) |> 
   filter(year == 2024) |> 
-  select(state, year, D_pv2p, R_pv2p, D_pv2p_lag1, R_pv2p_lag1, D_pv2p_lag2, R_pv2p_lag2) 
+  select(state, year, D_pv2p, R_pv2p, D_pv2p_lag1, R_pv2p_lag1, D_pv2p_lag2, R_pv2p_lag2, Disposable_Income) 
+
+t
+
+#add in lagged disposable income
 
 # Subset testing data to only relevant variables for our simple model. 
 d.test <- d.test |> 
   select(-c(D_pv2p, D_pv2p_lag1, D_pv2p_lag2)) |> 
   left_join(t, by = c("state", "year"))
 
+d.test
 # Standard frequentist linear regression. 
-reg.ols <- lm(D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2, 
-              data = d.train)
+reg.ols <- lm(D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2 + Disposable_Income, data = d.train)
+
 summary(reg.ols)
+
 pred.ols.dem <- predict(reg.ols, newdata = d.test)
+pred.ols.dem
 
 # Create dataset to summarize winners and EC vote distributions. 
 win_pred <- data.frame(state = d.test$state,
@@ -405,6 +469,79 @@ win_pred |>
   group_by(winner) |> 
   summarize(n = n(), ec = sum(electors))
 
+
+electoral_outcomes <- win_pred |>
+  group_by(state) |>
+  summarize(
+    mean_dem = mean(simp_pred_dem),
+    mean_rep = mean(simp_pred_rep)
+  ) |>
+  mutate(sd_dem = sd(simp_pred_dem),
+         sd_rep = sd(simp_pred_rep),
+         lower_dem = mean_dem - 1.96*sd_dem,
+         upper_dem = mean_dem + 1.96*sd_dem,
+         lower_rep = mean_rep - 1.96*sd_rep,
+         upper_rep = mean_rep + 1.96*sd_rep) |>
+  view() |>
+  mutate(
+    winner = ifelse(mean_dem > mean_rep, "Democrat", "Republican")
+  )
+
+electoral_outcomes
+
+#Since this only gives us the results for 19 states, it includes all swing states so a simple calculation with lagged vote will allow me to fill in the winner for the rest of the US
+#list of all states 
+all_states <- state.name
+
+missing_states <- setdiff(all_states, unique(electoral_outcomes$state))
+missing_states
+
+#created a new data frame for the missing states 
+missing_data <- d_state_popvote |>
+  filter(state %in% missing_states) |>
+  filter(year == 2020) |>
+  select(state, D_pv2p_lag1, R_pv2p_lag1)
+
+#Create the winner column based on lagged vote shares. Since these are not swing states, using the outcome from the last election reflects whethere it is a blue/red state
+missing_data <- missing_data|>
+  mutate(
+    winner = ifelse(D_pv2p_lag1 > R_pv2p_lag1, "Democrat", "Republican")
+  )
+
+ec_2024 <- d_ec |>
+  filter(year == 2024) |> 
+  select(state, electors)
+  
+
+
+#Combine datasets 
+all_states_pred <- bind_rows(electoral_outcomes, missing_data) |>
+  left_join(ec_2024, by = "state")
+
+winner <- all_states_pred |>
+  group_by(winner) |>
+  summarize(total_electors = sum(electors))
+
+winner
+
+#DC not included so add 3 for Dem electoral college count
+election_results <- tibble(
+  party = c("Democrat", "Republican"),
+  total_electors = c(winner$total_electors[1] + 3, winner$total_electors[2])
+)
+
+kable(election_results)
+
+
+plot_usmap(data = all_states_pred, regions = "states", values = "winner") + scale_fill_manual(
+    values = c("Democrat" = "blue", "Republican" = "red"),
+    name = "Predicted Winner"
+  ) +
+  labs(title = "Electoral College Predictions") 
+
+```
+
+```{r}
 # Bayesian linear regression using STAN. 
 stan.data <- list(N = nrow(d.train), 
                   D_pv2p = d.train$D_pv2p, 
@@ -440,8 +577,7 @@ model {
 
 stan.model <- stan_model(model_code = stan.code)
 
-#changed to 400 instead of 4000
-stan.fit <- sampling(stan.model, data = stan.data, chains = 4, iter = 1000, warmup = 500)
+stan.fit <- sampling(stan.model, data = stan.data, chains = 4, iter = 4000, warmup = 1000)
 
 # Compare coefficients from frequentist and Bayesian linear regressions. 
 coef(reg.ols)
@@ -449,6 +585,8 @@ confint(reg.ols)
 print(stan.fit, pars = c("alpha", "beta1", "beta2", "beta3", "beta4", "sigma"))
 
 ```
+
+
 
 
 
