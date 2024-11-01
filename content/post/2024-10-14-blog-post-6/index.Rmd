@@ -7,7 +7,9 @@ tags: []
 slug: "blog-post-6"
 ---
 
-In this week's blog post I will explore how campaign spending on advertisements impacts electoral outcomes.  
+In this week's blog post I will explore the role of campaign spending on advertisements in presidential elections. Does spending on ads impact electoral outcomes? I will also update my election forecast model. 
+
+What does the literature say about ads and their effect on election outcomes? An experiment from Huber and Arceneaux (2007) concluded that advertising does not inform or mobilize voters. However, they do find evidence that ads persuade voters. How long do the persuasive effects of ads last? The persuasive effects of a televised ad typically last one to two weeks. Therefore, campaigns should be purchasing ads throughout the duration of the campaign to ensure that the persuasive effects of the ads are maximized (Gerber et al.). 
 
 ```{r setup}
 
@@ -135,7 +137,7 @@ plist <- lapply(c(2000,2004,2008,2012), function(c) {
   top_issues |> filter(cycle == c) |> 
     ggplot(aes(x = reorder(ad_issue, n), y = n)) +
     geom_bar(stat = "identity") + coord_flip() + theme_bw() +
-    xlab("") + ylab("number ads aired") + ggtitle(paste("Top 5 Ad\nIssues in",c))
+    xlab("") + ylab("number ads aired") + ggtitle(paste("Top 5 Ad\nIssues in", c))
   
 })
 cowplot::plot_grid(plotlist = plist, nrow = 2, ncol = 2, align = "hv")
@@ -331,6 +333,20 @@ lm(D_pv2p ~ log(contribution_receipt_amount) + factor(state),
    data = d_campaign_spending) |> summary() # Why might this be? 
 
 ```
+###The role of Ads in Previous Presidential Elections 
+
+In this graph above, four plots are displayed. It shows the top five issues in presidential elections from 2000 to 2012. One thing to note is that the scale on the x-axis is changing every year. It is increasing which indicates that there is an increase in ads aired. One of the prevalent issues in these graphs is economy-related. Taxes, economic policy, jobs, and employment are an issue voters care about. 
+
+Not only have the number of ads aired each election cycle been increasing but so has the amount that campaigns spend on ads. This makes sense, more ads aired, more money spent on ads. In the graph above you can see how the y-axis has different scales to reflect the increasing amount of money spent on ads. 2008 looks like the exception but it probably has to do with the fact that the graph plots until October 1, not November like the rest of the plots on the graph. The graph reflects that campaigns spend much more on ads as the election date approaches. This is consistent with the findings from because campaigns want voters to have a favorable opinion about their candidate and maximize the persuasive effects of ads (Gerber et. al). 
+
+Since social media has taken off, it has also been leveraged by campaigns. Campaigns can run ads on social media to reach more people. 
+
+“So far in the 2024 election cycle, candidates, parties, and other groups have spent more than $619,090,533 on digital advertising concerning the election and political issues on the nation’s two largest online platforms, Google (which includes YouTube, Search, and third-party advertising) and Meta.” (Brennan Center for Justice) 
+
+With that being said, Facebook ads for the Biden campaign in the 2020 election cycle. The two graphs above demonstrate the number of ads and the amount spent on ads on Facebook. There is a positive correlation between the number of ads and the amount spent on ads reaching almost $6 million dollars at its peak. 
+
+Elections are becoming more expensive and advertisements are one of the contributing factors to the increasing cost of running a campaign. I think it’s important to consider how the cost may make running a campaign inaccessible for candidates and its time to think about introducing financial limits. Independent expenditures are also another factor to consider because they’re exempt from political financial limits. 
+
 ```{r}
 ###Personal disposable income per capita 
 
@@ -570,6 +586,12 @@ plot_usmap(data = all_states_pred, regions = "states", values = "winner") + scal
   labs(title = "Electoral College Predictions") 
 
 ```
+### Update to the Forecast 
+
+I think economic indicators are strong predictors for which candidate will win this election. Although we are not in a recession and the economy seems to be doing fine, American voters do not feel that way because inflation has increased the cost of living and it doesn’t align with the economic growth of the country. For that reason I will be adding disposable income as a predictor for my regression model. Even as inflation has decreased in recent months, prices are still high and voters are reminded of it every time they fill up their gas tank or shop for groceries. (Rex).
+
+I obtained data on personal disposable income by state from the U.S. Bureau of Economic Analysis and it changed my forecast drastically. In last week’s blog post, all the swing states had gone for Harris. Now, Harris loses Arizona, North Carolina, and Georgia. The final forecast for this week reflects a win for Trump 281-257. 
+
 
 ```{r eval=FALSE}
 # Bayesian linear regression using STAN. 
