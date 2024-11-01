@@ -7,6 +7,8 @@ tags: []
 slug: "blog-post-6"
 ---
 
+In this week's blog post I will explore how campaign spending on advertisements impacts electoral outcomes.  
+
 
 ``` r
 # Load libraries.
@@ -19,6 +21,7 @@ library(car)
 ```
 
 ``` r
+library(usmap)
 library(caret)
 ```
 
@@ -32,6 +35,7 @@ library(caret)
 
 ``` r
 library(cowplot)
+library(blogdown)
 library(curl)
 ```
 
@@ -226,9 +230,12 @@ library(viridis)
 ```
 
 ``` r
+library(knitr)
+
 ## set working directory here
 # setwd("~")
 ```
+
 
 
 ``` r
@@ -377,6 +384,28 @@ campaign_spending <- read_csv("FEC_contributions_by_state_2008_2024.csv")
 ## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
 ## Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ## • `` -> `...1`
+```
+
+``` r
+personal_dis_income <- read_csv("personalIncomeState.csv", skip = 3)
+```
+
+```
+## Warning: One or more parsing issues, call `problems()` on your data frame for details,
+## e.g.:
+##   dat <- vroom(...)
+##   problems(dat)
+```
+
+```
+## Rows: 66 Columns: 78
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: ","
+## chr (14): GeoFips, GeoName, 1948, 1949, 1950, 1951, 1952, 1953, 1954, 1955, ...
+## dbl (64): 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, ...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.
 ```
 
 ``` r
@@ -1134,7 +1163,8 @@ d_facebook_biden |>
 ``` r
 # Visualizing FEC contributions by state in 2020, 2024, over time. 
 # dataset: campaign_spending
-# TODO
+# 
+  
 
 # Estimate state-level regression of vote share on campaign spending. 
 d_campaign_spending <- d_state_popvote |> 
@@ -1558,6 +1588,58 @@ lm(D_pv2p ~ log(contribution_receipt_amount) + factor(state),
 ## F-statistic: 45.37 on 50 and 149 DF,  p-value: < 2.2e-16
 ```
 
+``` r
+###Personal disposable income per capita 
+
+regions_to_remove <- c(
+  "United States ", "Far West ", "New England", "Mideast", "Great Lakes",
+  "Plains", "Southeast", "Southwest", "Rocky Mountain", "District of Columbia"
+)
+
+#cleaning the data and processing it
+personal_dis_income <- personal_dis_income |>
+  rename(state = GeoName) |>
+  mutate(across(-state, ~ as.numeric(gsub("\\(NA\\)", "", .)))) |>
+  pivot_longer(
+    cols = -c(state, GeoFips),  
+    names_to = "year", 
+    values_to = "disposable_income" 
+  ) |>
+  mutate(year = as.numeric(year)) |>
+  mutate(state = gsub("\\*", "", state)) |>
+  filter(year >= 2008) |>
+  filter(!is.na(state) & !(state %in% regions_to_remove))
+```
+
+```
+## Warning: There was 1 warning in `mutate()`.
+## ℹ In argument: `across(-state, ~as.numeric(gsub("\\(NA\\)", "", .)))`.
+## Caused by warning:
+## ! NAs introduced by coercion
+```
+
+``` r
+personal_dis_income
+```
+
+```
+## # A tibble: 800 × 4
+##    GeoFips state    year disposable_income
+##      <dbl> <chr>   <dbl>             <dbl>
+##  1    1000 Alabama  2008             30060
+##  2    1000 Alabama  2009             30104
+##  3    1000 Alabama  2010             31091
+##  4    1000 Alabama  2011             31760
+##  5    1000 Alabama  2012             32500
+##  6    1000 Alabama  2013             32399
+##  7    1000 Alabama  2014             33351
+##  8    1000 Alabama  2015             34538
+##  9    1000 Alabama  2016             34919
+## 10    1000 Alabama  2017             36173
+## # ℹ 790 more rows
+```
+
+
 
 ``` r
 ####--------------------------------------------------------------#
@@ -1578,6 +1660,7 @@ d <- d_pollav_state |>
   left_join(d_state_popvote, by = c("year", "state")) |>
   left_join(d_popvote |> filter(party == "democrat"), by = "year") |>
   left_join(d_turnout, by = c("year", "state")) |>
+  left_join(personal_dis_income, by = c("state", "year")) |>
   filter(year >= 1980) |>
   ungroup()
 
@@ -1587,12 +1670,79 @@ states.2024 <- states.2024[-which(states.2024 == "Nebraska Cd 2")]
 d <- d |>
   filter(state %in% states.2024)
 
+d
+```
+
+```
+## # A tibble: 221 × 45
+##     year state      latest_pollav_REP latest_pollav_DEM mean_pollav_REP
+##    <dbl> <chr>                  <dbl>             <dbl>           <dbl>
+##  1  2016 Arizona                 45.6              42.9            41.4
+##  2  2016 California              32.8              54.9            31.7
+##  3  2016 Florida                 45.5              46.4            42.6
+##  4  2016 Georgia                 48.3              44.4            45.5
+##  5  2016 Maryland                27.4              59.9            29.0
+##  6  2016 Michigan                42.5              45.7            36.9
+##  7  2016 Minnesota               38.1              47.0            39.0
+##  8  2016 Missouri                50.3              38.2            44.1
+##  9  2016 Montana                 50.7              32.7            54.0
+## 10  2016 Nevada                  44.2              44.9            44.4
+## # ℹ 211 more rows
+## # ℹ 40 more variables: mean_pollav_DEM <dbl>, D_pv <dbl>, R_pv <dbl>,
+## #   D_pv2p <dbl>, R_pv2p <dbl>, D_pv_lag1 <dbl>, R_pv_lag1 <dbl>,
+## #   D_pv2p_lag1 <dbl>, R_pv2p_lag1 <dbl>, D_pv_lag2 <dbl>, R_pv_lag2 <dbl>,
+## #   D_pv2p_lag2 <dbl>, R_pv2p_lag2 <dbl>, margin <dbl>, winner.x <chr>,
+## #   party <chr>, winner.y <lgl>, candidate <chr>, pv <dbl>, pv2p <dbl>,
+## #   incumbent <lgl>, incumbent_party <lgl>, prev_admin <lgl>, deminc <dbl>, …
+```
+
+``` r
 # Separate into training and testing for simple poll prediction model. 
 d.train <- d |> filter(year < 2024) |> select(year, state, D_pv2p, latest_pollav_DEM, mean_pollav_DEM, 
-                                              D_pv2p_lag1, D_pv2p_lag2) |> drop_na()
-d.test <- d |> filter(year == 2024) |> select(year, state, D_pv2p, latest_pollav_DEM, mean_pollav_DEM, 
-                                              D_pv2p_lag1, D_pv2p_lag2)
+                                              D_pv2p_lag1, D_pv2p_lag2, disposable_income) |> drop_na()
 
+names(d.train)
+```
+
+```
+## [1] "year"              "state"             "D_pv2p"           
+## [4] "latest_pollav_DEM" "mean_pollav_DEM"   "D_pv2p_lag1"      
+## [7] "D_pv2p_lag2"       "disposable_income"
+```
+
+``` r
+d.test <- d |> filter(year == 2024) |> select(year, state, D_pv2p, latest_pollav_DEM, mean_pollav_DEM, 
+                                              D_pv2p_lag1, D_pv2p_lag2, disposable_income)
+d.test
+```
+
+```
+## # A tibble: 19 × 8
+##     year state  D_pv2p latest_pollav_DEM mean_pollav_DEM D_pv2p_lag1 D_pv2p_lag2
+##    <dbl> <chr>   <dbl>             <dbl>           <dbl>       <dbl>       <dbl>
+##  1  2024 Arizo…     NA              46.7            41.3          NA          NA
+##  2  2024 Calif…     NA              59.7            53.3          NA          NA
+##  3  2024 Flori…     NA              45.8            39.6          NA          NA
+##  4  2024 Georg…     NA              47.2            41.5          NA          NA
+##  5  2024 Maryl…     NA              62.1            62.1          NA          NA
+##  6  2024 Michi…     NA              48.0            42.7          NA          NA
+##  7  2024 Minne…     NA              50.0            45.7          NA          NA
+##  8  2024 Misso…     NA              41.6            41.6          NA          NA
+##  9  2024 Monta…     NA              38.9            38.8          NA          NA
+## 10  2024 Nevada     NA              47.9            40.3          NA          NA
+## 11  2024 New H…     NA              51.0            50.9          NA          NA
+## 12  2024 New M…     NA              50.1            50.1          NA          NA
+## 13  2024 New Y…     NA              53.8            47.5          NA          NA
+## 14  2024 North…     NA              47.3            41.0          NA          NA
+## 15  2024 Ohio       NA              43.0            38.8          NA          NA
+## 16  2024 Penns…     NA              48.0            43.1          NA          NA
+## 17  2024 Texas      NA              44.3            38.3          NA          NA
+## 18  2024 Virgi…     NA              50.3            47.8          NA          NA
+## 19  2024 Wisco…     NA              48.4            43.0          NA          NA
+## # ℹ 1 more variable: disposable_income <dbl>
+```
+
+``` r
 # Add back in lagged vote share for 2024. 
 t <- d |> 
   filter(year >= 2016) |> 
@@ -1602,21 +1752,69 @@ t <- d |>
     D_pv2p_lag1 = lag(D_pv2p, 1),
     R_pv2p_lag1 = lag(R_pv2p, 1), 
     D_pv2p_lag2 = lag(D_pv2p, 2),
-    R_pv2p_lag2 = lag(R_pv2p, 2)) |> 
+    R_pv2p_lag2 = lag(R_pv2p, 2),
+    disposable_income = lag(disposable_income, 1)) |> 
   filter(year == 2024) |> 
-  select(state, year, D_pv2p, R_pv2p, D_pv2p_lag1, R_pv2p_lag1, D_pv2p_lag2, R_pv2p_lag2) 
+  select(state, year, D_pv2p, D_pv2p_lag1, R_pv2p_lag1, D_pv2p_lag2, R_pv2p_lag2, disposable_income) 
 
-# Subset testing data to only relevant variables for our simple model. 
-d.test <- d.test |> 
-  select(-c(D_pv2p, D_pv2p_lag1, D_pv2p_lag2)) |> 
-  left_join(t, by = c("state", "year"))
+
+d.test <- d.test|>
+  left_join(t, by = c("state", "year"), suffix = c("", ".t")) |>
+  mutate(
+    D_pv2p_lag1 = ifelse(is.na(D_pv2p_lag1), D_pv2p_lag1.t, D_pv2p_lag1),
+    D_pv2p_lag2 = ifelse(is.na(D_pv2p_lag2), D_pv2p_lag2.t, D_pv2p_lag2),
+    disposable_income = ifelse(is.na(disposable_income), disposable_income.t, disposable_income),
+    D_pv2p = ifelse(is.na(D_pv2p), D_pv2p.t, D_pv2p)
+  ) |>
+  select(-ends_with(".t"))
 
 # Standard frequentist linear regression. 
-reg.ols <- lm(D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2, 
-              data = d.train)
-summary(reg.ols)
-pred.ols.dem <- predict(reg.ols, newdata = d.test)
+reg.ols <- lm(D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2 + disposable_income, data = d.train)
 
+summary(reg.ols)
+```
+
+```
+## 
+## Call:
+## lm(formula = D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + 
+##     D_pv2p_lag2 + disposable_income, data = d.train)
+## 
+## Residuals:
+##     Min      1Q  Median      3Q     Max 
+## -3.6353 -1.4611 -0.1952  0.9295  5.7915 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(>|t|)    
+## (Intercept)       -1.454e+00  1.970e+00  -0.738 0.462843    
+## latest_pollav_DEM  8.340e-01  1.015e-01   8.220 7.18e-12 ***
+## mean_pollav_DEM   -7.629e-02  1.396e-01  -0.547 0.586450    
+## D_pv2p_lag1        3.205e-01  8.577e-02   3.737 0.000377 ***
+## D_pv2p_lag2        1.197e-01  6.881e-02   1.739 0.086401 .  
+## disposable_income -1.500e-04  4.005e-05  -3.746 0.000366 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+## 
+## Residual standard error: 1.845 on 70 degrees of freedom
+## Multiple R-squared:  0.9264,	Adjusted R-squared:  0.9212 
+## F-statistic: 176.3 on 5 and 70 DF,  p-value: < 2.2e-16
+```
+
+``` r
+pred.ols.dem <- predict(reg.ols, newdata = d.test)
+pred.ols.dem
+```
+
+```
+##        1        2        3        4        5        6        7        8 
+## 49.10553 63.96718 47.53905 49.57246 66.34556 50.65855 51.94575 41.31439 
+##        9       10       11       12       13       14       15       16 
+## 38.87594 50.57449 51.29574 54.40362 58.19033 49.47874 44.47652 49.37114 
+##       17       18       19 
+## 45.56245 52.76361 50.27859
+```
+
+``` r
 # Create dataset to summarize winners and EC vote distributions. 
 win_pred <- data.frame(state = d.test$state,
                        year = rep(2024, length(d.test$state)),
@@ -1626,19 +1824,254 @@ win_pred <- data.frame(state = d.test$state,
             left_join(d_ec, by = c("state", "year"))
 
 win_pred
+```
 
+```
+##             state year simp_pred_dem simp_pred_rep     winner stateab electors
+## 1         Arizona 2024      49.10553      50.89447 Republican      AZ       11
+## 2      California 2024      63.96718      36.03282   Democrat      CA       54
+## 3         Florida 2024      47.53905      52.46095 Republican      FL       30
+## 4         Georgia 2024      49.57246      50.42754 Republican      GA       16
+## 5        Maryland 2024      66.34556      33.65444   Democrat      MD       10
+## 6        Michigan 2024      50.65855      49.34145   Democrat      MI       15
+## 7       Minnesota 2024      51.94575      48.05425   Democrat      MN       10
+## 8        Missouri 2024      41.31439      58.68561 Republican      MO       10
+## 9         Montana 2024      38.87594      61.12406 Republican      MT        4
+## 10         Nevada 2024      50.57449      49.42551   Democrat      NV        6
+## 11  New Hampshire 2024      51.29574      48.70426   Democrat      NH        4
+## 12     New Mexico 2024      54.40362      45.59638   Democrat      NM        5
+## 13       New York 2024      58.19033      41.80967   Democrat      NY       28
+## 14 North Carolina 2024      49.47874      50.52126 Republican      NC       16
+## 15           Ohio 2024      44.47652      55.52348 Republican      OH       17
+## 16   Pennsylvania 2024      49.37114      50.62886 Republican      PA       19
+## 17          Texas 2024      45.56245      54.43755 Republican      TX       40
+## 18       Virginia 2024      52.76361      47.23639   Democrat      VA       13
+## 19      Wisconsin 2024      50.27859      49.72141   Democrat      WI       10
+```
+
+``` r
 win_pred |> 
   filter(winner == "Democrat") |> 
   select(state)
+```
 
+```
+##            state
+## 1     California
+## 2       Maryland
+## 3       Michigan
+## 4      Minnesota
+## 5         Nevada
+## 6  New Hampshire
+## 7     New Mexico
+## 8       New York
+## 9       Virginia
+## 10     Wisconsin
+```
+
+``` r
 win_pred |> 
   filter(winner == "Republican") |> 
   select(state)
+```
 
+```
+##            state
+## 1        Arizona
+## 2        Florida
+## 3        Georgia
+## 4       Missouri
+## 5        Montana
+## 6 North Carolina
+## 7           Ohio
+## 8   Pennsylvania
+## 9          Texas
+```
+
+``` r
 win_pred |> 
   group_by(winner) |> 
   summarize(n = n(), ec = sum(electors))
+```
 
+```
+## # A tibble: 2 × 3
+##   winner         n    ec
+##   <chr>      <int> <dbl>
+## 1 Democrat      10   155
+## 2 Republican     9   163
+```
+
+``` r
+# Create data set to summarize winners and EC vote distributions. 
+win_pred <- data.frame(state = d.test$state,
+                       year = rep(2024, length(d.test$state)),
+                       simp_pred_dem = pred.ols.dem,
+                       simp_pred_rep = 100 - pred.ols.dem) |> 
+            mutate(winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")) |> left_join(d_ec, by = c("state", "year"))
+
+
+#### monte carlo simulations so i can create confidence intervals 
+# Set the number of simulations
+m <- 1e4  # 10,000 simulations
+
+residual_se <- summary(reg.ols)$sigma
+
+pred_dem <- predict(reg.ols, newdata = d.test)
+
+n_states <- nrow(d.test)
+
+pred.mat <- data.frame(
+  state = rep(d.test$state, times = m),
+  year = rep(2024, times = m * n_states),
+  simp_pred_dem = numeric(m * n_states),
+  simp_pred_rep = numeric(m * n_states)
+)
+
+j <- 1
+for (i in 1:m) {
+  if (i %% 1000 == 0) {
+    print(paste("Simulation", i))
+  }
+    simulated_errors <- rnorm(n_states, mean = 0, sd = residual_se)
+    pred_dem_sim <- pred_dem + simulated_errors
+    pred_dem_sim <- pmin(pmax(pred_dem_sim, 0), 100)
+    pred_rep_sim <- 100 - pred_dem_sim
+  
+  idx <- j:(i * n_states)
+  pred.mat$simp_pred_dem[idx] <- pred_dem_sim
+  pred.mat$simp_pred_rep[idx] <- pred_rep_sim
+  
+  j <- j + n_states
+}
+```
+
+```
+## [1] "Simulation 1000"
+## [1] "Simulation 2000"
+## [1] "Simulation 3000"
+## [1] "Simulation 4000"
+## [1] "Simulation 5000"
+## [1] "Simulation 6000"
+## [1] "Simulation 7000"
+## [1] "Simulation 8000"
+## [1] "Simulation 9000"
+## [1] "Simulation 10000"
+```
+
+``` r
+pred.mat <- pred.mat %>%
+  mutate(
+    winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")
+  )
+####
+
+
+electoral_outcomes <- pred.mat |>
+  group_by(state) |>
+  summarize(
+    mean_dem = mean(simp_pred_dem),
+    mean_rep = mean(simp_pred_rep),
+    sd_dem = sd(simp_pred_dem),
+    sd_rep = sd(simp_pred_rep),
+    lower_dem = mean_dem - 1.96 * sd_dem,
+    upper_dem = mean_dem + 1.96 * sd_dem,
+    lower_rep = mean_rep - 1.96 * sd_rep,
+    upper_rep = mean_rep + 1.96 * sd_rep
+  ) |>
+  mutate(
+    winner = ifelse(mean_dem > mean_rep, "Democrat", "Republican")
+  )
+
+view(electoral_outcomes)
+
+
+#Since this only gives us the results for 19 states, it includes all swing states so a simple calculation with lagged vote will allow me to fill in the winner for the rest of the US
+#list of all states 
+all_states <- state.name
+
+missing_states <- setdiff(all_states, unique(electoral_outcomes$state))
+missing_states
+```
+
+```
+##  [1] "Alabama"        "Alaska"         "Arkansas"       "Colorado"      
+##  [5] "Connecticut"    "Delaware"       "Hawaii"         "Idaho"         
+##  [9] "Illinois"       "Indiana"        "Iowa"           "Kansas"        
+## [13] "Kentucky"       "Louisiana"      "Maine"          "Massachusetts" 
+## [17] "Mississippi"    "Nebraska"       "New Jersey"     "North Dakota"  
+## [21] "Oklahoma"       "Oregon"         "Rhode Island"   "South Carolina"
+## [25] "South Dakota"   "Tennessee"      "Utah"           "Vermont"       
+## [29] "Washington"     "West Virginia"  "Wyoming"
+```
+
+``` r
+#created a new data frame for the missing states 
+missing_data <- d_state_popvote |>
+  filter(state %in% missing_states) |>
+  filter(year == 2020) |>
+  select(state, D_pv2p_lag1, R_pv2p_lag1)
+
+#Create the winner column based on lagged vote shares. Since these are not swing states, using the outcome from the last election reflects whethere it is a blue/red state
+missing_data <- missing_data|>
+  mutate(
+    winner = ifelse(D_pv2p_lag1 > R_pv2p_lag1, "Democrat", "Republican")
+  )
+
+ec_2024 <- d_ec |>
+  filter(year == 2024) |> 
+  select(state, electors)
+  
+
+
+#Combine datasets 
+all_states_pred <- bind_rows(electoral_outcomes, missing_data) |>
+  left_join(ec_2024, by = "state")
+
+winner <- all_states_pred |>
+  group_by(winner) |>
+  summarize(total_electors = sum(electors))
+
+winner
+```
+
+```
+## # A tibble: 2 × 2
+##   winner     total_electors
+##   <chr>               <dbl>
+## 1 Democrat              254
+## 2 Republican            281
+```
+
+``` r
+#DC not included so add 3 for Dem electoral college count
+election_results <- tibble(
+  party = c("Democrat", "Republican"),
+  total_electors = c(winner$total_electors[1] + 3, winner$total_electors[2])
+)
+
+kable(election_results)
+```
+
+
+
+|party      | total_electors|
+|:----------|--------------:|
+|Democrat   |            257|
+|Republican |            281|
+
+``` r
+plot_usmap(data = all_states_pred, regions = "states", values = "winner") + scale_fill_manual(
+    values = c("Democrat" = "blue", "Republican" = "red"),
+    name = "Predicted Winner"
+  ) +
+  labs(title = "Electoral College Predictions") 
+```
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/bayesianism-1.png" width="672" />
+
+
+``` r
 # Bayesian linear regression using STAN. 
 stan.data <- list(N = nrow(d.train), 
                   D_pv2p = d.train$D_pv2p, 
@@ -1674,14 +2107,15 @@ model {
 
 stan.model <- stan_model(model_code = stan.code)
 
-#changed to 400 instead of 4000
-stan.fit <- sampling(stan.model, data = stan.data, chains = 4, iter = 1000, warmup = 500)
+stan.fit <- sampling(stan.model, data = stan.data, chains = 4, iter = 4000, warmup = 1000)
 
 # Compare coefficients from frequentist and Bayesian linear regressions. 
 coef(reg.ols)
 confint(reg.ols)
 print(stan.fit, pars = c("alpha", "beta1", "beta2", "beta3", "beta4", "sigma"))
 ```
+
+
 
 
 

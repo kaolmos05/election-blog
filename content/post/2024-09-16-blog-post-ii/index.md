@@ -6,6 +6,9 @@ slug: blog-post-ii
 categories: []
 tags: []
 ---
+@title GOV 1347: Week 2 (Economics) Laboratory Session
+@author Matthew E. Dardet
+@date September 10, 2024
 
 Date: September, 16, 2024 
 
@@ -18,10 +21,10 @@ This Week's Question: Can we predict election outcomes using only the state of t
 
 ```
 ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ dplyr     1.1.3     ✔ readr     2.1.4
-## ✔ forcats   1.0.0     ✔ stringr   1.5.0
-## ✔ ggplot2   3.4.3     ✔ tibble    3.2.1
-## ✔ lubridate 1.9.2     ✔ tidyr     1.3.0
+## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+## ✔ ggplot2   3.5.1     ✔ tibble    3.2.1
+## ✔ lubridate 1.9.3     ✔ tidyr     1.3.1
 ## ✔ purrr     1.0.2     
 ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
@@ -114,7 +117,7 @@ This Week's Question: Can we predict election outcomes using only the state of t
 ```
 
 ```
-## Warning: The following aesthetics were dropped during statistical transformation: label
+## Warning: The following aesthetics were dropped during statistical transformation: label.
 ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
 ##   the data.
 ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
@@ -124,7 +127,7 @@ This Week's Question: Can we predict election outcomes using only the state of t
 <img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" />
 
 ```
-## Warning: The following aesthetics were dropped during statistical transformation: label
+## Warning: The following aesthetics were dropped during statistical transformation: label.
 ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
 ##   the data.
 ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
@@ -183,7 +186,7 @@ The graphs demonstrate the correlations between Q2 GDP growth and incumbent vote
 ```
 
 ```
-## Warning: The following aesthetics were dropped during statistical transformation: label
+## Warning: The following aesthetics were dropped during statistical transformation: label.
 ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
 ##   the data.
 ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical
@@ -218,7 +221,7 @@ In the graph above, I performed an analysis on the correlation between the unemp
 ```
 
 ```
-## Warning: The following aesthetics were dropped during statistical transformation: label
+## Warning: The following aesthetics were dropped during statistical transformation: label.
 ## ℹ This can happen when ggplot fails to infer the correct grouping structure in
 ##   the data.
 ## ℹ Did you forget to specify a `group` aesthetic or to convert a numerical

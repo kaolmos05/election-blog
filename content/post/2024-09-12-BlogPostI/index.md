@@ -21,22 +21,15 @@ This week I aim to answer the following questions:
 
 ```
 ## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
-## ✔ dplyr     1.1.3     ✔ readr     2.1.4
-## ✔ forcats   1.0.0     ✔ stringr   1.5.0
-## ✔ lubridate 1.9.2     ✔ tibble    3.2.1
-## ✔ purrr     1.0.2     ✔ tidyr     1.3.0
+## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+## ✔ lubridate 1.9.3     ✔ tibble    3.2.1
+## ✔ purrr     1.0.2     ✔ tidyr     1.3.1
 ## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
 ## ✖ dplyr::filter() masks stats::filter()
 ## ✖ dplyr::lag()    masks stats::lag()
 ## ✖ purrr::map()    masks maps::map()
 ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
-```
-
-```
-## Warning: package 'usdata' was built under R version 4.3.3
-```
-
-```
 ## Rows: 38 Columns: 9
 ## ── Column specification ────────────────────────────────────────────────────────
 ## Delimiter: ","
@@ -123,7 +116,7 @@ This week I aim to answer the following questions:
 
 
 
-```r
+``` r
 ####----------------------------------------------------------#
 #### Visualize trends in national presidential popular vote. 
 ####----------------------------------------------------------#
@@ -194,7 +187,8 @@ This grid map of which party candidate won each state between 1980 and 2020 furt
 ```
 
 ```
-## Warning: Removed 3 rows containing missing values (`geom_text()`).
+## Warning: Removed 3 rows containing missing values or values outside the scale range
+## (`geom_text()`).
 ```
 
 <img src="{{< blogdown/postref >}}index_files/figure-html/electoral cycle model-1.png" width="672" />
