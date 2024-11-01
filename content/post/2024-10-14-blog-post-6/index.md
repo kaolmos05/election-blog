@@ -43,8 +43,6 @@ I think economic indicators are strong predictors for which candidate will win t
 
 I obtained data on personal disposable income by state from the U.S. Bureau of Economic Analysis and it changed my forecast drastically. In last week’s blog post, all the swing states had gone for Harris. Now, Harris loses Arizona, North Carolina, and Georgia. The final forecast for this week reflects a win for Trump 281-257. 
 
-I obtained confidence intervals by running 10000 simulations. 
-
 |party      | total_electors|
 |:----------|--------------:|
 |Democrat   |            257|
