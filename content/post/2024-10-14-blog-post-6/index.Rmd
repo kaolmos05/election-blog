@@ -14,6 +14,7 @@ In this week's blog post I will explore how campaign spending on advertisements 
 # Load libraries.
 ## install via `install.packages("name")`
 library(car)
+library(usmap)
 library(caret)
 library(cowplot)
 library(curl)
@@ -35,6 +36,7 @@ library(sf)
 library(shinystan)
 library(tidyverse)
 library(viridis)
+library(knitr)
 
 ## set working directory here
 # setwd("~")
@@ -339,19 +341,18 @@ regions_to_remove <- c(
 #cleaning the data and processing it
 personal_dis_income <- personal_dis_income |>
   rename(state = GeoName) |>
-  mutate(across(-state, ~ as.numeric(gsub("\\(NA\\)", NA, .)))) |>
+  mutate(across(-state, ~ as.numeric(gsub("\\(NA\\)", "", .)))) |>
   pivot_longer(
     cols = -c(state, GeoFips),  
     names_to = "year", 
     values_to = "disposable_income" 
   ) |>
-  mutate(year = as.numeric(year))   |> #for some reason some years were characters so I made them all numbers
+  mutate(year = as.numeric(year)) |>
   mutate(state = gsub("\\*", "", state)) |>
   filter(year >= 2008) |>
-  filter(!state %in% regions_to_remove & !is.na(state))  
+  filter(!is.na(state) & !(state %in% regions_to_remove))
 
 personal_dis_income
-
 ```
 
 
@@ -421,12 +422,12 @@ d.test <- d.test|>
   select(-ends_with(".t"))
 
 # Standard frequentist linear regression. 
-reg.ols <- lm(D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2 + disposable_income, 
-              data = d.train)
+reg.ols <- lm(D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2 + disposable_income, data = d.train)
 
 summary(reg.ols)
 pred.ols.dem <- predict(reg.ols, newdata = d.test)
 pred.ols.dem
+
 # Create dataset to summarize winners and EC vote distributions. 
 win_pred <- data.frame(state = d.test$state,
                        year = rep(2024, length(d.test$state)),
@@ -449,35 +450,72 @@ win_pred |>
   group_by(winner) |> 
   summarize(n = n(), ec = sum(electors))
 
-# Create dataset to summarize winners and EC vote distributions. 
+# Create data set to summarize winners and EC vote distributions. 
 win_pred <- data.frame(state = d.test$state,
                        year = rep(2024, length(d.test$state)),
                        simp_pred_dem = pred.ols.dem,
                        simp_pred_rep = 100 - pred.ols.dem) |> 
-            mutate(winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")) |>
-            left_join(d_ec, by = c("state", "year"))
-
-win_pred
+            mutate(winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")) |> left_join(d_ec, by = c("state", "year"))
 
 
-electoral_outcomes <- win_pred |>
+#### monte carlo simulations so i can create confidence intervals 
+# Set the number of simulations
+m <- 1e4  # 10,000 simulations
+
+residual_se <- summary(reg.ols)$sigma
+
+pred_dem <- predict(reg.ols, newdata = d.test)
+
+n_states <- nrow(d.test)
+
+pred.mat <- data.frame(
+  state = rep(d.test$state, times = m),
+  year = rep(2024, times = m * n_states),
+  simp_pred_dem = numeric(m * n_states),
+  simp_pred_rep = numeric(m * n_states)
+)
+
+j <- 1
+for (i in 1:m) {
+  if (i %% 1000 == 0) {
+    print(paste("Simulation", i))
+  }
+    simulated_errors <- rnorm(n_states, mean = 0, sd = residual_se)
+    pred_dem_sim <- pred_dem + simulated_errors
+    pred_dem_sim <- pmin(pmax(pred_dem_sim, 0), 100)
+    pred_rep_sim <- 100 - pred_dem_sim
+  
+  idx <- j:(i * n_states)
+  pred.mat$simp_pred_dem[idx] <- pred_dem_sim
+  pred.mat$simp_pred_rep[idx] <- pred_rep_sim
+  
+  j <- j + n_states
+}
+
+pred.mat <- pred.mat %>%
+  mutate(
+    winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")
+  )
+####
+
+
+electoral_outcomes <- pred.mat |>
   group_by(state) |>
   summarize(
     mean_dem = mean(simp_pred_dem),
-    mean_rep = mean(simp_pred_rep)
+    mean_rep = mean(simp_pred_rep),
+    sd_dem = sd(simp_pred_dem),
+    sd_rep = sd(simp_pred_rep),
+    lower_dem = mean_dem - 1.96 * sd_dem,
+    upper_dem = mean_dem + 1.96 * sd_dem,
+    lower_rep = mean_rep - 1.96 * sd_rep,
+    upper_rep = mean_rep + 1.96 * sd_rep
   ) |>
-  mutate(sd_dem = sd(simp_pred_dem),
-         sd_rep = sd(simp_pred_rep),
-         lower_dem = mean_dem - 1.96*sd_dem,
-         upper_dem = mean_dem + 1.96*sd_dem,
-         lower_rep = mean_rep - 1.96*sd_rep,
-         upper_rep = mean_rep + 1.96*sd_rep) |>
-  view() |>
   mutate(
     winner = ifelse(mean_dem > mean_rep, "Democrat", "Republican")
   )
 
-electoral_outcomes
+view(electoral_outcomes)
 
 
 #Since this only gives us the results for 19 states, it includes all swing states so a simple calculation with lagged vote will allow me to fill in the winner for the rest of the US
@@ -532,7 +570,7 @@ plot_usmap(data = all_states_pred, regions = "states", values = "winner") + scal
 
 ```
 
-```{r}
+```{r eval=FALSE}
 # Bayesian linear regression using STAN. 
 stan.data <- list(N = nrow(d.train), 
                   D_pv2p = d.train$D_pv2p, 
