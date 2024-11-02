@@ -13,7 +13,6 @@ Will the ground game impact the presidential election outcome? The ground game i
 
 Available literature shows evidence that direct campaign contact and advertising has minimal persuasive effect on voters (Kalla and Broockman, 2017). As election day approaches, the persuasive effect of direct campaign contact and advertising declines (Kalla and Broockman, 2017). Does this mean that the ground game has no effect on the election outcome? Well, not exactly, Enos and Fowler argue that large-scale campaigns significantly increase voter turnout in battleground states by up to 7-8 percentage points after analyzing data from the 2012 election. Kalla and Broockman conclude that the campaign ground game does not affect who a voter will vote for because it still holds value. Enos and Fowler find that the ground game does increase voter turnout. Therefore, by strategically targeting voters in specific geographic areas they can influence who turns out. 
 
-<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-9-5.png" width="672" />
 
 ### The Ground Game Visualized 
 
