@@ -1,0 +1,1400 @@
+---
+title: Blog Post 7
+author: Kelly Olmos
+date: '2024-10-21'
+slug: blog-post-7
+categories: []
+tags: []
+---
+
+
+
+<pre class="r"><code>#&#39; @title GOV 1347: Week 7 (Ground Game) Laboratory Session
+#&#39; @author Matthew E. Dardet
+#&#39; @date October 15, 2024
+
+####----------------------------------------------------------#
+#### Preamble
+####----------------------------------------------------------#
+
+# Load libraries.
+## install via `install.packages(&quot;name&quot;)`
+library(geofacet)
+library(usmap)
+library(ggpubr)</code></pre>
+<pre><code>## Loading required package: ggplot2</code></pre>
+<pre class="r"><code>library(ggthemes)
+library(haven)
+library(kableExtra)
+library(maps)
+library(mgcv)</code></pre>
+<pre><code>## Loading required package: nlme</code></pre>
+<pre><code>## This is mgcv 1.9-1. For overview type &#39;help(&quot;mgcv-package&quot;)&#39;.</code></pre>
+<pre class="r"><code>library(mgcViz)</code></pre>
+<pre><code>## Loading required package: qgam</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;GGally&#39;:
+##   method from   
+##   +.gg   ggplot2</code></pre>
+<pre><code>## Registered S3 method overwritten by &#39;mgcViz&#39;:
+##   method from  
+##   +.gg   GGally</code></pre>
+<pre><code>## 
+## Attaching package: &#39;mgcViz&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     qqline, qqnorm, qqplot</code></pre>
+<pre class="r"><code>library(RColorBrewer)
+library(scales)
+library(sf)</code></pre>
+<pre><code>## Linking to GEOS 3.11.0, GDAL 3.5.3, PROJ 9.1.0; sf_use_s2() is TRUE</code></pre>
+<pre class="r"><code>library(spData)</code></pre>
+<pre><code>## To access larger datasets in this package, install the spDataLarge
+## package with: `install.packages(&#39;spDataLarge&#39;,
+## repos=&#39;https://nowosad.github.io/drat/&#39;, type=&#39;source&#39;)`</code></pre>
+<pre class="r"><code>library(stargazer)</code></pre>
+<pre><code>## 
+## Please cite as:</code></pre>
+<pre><code>##  Hlavac, Marek (2022). stargazer: Well-Formatted Regression and Summary Statistics Tables.</code></pre>
+<pre><code>##  R package version 5.2.3. https://CRAN.R-project.org/package=stargazer</code></pre>
+<pre class="r"><code>library(tidygeocoder)
+library(tidyverse)</code></pre>
+<pre><code>## ── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
+## ✔ dplyr     1.1.4     ✔ readr     2.1.5
+## ✔ forcats   1.0.0     ✔ stringr   1.5.1
+## ✔ lubridate 1.9.3     ✔ tibble    3.2.1
+## ✔ purrr     1.0.2     ✔ tidyr     1.3.1</code></pre>
+<pre><code>## ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
+## ✖ readr::col_factor() masks scales::col_factor()
+## ✖ dplyr::collapse()   masks nlme::collapse()
+## ✖ purrr::discard()    masks scales::discard()
+## ✖ dplyr::filter()     masks stats::filter()
+## ✖ dplyr::group_rows() masks kableExtra::group_rows()
+## ✖ dplyr::lag()        masks stats::lag()
+## ✖ purrr::map()        masks maps::map()
+## ℹ Use the conflicted package (&lt;http://conflicted.r-lib.org/&gt;) to force all conflicts to become errors</code></pre>
+<pre class="r"><code>library(tigris)</code></pre>
+<pre><code>## To enable caching of data, set `options(tigris_use_cache = TRUE)`
+## in your R script or .Rprofile.</code></pre>
+<pre class="r"><code>library(tmap)</code></pre>
+<pre><code>## Breaking News: tmap 3.x is retiring. Please test v4, e.g. with
+## remotes::install_github(&#39;r-tmap/tmap&#39;)</code></pre>
+<pre class="r"><code>library(tmaptools)
+library(viridis)</code></pre>
+<pre><code>## Loading required package: viridisLite
+## 
+## Attaching package: &#39;viridis&#39;
+## 
+## The following object is masked from &#39;package:scales&#39;:
+## 
+##     viridis_pal
+## 
+## The following object is masked from &#39;package:maps&#39;:
+## 
+##     unemp</code></pre>
+<pre class="r"><code>## set working directory here
+# setwd(&quot;~&quot;)</code></pre>
+<pre class="r"><code>####----------------------------------------------------------#
+#### Read, merge, and process data.
+####----------------------------------------------------------#
+
+# Read popular vote datasets. 
+d_popvote &lt;- read_csv(&quot;popvote_1948_2020.csv&quot;)</code></pre>
+<pre><code>## Rows: 40 Columns: 11
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (2): party, candidate
+## dbl (5): year, pv, pv2p, deminc, juneapp
+## lgl (4): winner, incumbent, incumbent_party, prev_admin
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>d_state_popvote &lt;- read_csv(&quot;state_popvote_1948_2020.csv&quot;)</code></pre>
+<pre><code>## Rows: 959 Columns: 18
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (1): state
+## dbl (17): year, D_pv, R_pv, D_pv2p, R_pv2p, votes_D, votes_R, total_votes, t...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>d_state_popvote[d_state_popvote$state == &quot;District of Columbia&quot;,]$state &lt;- &quot;District Of Columbia&quot;
+
+# Read elector distribution dataset. 
+d_ec &lt;- read_csv(&quot;corrected_ec_1948_2024.csv&quot;)</code></pre>
+<pre><code>## Rows: 1010 Columns: 4
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (2): state, stateab
+## dbl (2): year, electors
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code># Read polling data. 
+d_polls &lt;- read_csv(&quot;national_polls_1968-2024.csv&quot;)</code></pre>
+<pre><code>## Rows: 7436 Columns: 9
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (3): state, party, candidate
+## dbl  (4): year, weeks_left, days_left, poll_support
+## lgl  (1): before_convention
+## date (1): poll_date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>d_state_polls &lt;- read_csv(&quot;state_polls_1968-2024.csv&quot;)</code></pre>
+<pre><code>## Rows: 205678 Columns: 9
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (3): state, party, candidate
+## dbl  (4): year, weeks_left, days_left, poll_support
+## lgl  (1): before_convention
+## date (1): poll_date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code># Read turnout data. 
+d_turnout &lt;- read_csv(&quot;state_turnout_1980_2022.csv&quot;)</code></pre>
+<pre><code>## Rows: 1144 Columns: 15
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (5): state, vep_turnout, vep_highest_office, vap_highest_office, noncitizen
+## dbl (1): year
+## num (9): total_ballots, highest_office_ballots, vep, vap, prison, probation,...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code># Read county turnout. 
+d_county_turnout &lt;- read_csv(&quot;county_turnout.csv&quot;)</code></pre>
+<pre><code>## New names:
+## Rows: 21848 Columns: 12
+## ── Column specification
+## ──────────────────────────────────────────────────────── Delimiter: &quot;,&quot; chr
+## (5): state, state_po, county_name, candidate, party dbl (7): ...1, year,
+## county_fips, candidatevotes, totalvotes, POPESTIMATE202...
+## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
+## Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## • `` -&gt; `...1`</code></pre>
+<pre class="r"><code># Read state-level demographics.
+d_state_demog &lt;- read_csv(&quot;demographics.csv&quot;)</code></pre>
+<pre><code>## New names:
+## Rows: 663 Columns: 44
+## ── Column specification
+## ──────────────────────────────────────────────────────── Delimiter: &quot;,&quot; chr
+## (1): state dbl (43): ...1, year, total_pop, white, black, american_indian,
+## asian_pacifi...
+## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
+## Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## • `` -&gt; `...1`</code></pre>
+<pre class="r"><code># Read county demographics. 
+d_county_demog &lt;- read_csv(&quot;county_demographics.csv&quot;)</code></pre>
+<pre><code>## New names:
+## Rows: 3223 Columns: 45
+## ── Column specification
+## ──────────────────────────────────────────────────────── Delimiter: &quot;,&quot; chr
+## (2): COUNTY, STATE dbl (43): ...1, year, total_pop, white, black,
+## american_indian, asian_pacifi...
+## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
+## Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## • `` -&gt; `...1`</code></pre>
+<pre class="r"><code># Read campaign events datasets. 
+d_campaign_events &lt;- read_csv(&quot;campaigns_2016_2024.csv&quot;)[,-1]</code></pre>
+<pre><code>## New names:
+## Rows: 902 Columns: 7
+## ── Column specification
+## ──────────────────────────────────────────────────────── Delimiter: &quot;,&quot; chr
+## (4): state, city, candidate, Event.Type dbl (2): ...1, year date (1): date
+## ℹ Use `spec()` to retrieve the full column specification for this data. ℹ
+## Specify the column types or set `show_col_types = FALSE` to quiet this message.
+## • `` -&gt; `...1`</code></pre>
+<pre class="r"><code>####----------------------------------------------------------#
+#### Binomial simulations for election prediction. 
+####----------------------------------------------------------#
+
+
+# Merge popular vote and polling data. 
+d &lt;- d_state_popvote |&gt; 
+  inner_join(d_state_polls |&gt; filter(weeks_left == 3)) |&gt; 
+  mutate(state_abb = state.abb[match(state, state.name)])</code></pre>
+<pre><code>## Joining with `by = join_by(year, state)`</code></pre>
+<pre class="r"><code># Generate state-specific univariate poll-based forecasts with linear model.
+state_forecast &lt;- list()
+state_forecast_outputs &lt;- data.frame()
+for (s in unique(d$state_abb)) {
+  # Democrat model.
+  state_forecast[[s]]$dat_D &lt;- d |&gt; filter(state_abb == s, party == &quot;DEM&quot;)
+  state_forecast[[s]]$mod_D &lt;- lm(D_pv ~ poll_support, 
+                                  state_forecast[[s]]$dat_D)
+  
+  # Republican model.
+  state_forecast[[s]]$dat_R &lt;- d |&gt; filter(state_abb == s, party == &quot;REP&quot;)
+  state_forecast[[s]]$mod_R &lt;- lm(R_pv ~ poll_support, 
+                                  state_forecast[[s]]$dat_R)
+  
+  if (nrow(state_forecast[[s]]$dat_R) &gt; 2) {
+    # Save state-level model estimates. 
+    state_forecast_outputs &lt;- rbind(state_forecast_outputs, 
+                                    rbind(cbind.data.frame(
+                                      intercept = summary(state_forecast[[s]]$mod_D)$coefficients[1,1], 
+                                      intercept_se = summary(state_forecast[[s]]$mod_D)$coefficients[1,2],
+                                      slope = summary(state_forecast[[s]]$mod_D)$coefficients[2,1], 
+                                      state_abb = s, 
+                                      party = &quot;DEM&quot;), 
+                                    rbind(cbind.data.frame(
+                                     intercept = summary(state_forecast[[s]]$mod_R)$coefficients[1,1],
+                                     intercept_se = summary(state_forecast[[s]]$mod_R)$coefficients[1,2],
+                                     slope = summary(state_forecast[[s]]$mod_R)$coefficients[2,1],
+                                     state_abb = s,
+                                     party = &quot;REP&quot;
+                                    ))))
+  }
+}
+
+# Make graphs of polls in different states/parties at different levels of strength/significance of outcome. 
+state_forecast_trends &lt;- state_forecast_outputs |&gt; 
+  mutate(`0` = intercept, 
+         `25` = intercept + slope*25, 
+         `50` = intercept + slope*50, 
+         `75` = intercept + slope*75, 
+         `100` = intercept + slope*100) |&gt;
+  select(-intercept, -slope) |&gt; 
+  gather(x, y, -party, -state_abb, -intercept_se) |&gt; 
+  mutate(x = as.numeric(x))
+
+# Q: What&#39;s wrong with this map? 
+# A: (1.) no polls in some states
+#    (2.) very high variance for some states (Nevada)/negative slopes for others (Mississippi)
+#    (3.) y is not always in the [0, 100] range
+ggplot(state_forecast_trends, aes(x=x, y=y, ymin=y-intercept_se, ymax=y+intercept_se)) + 
+  facet_geo(~ state_abb) +
+  geom_line(aes(color = party)) + 
+  geom_ribbon(aes(fill = party), alpha=0.5, color=NA) +
+  coord_cartesian(ylim=c(0, 100)) +
+  scale_color_manual(values = c(&quot;blue&quot;, &quot;red&quot;)) +
+  scale_fill_manual(values = c(&quot;blue&quot;, &quot;red&quot;)) +
+  xlab(&quot;Hypothetical Poll Support&quot;) +
+  ylab(&quot;Predicted Voteshare\n(pv = A + B * poll)&quot;) +
+  ggtitle(&quot;&quot;) +
+  theme_bw()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-1.png" width="672" /></p>
+<pre class="r"><code>state_forecast_trends |&gt;
+  filter(state_abb == &quot;CA&quot; | state_abb == &quot;FL&quot;)|&gt;
+  ggplot(aes(x=x, y=y, ymin=y-intercept_se, ymax=y+intercept_se)) + 
+  facet_wrap(~ state_abb) +
+  geom_line(aes(color = party)) + 
+  geom_hline(yintercept = 100, lty = 3) +
+  geom_hline(yintercept = 0, lty = 3) + 
+  geom_ribbon(aes(fill = party), alpha=0.5, color=NA) +
+  ## N.B. You can, in fact, combine *different* data and aesthetics
+  ##       in one ggplot; but this usually needs to come at the end 
+  ##       and you must explicitly override all previous aesthetics
+  geom_text(data = d |&gt; filter(state_abb == &quot;CA&quot;, party==&quot;DEM&quot;), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |&gt; filter(state_abb == &quot;CA&quot;, party==&quot;REP&quot;), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |&gt; filter(state_abb == &quot;FL&quot;, party==&quot;DEM&quot;), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |&gt; filter(state_abb == &quot;FL&quot;, party==&quot;REP&quot;), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  scale_color_manual(values = c(&quot;blue&quot;, &quot;red&quot;)) +
+  scale_fill_manual(values = c(&quot;blue&quot;, &quot;red&quot;)) +
+  xlab(&quot;Hypothetical Poll Support&quot;) +
+  ylab(&quot;Predicted Voteshare\n(pv = A + B * poll)&quot;) +
+  theme_bw()</code></pre>
+<pre><code>## Warning in geom_text(data = filter(d, state_abb == &quot;CA&quot;, party == &quot;DEM&quot;), :
+## Ignoring unknown aesthetics: ymin and ymax</code></pre>
+<pre><code>## Warning in geom_text(data = filter(d, state_abb == &quot;CA&quot;, party == &quot;REP&quot;), :
+## Ignoring unknown aesthetics: ymin and ymax</code></pre>
+<pre><code>## Warning in geom_text(data = filter(d, state_abb == &quot;FL&quot;, party == &quot;DEM&quot;), :
+## Ignoring unknown aesthetics: ymin and ymax</code></pre>
+<pre><code>## Warning in geom_text(data = filter(d, state_abb == &quot;FL&quot;, party == &quot;REP&quot;), :
+## Ignoring unknown aesthetics: ymin and ymax</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-2.png" width="672" /></p>
+<pre class="r"><code># Merge turnout data into main dataset. 
+d &lt;- d |&gt; 
+  left_join(d_turnout, by = c(&quot;state&quot;, &quot;year&quot;)) |&gt; 
+  filter(year &gt;= 1980) # Filter to when turnout dataset begins. 
+
+# Generate probabilistic univariate poll-based state forecasts. 
+state_glm_forecast &lt;- list()
+state_glm_forecast_outputs &lt;- data.frame()
+for (s in unique(d$state_abb)) {
+  # Democrat model. 
+  state_glm_forecast[[s]]$dat_D &lt;- d |&gt; filter(state_abb == s, party == &quot;DEM&quot;)
+  state_glm_forecast[[s]]$mod_D &lt;- glm(cbind(votes_D, vep - votes_D) ~ poll_support, # Cbind(N Success, N Total) for Binomial Model 
+                                      state_glm_forecast[[s]]$dat_D, 
+                                      family = binomial(link = &quot;logit&quot;))
+  
+  # Republican model. 
+  state_glm_forecast[[s]]$dat_R &lt;- d |&gt; filter(state_abb == s, party == &quot;REP&quot;)
+  state_glm_forecast[[s]]$mod_R &lt;- glm(cbind(votes_R, vep - votes_R) ~ poll_support, 
+                                      state_glm_forecast[[s]]$dat_R, 
+                                      family = binomial(link = &quot;logit&quot;))
+  
+  if (nrow(state_glm_forecast[[s]]$dat_R) &gt; 2) {
+    for (hypo_avg_poll in seq(from = 0, to = 100, by = 10)) { 
+      # Democrat prediction. 
+      D_pred_vote_prob &lt;- predict(state_glm_forecast[[s]]$mod_D, 
+                                  newdata = data.frame(poll_support = hypo_avg_poll), se = TRUE, type = &quot;response&quot;)
+      D_pred_qt &lt;- qt(0.975, df = df.residual(state_glm_forecast[[s]]$mod_D)) # Used in the prediction interval formula. 
+      
+      # Republican prediction. 
+      R_pred_vote_prob &lt;- predict(state_glm_forecast[[s]]$mod_R, 
+                                  newdata = data.frame(poll_support = hypo_avg_poll), se = TRUE, type = &quot;response&quot;)
+      R_pred_qt &lt;- qt(0.975, df = df.residual(state_glm_forecast[[s]]$mod_R)) # Used in the prediction interval formula.
+      
+      # Save predictions. 
+      state_glm_forecast_outputs &lt;- rbind(state_glm_forecast_outputs, 
+                                          cbind.data.frame(x = hypo_avg_poll,
+                                                           y = D_pred_vote_prob$fit*100,
+                                                           ymin = (D_pred_vote_prob$fit - D_pred_qt*D_pred_vote_prob$se.fit)*100,
+                                                           ymax = (D_pred_vote_prob$fit + D_pred_qt*D_pred_vote_prob$se.fit)*100,
+                                                           state_abb = s, 
+                                                           party = &quot;DEM&quot;),
+                                          cbind.data.frame(x = hypo_avg_poll,
+                                                           y = R_pred_vote_prob$fit*100,
+                                                           ymin = (R_pred_vote_prob$fit - R_pred_qt*R_pred_vote_prob$se.fit)*100,
+                                                           ymax = (R_pred_vote_prob$fit + R_pred_qt*R_pred_vote_prob$se.fit)*100,
+                                                           state_abb = s, 
+                                                           party = &quot;REP&quot;))
+    }
+  }
+}
+
+# Make graphs of polls in different states/parties at different levels of strength/significance of outcome. 
+ggplot(state_glm_forecast_outputs, aes(x=x, y=y, ymin=ymin, ymax=ymax)) + 
+  facet_geo(~ state_abb) +
+  geom_line(aes(color = party)) + 
+  geom_ribbon(aes(fill = party), alpha=0.5, color=NA) +
+  coord_cartesian(ylim=c(0, 100)) +
+  scale_color_manual(values = c(&quot;blue&quot;, &quot;red&quot;)) +
+  scale_fill_manual(values = c(&quot;blue&quot;, &quot;red&quot;)) +
+  xlab(&quot;Hypothetical Poll Support&quot;) +
+  ylab(&#39;Probability of State-Eligible Voter Voting for Party&#39;) +
+  theme_bw()</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-3.png" width="672" /></p>
+<pre class="r"><code>state_glm_forecast_outputs |&gt;
+  filter(state_abb == &quot;CA&quot; | state_abb == &quot;FL&quot;) |&gt;
+  ggplot(aes(x=x, y=y, ymin=ymin, ymax=ymax)) + 
+  facet_wrap(~ state_abb) +
+  geom_line(aes(color = party)) + 
+  geom_ribbon(aes(fill = party), alpha=0.5, color=NA) +
+  coord_cartesian(ylim=c(0, 100)) +
+  geom_text(data = d |&gt; filter(state_abb == &quot;CA&quot;, party==&quot;DEM&quot;), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |&gt; filter(state_abb == &quot;CA&quot;, party==&quot;REP&quot;), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |&gt; filter(state_abb == &quot;FL&quot;, party==&quot;DEM&quot;), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |&gt; filter(state_abb == &quot;FL&quot;, party==&quot;REP&quot;), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  scale_color_manual(values = c(&quot;blue&quot;, &quot;red&quot;)) +
+  scale_fill_manual(values = c(&quot;blue&quot;, &quot;red&quot;)) +
+  xlab(&quot;Hypothetical Poll Support&quot;) +
+  ylab(&#39;Probability of\nState-Eligible Voter\nVoting for Party&#39;) +
+  ggtitle(&quot;Binomial Logit&quot;) + 
+  theme_bw() + 
+  theme(axis.title.y = element_text(size=6.5))</code></pre>
+<pre><code>## Warning in geom_text(data = filter(d, state_abb == &quot;CA&quot;, party == &quot;DEM&quot;), :
+## Ignoring unknown aesthetics: ymin and ymax</code></pre>
+<pre><code>## Warning in geom_text(data = filter(d, state_abb == &quot;CA&quot;, party == &quot;REP&quot;), :
+## Ignoring unknown aesthetics: ymin and ymax</code></pre>
+<pre><code>## Warning in geom_text(data = filter(d, state_abb == &quot;FL&quot;, party == &quot;DEM&quot;), :
+## Ignoring unknown aesthetics: ymin and ymax</code></pre>
+<pre><code>## Warning in geom_text(data = filter(d, state_abb == &quot;FL&quot;, party == &quot;REP&quot;), :
+## Ignoring unknown aesthetics: ymin and ymax</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-4.png" width="672" /></p>
+<pre class="r"><code># Simulating a distribution of potential election results in Pennsylvania for 2024. 
+# First step. Let&#39;s use GAM (general additive model) to impute VEP in Pennsylvania for 2024 using historical VEP.
+
+# Get historical eligible voting population in Pennsylvania. 
+vep_PA_2020 &lt;- as.integer(d_turnout$vep[d_turnout$state == &quot;Pennsylvania&quot; &amp; d_turnout$year == 2020])
+vep_PA &lt;- d_turnout |&gt; filter(state == &quot;Pennsylvania&quot;) |&gt; select(vep, year)
+
+# Fit regression for 2024 VEP prediction. 
+lm_vep_PA &lt;- lm(vep ~ year, vep_PA)
+
+plot(x = vep_PA$year, y = vep_PA$vep, xlab = &quot;Year&quot;, ylab = &quot;VEP&quot;, main = &quot;Voting Eligible Population in Pennsylvania by Year&quot;)
+abline(lm_vep_PA, col = &quot;red&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-5.png" width="672" /></p>
+<pre class="r"><code>vep_PA_2024_ols &lt;- predict(lm_vep_PA, newdata = data.frame(year = 2024)) |&gt; as.numeric()
+
+gam_vep_PA &lt;- mgcv::gam(vep ~ s(year), data = vep_PA)
+print(plot(getViz(gam_vep_PA)) + l_points() + l_fitLine(linetype = 3) + l_ciLine(colour = 2) + theme_get()) </code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-6.png" width="672" /></p>
+<pre class="r"><code># Use generalized additive model (GAM) to predict 2024 VEP in Pennsylvania.
+vep_PA_2024_gam &lt;- predict(gam_vep_PA, newdata = data.frame(year = 2024)) |&gt; as.numeric()
+
+# Take weighted average of linear and GAM predictions for final prediction. 
+vep_PA_2024 &lt;- as.integer(0.75*vep_PA_2024_gam + 0.25*vep_PA_2024_ols)
+vep_PA_2024</code></pre>
+<pre><code>## [1] 10044706</code></pre>
+<pre class="r"><code># Split datasets by party. 
+PA_D &lt;- d |&gt; filter(state == &quot;Pennsylvania&quot; &amp; party == &quot;DEM&quot;)
+PA_R &lt;- d |&gt; filter(state == &quot;Pennsylvania&quot; &amp; party == &quot;REP&quot;)
+
+# Fit Democrat and Republican models. 
+PA_D_glm &lt;- glm(cbind(votes_R, vep - votes_R) ~ poll_support, data = PA_D, family = binomial(link = &quot;logit&quot;))
+PA_R_glm &lt;- glm(cbind(votes_R, vep - votes_R) ~ poll_support, data = PA_R, family = binomial(link = &quot;logit&quot;))
+
+# Get predicted draw probabilities for D and R. 
+(PA_pollav_D &lt;- d_state_polls$poll_support[d_state_polls$state == &quot;Pennsylvania&quot; &amp; d_state_polls$weeks_left == 3 &amp; d_state_polls$party == &quot;DEM&quot;] |&gt; mean(na.rm = T))</code></pre>
+<pre><code>## [1] 45.27291</code></pre>
+<pre class="r"><code>(PA_pollav_R &lt;- d_state_polls$poll_support[d_state_polls$state == &quot;Pennsylvania&quot; &amp; d_state_polls$weeks_left == 3 &amp; d_state_polls$party == &quot;REP&quot;] |&gt; mean(na.rm = T))</code></pre>
+<pre><code>## [1] 42.14185</code></pre>
+<pre class="r"><code>(PA_sdpoll_D &lt;- sd(d_state_polls$poll_support[d_state_polls$state == &quot;Pennsylvania&quot; &amp; d_state_polls$weeks_left == 3 &amp; d_state_polls$party == &quot;DEM&quot;] |&gt; na.omit()))</code></pre>
+<pre><code>## [1] 5.302223</code></pre>
+<pre class="r"><code>(PA_sdpoll_R &lt;- sd(d_state_polls$poll_support[d_state_polls$state == &quot;Pennsylvania&quot; &amp; d_state_polls$weeks_left == 3 &amp; d_state_polls$party == &quot;REP&quot;] |&gt; na.omit()))</code></pre>
+<pre><code>## [1] 5.069872</code></pre>
+<pre class="r"><code>(prob_D_vote_PA_2024 &lt;- predict(PA_D_glm, newdata = data.frame(poll_support = PA_pollav_D), se = TRUE, type = &quot;response&quot;)[[1]] |&gt; as.numeric())</code></pre>
+<pre><code>## [1] 0.2706284</code></pre>
+<pre class="r"><code>(prob_R_vote_PA_2024 &lt;- predict(PA_R_glm, newdata = data.frame(poll_support = PA_pollav_R), se = TRUE, type = &quot;response&quot;)[[1]] |&gt; as.numeric())</code></pre>
+<pre><code>## [1] 0.2716045</code></pre>
+<pre class="r"><code># Get predicted distribution of draws from the population. 
+sim_D_votes_PA_2024 &lt;- rbinom(n = 10000, size = vep_PA_2024, prob = prob_D_vote_PA_2024)
+sim_R_votes_PA_2024 &lt;- rbinom(n = 10000, size = vep_PA_2024, prob = prob_R_vote_PA_2024)
+
+# Simulating a distribution of election results: Harris PA PV. 
+hist(sim_D_votes_PA_2024, breaks = 100, col = &quot;blue&quot;, main = &quot;Predicted Turnout Draws for Harris \n from 10,000 Binomial Process Simulations&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-7.png" width="672" /></p>
+<pre class="r"><code># Simulating a distribution of election results: Trump PA PV. 
+hist(sim_R_votes_PA_2024, breaks = 100, col = &quot;red&quot;, main = &quot;Predicted Turnout Draws for Trump \n from 10,000 Binomial Process Simulations&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-8.png" width="672" /></p>
+<pre class="r"><code># Simulating a distribution of election results: Trump win margin. 
+sim_elxns_PA_2024 &lt;- ((sim_R_votes_PA_2024-sim_D_votes_PA_2024)/(sim_D_votes_PA_2024 + sim_R_votes_PA_2024))*100
+hist(sim_elxns_PA_2024, breaks = 100, col = &quot;firebrick1&quot;, main = &quot;Predicted Draws of Win Margin for Trump \n from 10,000 Binomial Process Simulations&quot;, xlim = c(0, 0.4))</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-9.png" width="672" /></p>
+<pre class="r"><code># Simulations incorporating prior for SD. 
+sim_D_votes_PA_2024_2 &lt;- rbinom(n = 10000, size = vep_PA_2024, prob = rnorm(10000, PA_pollav_D/100, PA_sdpoll_D/100))
+sim_R_votes_PA_2024_2 &lt;- rbinom(n = 10000, size = vep_PA_2024, prob = rnorm(10000, PA_pollav_R/100, PA_sdpoll_R/100))
+sim_elxns_PA_2024_2 &lt;- ((sim_R_votes_PA_2024_2-sim_D_votes_PA_2024_2)/(sim_D_votes_PA_2024_2 + sim_R_votes_PA_2024_2))*100
+h &lt;- hist(sim_elxns_PA_2024_2, breaks = 100, col = &quot;firebrick1&quot;)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-10.png" width="672" /></p>
+<pre class="r"><code>cuts &lt;- cut(h$breaks, c(-Inf, 0, Inf))
+plot(h, yaxt = &quot;n&quot;, bty = &quot;n&quot;, xlab = &quot;&quot;, ylab = &quot;&quot;, main = &quot;&quot;, xlim = c(-35, 35), col = c(&quot;blue&quot;, &quot;red&quot;)[cuts], cex.axis=0.8)</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-11.png" width="672" /></p>
+<pre class="r"><code>####----------------------------------------------------------#
+#### Ground Game: Field offices and campaign events. 
+####----------------------------------------------------------#
+
+# Where should campaigns build field offices? 
+fo_2012 &lt;- read_csv(&quot;fieldoffice_2012_bycounty.csv&quot;)</code></pre>
+<pre><code>## Rows: 3113 Columns: 16
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (1): state
+## dbl (11): fips, obama12fo, romney12fo, normal, medage08, pop2008, medinc08, ...
+## lgl  (4): battle, swing, core_dem, core_rep
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>lm_obama &lt;- lm(obama12fo ~ romney12fo + 
+                 swing + 
+                 core_rep + 
+                 swing:romney12fo + 
+                 core_rep:romney12fo + 
+                 battle + 
+                 medage08 + 
+                 pop2008 + 
+                 pop2008^2 + 
+                 medinc08 + 
+                 black + 
+                 hispanic + 
+                 pc_less_hs00 + 
+                 pc_degree00 + 
+                 as.factor(state), 
+               fo_2012)
+
+lm_romney &lt;- lm(romney12fo ~ 
+                  obama12fo + 
+                  swing + 
+                  core_dem + 
+                  swing:obama12fo + 
+                  core_dem:obama12fo + 
+                  battle + 
+                  medage08 + 
+                  pop2008 + 
+                  pop2008^2 + 
+                  medinc08 + 
+                  black + 
+                  hispanic + 
+                  pc_less_hs00 + 
+                  pc_degree00 + 
+                  as.factor(state),
+                  fo_2012)
+
+stargazer(lm_obama, lm_romney, header=FALSE, type=&#39;latex&#39;, no.space = TRUE,
+          column.sep.width = &quot;3pt&quot;, font.size = &quot;scriptsize&quot;, single.row = TRUE,
+          keep = c(1:7, 62:66), omit.table.layout = &quot;sn&quot;,
+          title = &quot;Placement of Field Offices (2012)&quot;)</code></pre>
+<pre><code>## 
+## \begin{table}[!htbp] \centering 
+##   \caption{Placement of Field Offices (2012)} 
+##   \label{} 
+## \scriptsize 
+## \begin{tabular}{@{\extracolsep{3pt}}lcc} 
+## \\[-1.8ex]\hline 
+## \hline \\[-1.8ex] 
+##  &amp; \multicolumn{2}{c}{\textit{Dependent variable:}} \\ 
+## \cline{2-3} 
+## \\[-1.8ex] &amp; obama12fo &amp; romney12fo \\ 
+## \\[-1.8ex] &amp; (1) &amp; (2)\\ 
+## \hline \\[-1.8ex] 
+##  romney12fo &amp; 2.546$^{***}$ (0.114) &amp;  \\ 
+##   obama12fo &amp;  &amp; 0.374$^{***}$ (0.020) \\ 
+##   swing &amp; 0.001 (0.055) &amp; $-$0.012 (0.011) \\ 
+##   core\_rep &amp; 0.007 (0.061) &amp;  \\ 
+##   core\_dem &amp;  &amp; 0.004 (0.027) \\ 
+##   battle &amp; 0.541$^{***}$ (0.096) &amp; 0.014 (0.042) \\ 
+##   medage08 &amp;  &amp;  \\ 
+##   romney12fo:swing &amp; $-$0.765$^{***}$ (0.116) &amp;  \\ 
+##   romney12fo:core\_rep &amp; $-$1.875$^{***}$ (0.131) &amp;  \\ 
+##   obama12fo:swing &amp;  &amp; $-$0.081$^{***}$ (0.020) \\ 
+##   obama12fo:core\_dem &amp;  &amp; $-$0.164$^{***}$ (0.023) \\ 
+##   Constant &amp; $-$0.340$^{*}$ (0.196) &amp; 0.001 (0.079) \\ 
+##  \hline \\[-1.8ex] 
+## \hline 
+## \hline \\[-1.8ex] 
+## \end{tabular} 
+## \end{table}</code></pre>
+<pre class="r"><code># Effects of field offices on turnout and vote share. 
+fo_dem &lt;- read_csv(&quot;fieldoffice_2004-2012_dems.csv&quot;)</code></pre>
+<pre><code>## Rows: 9339 Columns: 18
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (2): candidate, state
+## dbl (15): year, fips, number_fo, dummy_fo, population, totalvote, demvote, d...
+## lgl  (1): battle
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>ef_t &lt;- lm(turnout_change ~ dummy_fo_change + battle + dummy_fo_change:battle + as.factor(state) + as.factor(year), fo_dem)
+
+ef_d &lt;- lm(dempct_change ~ dummy_fo_change + battle + dummy_fo_change:battle + as.factor(state) + as.factor(year), fo_dem)
+
+stargazer(ef_t, ef_d, header=FALSE, type=&#39;latex&#39;, no.space = TRUE,
+          column.sep.width = &quot;3pt&quot;, font.size = &quot;scriptsize&quot;, single.row = TRUE,
+          keep = c(1:3, 53:54), keep.stat = c(&quot;n&quot;, &quot;adj.rsq&quot;, &quot;res.dev&quot;),
+          title = &quot;Effect of DEM Field Offices on Turnout and DEM Vote Share (2004-2012)&quot;)</code></pre>
+<pre><code>## 
+## \begin{table}[!htbp] \centering 
+##   \caption{Effect of DEM Field Offices on Turnout and DEM Vote Share (2004-2012)} 
+##   \label{} 
+## \scriptsize 
+## \begin{tabular}{@{\extracolsep{3pt}}lcc} 
+## \\[-1.8ex]\hline 
+## \hline \\[-1.8ex] 
+##  &amp; \multicolumn{2}{c}{\textit{Dependent variable:}} \\ 
+## \cline{2-3} 
+## \\[-1.8ex] &amp; turnout\_change &amp; dempct\_change \\ 
+## \\[-1.8ex] &amp; (1) &amp; (2)\\ 
+## \hline \\[-1.8ex] 
+##  dummy\_fo\_change &amp; 0.004$^{***}$ (0.001) &amp; 0.009$^{***}$ (0.002) \\ 
+##   battle &amp; 0.024$^{***}$ (0.002) &amp; 0.043$^{***}$ (0.003) \\ 
+##   as.factor(state)Arizona &amp;  &amp;  \\ 
+##   dummy\_fo\_change:battle &amp; $-$0.002 (0.002) &amp; 0.007$^{**}$ (0.003) \\ 
+##   Constant &amp; 0.029$^{***}$ (0.002) &amp; 0.022$^{***}$ (0.003) \\ 
+##  \hline \\[-1.8ex] 
+## Observations &amp; 6,224 &amp; 6,224 \\ 
+## Adjusted R$^{2}$ &amp; 0.419 &amp; 0.469 \\ 
+## \hline 
+## \hline \\[-1.8ex] 
+## \textit{Note:}  &amp; \multicolumn{2}{r}{$^{*}$p$&lt;$0.1; $^{**}$p$&lt;$0.05; $^{***}$p$&lt;$0.01} \\ 
+## \end{tabular} 
+## \end{table}</code></pre>
+<pre class="r"><code># Field Strategies of Obama, Romney, Clinton, and Trump in 2016. 
+fo_add &lt;- read_csv(&quot;fieldoffice_2012-2016_byaddress.csv&quot;)</code></pre>
+<pre><code>## Rows: 1777 Columns: 8
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (5): party, candidate, state, city, full_address
+## dbl (3): year, latitude, longitude
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code># Clinton 2016 Field Offices - Obama 2008 Field Offices. 
+
+
+
+# Case Study: Wisconsin Field Offices in 2012 and 2016 
+
+
+
+# Visualizing campaign events. 
+d_campaign_events$party[d_campaign_events$candidate %in% c(&quot;Trump / Pence&quot;, &quot;Trump&quot;, &quot;Pence&quot;, &quot;Trump/Pence&quot;, &quot;Vance&quot;)] &lt;- &quot;REP&quot;</code></pre>
+<pre><code>## Warning: Unknown or uninitialised column: `party`.</code></pre>
+<pre class="r"><code>d_campaign_events$party[d_campaign_events$candidate %in% c(&quot;Biden / Harris&quot;, &quot;Biden&quot;, &quot;Harris&quot;, &quot;Biden/Harris&quot;, &quot;Walz&quot;, &quot;Kaine&quot;, &quot;Clinton&quot;, &quot;Clinton / Kaine&quot;)] &lt;- &quot;DEM&quot;
+p.ev.1 &lt;- d_campaign_events |&gt; group_by(date, party) |&gt; summarize(n_events = n(), year) |&gt; filter(year == 2016) |&gt; ggplot(aes(x = date, y = n_events, color = party)) + geom_point() + geom_smooth() + ggtitle(&quot;2016&quot;) + theme_bw()</code></pre>
+<pre><code>## Warning: Returning more (or less) than 1 row per `summarise()` group was deprecated in
+## dplyr 1.1.0.
+## ℹ Please use `reframe()` instead.
+## ℹ When switching from `summarise()` to `reframe()`, remember that `reframe()`
+##   always returns an ungrouped data frame and adjust accordingly.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;date&#39;, &#39;party&#39;. You can override using the
+## `.groups` argument.</code></pre>
+<pre class="r"><code>p.ev.2 &lt;- d_campaign_events |&gt; group_by(date, party) |&gt; summarize(n_events = n(), year) |&gt; filter(year == 2020) |&gt; ggplot(aes(x = date, y = n_events, color = party)) + geom_point() + geom_smooth() + ggtitle(&quot;2020&quot;) +  theme_bw()</code></pre>
+<pre><code>## Warning: Returning more (or less) than 1 row per `summarise()` group was deprecated in
+## dplyr 1.1.0.
+## ℹ Please use `reframe()` instead.
+## ℹ When switching from `summarise()` to `reframe()`, remember that `reframe()`
+##   always returns an ungrouped data frame and adjust accordingly.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;date&#39;, &#39;party&#39;. You can override using the
+## `.groups` argument.</code></pre>
+<pre class="r"><code>p.ev.3 &lt;- d_campaign_events |&gt; group_by(date, party) |&gt; summarize(n_events = n(), year) |&gt; filter(year == 2024) |&gt; ggplot(aes(x = date, y = n_events, color = party)) + geom_point() + geom_smooth() + ggtitle(&quot;2024&quot;) + theme_bw()</code></pre>
+<pre><code>## Warning: Returning more (or less) than 1 row per `summarise()` group was deprecated in
+## dplyr 1.1.0.
+## ℹ Please use `reframe()` instead.
+## ℹ When switching from `summarise()` to `reframe()`, remember that `reframe()`
+##   always returns an ungrouped data frame and adjust accordingly.
+## Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+## generated.</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;date&#39;, &#39;party&#39;. You can override using the
+## `.groups` argument.</code></pre>
+<pre class="r"><code>ggarrange(p.ev.1, p.ev.2, p.ev.3)</code></pre>
+<pre><code>## `geom_smooth()` using method = &#39;loess&#39; and formula = &#39;y ~ x&#39;
+## `geom_smooth()` using method = &#39;loess&#39; and formula = &#39;y ~ x&#39;
+## `geom_smooth()` using method = &#39;loess&#39; and formula = &#39;y ~ x&#39;</code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-3-12.png" width="672" /></p>
+<pre class="r"><code># Can the number of campaign events predict state-level vote share? 
+d_ev_state &lt;- d_campaign_events |&gt; 
+  group_by(year, state, party) |&gt; 
+  summarize(n_events = n()) |&gt; 
+  pivot_wider(names_from = party, values_from = n_events) |&gt; 
+  rename(n_ev_D = DEM, n_ev_R = REP)</code></pre>
+<pre><code>## `summarise()` has grouped output by &#39;year&#39;, &#39;state&#39;. You can override using the
+## `.groups` argument.</code></pre>
+<pre class="r"><code>d_ev_state$n_ev_D[which(is.na(d_ev_state$n_ev_D))] &lt;- 0
+d_ev_state$n_ev_R[which(is.na(d_ev_state$n_ev_R))] &lt;- 0
+d_ev_state$ev_diff_D_R &lt;- d_ev_state$n_ev_D - d_ev_state$n_ev_R
+d_ev_state$ev_diff_R_D &lt;- d_ev_state$n_ev_R - d_ev_state$n_ev_D
+
+d &lt;- d |&gt; 
+  left_join(d_ev_state, by = c(&quot;year&quot;, &quot;state_abb&quot; = &quot;state&quot;))
+
+lm_ev_D &lt;- lm(D_pv2p ~ n_ev_D + ev_diff_D_R, data = d)
+lm_ev_R &lt;- lm(R_pv2p ~ n_ev_R + ev_diff_R_D, data = d)
+
+summary(lm_ev_D)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = D_pv2p ~ n_ev_D + ev_diff_D_R, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -17.6200  -4.7648   0.3904   5.2448  16.4092 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 48.18936    0.36910 130.559  &lt; 2e-16 ***
+## n_ev_D       0.12588    0.03351   3.757 0.000186 ***
+## ev_diff_D_R  0.10453    0.06726   1.554 0.120618    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 7.508 on 711 degrees of freedom
+##   (6408 observations deleted due to missingness)
+## Multiple R-squared:  0.02141,	Adjusted R-squared:  0.01866 
+## F-statistic: 7.778 on 2 and 711 DF,  p-value: 0.0004554</code></pre>
+<pre class="r"><code>summary(lm_ev_R)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = R_pv2p ~ n_ev_R + ev_diff_R_D, data = d)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -16.4088  -5.2449  -0.3903   4.7647  17.6204 
+## 
+## Coefficients:
+##             Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept) 51.81023    0.36913 140.359  &lt; 2e-16 ***
+## n_ev_R      -0.12586    0.03351  -3.756 0.000187 ***
+## ev_diff_R_D  0.23042    0.07796   2.956 0.003222 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 7.509 on 711 degrees of freedom
+##   (6408 observations deleted due to missingness)
+## Multiple R-squared:  0.02141,	Adjusted R-squared:  0.01865 
+## F-statistic: 7.776 on 2 and 711 DF,  p-value: 0.0004564</code></pre>
+<pre class="r"><code>stargazer(lm_ev_D, lm_ev_R, header=FALSE, type=&#39;latex&#39;, no.space = TRUE,
+          column.sep.width = &quot;3pt&quot;, font.size = &quot;scriptsize&quot;, single.row = TRUE,
+          keep.stat = c(&quot;n&quot;, &quot;adj.rsq&quot;, &quot;res.dev&quot;),
+          title = &quot;Association Between Campaign Events and Voting Outcomes of Interest&quot;)</code></pre>
+<pre><code>## 
+## \begin{table}[!htbp] \centering 
+##   \caption{Association Between Campaign Events and Voting Outcomes of Interest} 
+##   \label{} 
+## \scriptsize 
+## \begin{tabular}{@{\extracolsep{3pt}}lcc} 
+## \\[-1.8ex]\hline 
+## \hline \\[-1.8ex] 
+##  &amp; \multicolumn{2}{c}{\textit{Dependent variable:}} \\ 
+## \cline{2-3} 
+## \\[-1.8ex] &amp; D\_pv2p &amp; R\_pv2p \\ 
+## \\[-1.8ex] &amp; (1) &amp; (2)\\ 
+## \hline \\[-1.8ex] 
+##  n\_ev\_D &amp; 0.126$^{***}$ (0.034) &amp;  \\ 
+##   ev\_diff\_D\_R &amp; 0.105 (0.067) &amp;  \\ 
+##   n\_ev\_R &amp;  &amp; $-$0.126$^{***}$ (0.034) \\ 
+##   ev\_diff\_R\_D &amp;  &amp; 0.230$^{***}$ (0.078) \\ 
+##   Constant &amp; 48.189$^{***}$ (0.369) &amp; 51.810$^{***}$ (0.369) \\ 
+##  \hline \\[-1.8ex] 
+## Observations &amp; 714 &amp; 714 \\ 
+## Adjusted R$^{2}$ &amp; 0.019 &amp; 0.019 \\ 
+## \hline 
+## \hline \\[-1.8ex] 
+## \textit{Note:}  &amp; \multicolumn{2}{r}{$^{*}$p$&lt;$0.1; $^{**}$p$&lt;$0.05; $^{***}$p$&lt;$0.01} \\ 
+## \end{tabular} 
+## \end{table}</code></pre>
+<pre class="r"><code>#This table will only have state_gdp data for q2 of each year 
+state_gdp &lt;- read_csv(&quot;state_gdp.csv&quot;) |&gt;
+  rename(state = GeoName) |&gt;
+  pivot_longer(
+    cols = starts_with(&quot;20&quot;),
+    names_to = c(&quot;year&quot;, &quot;quarter&quot;), 
+    names_sep = &quot;:Q&quot;,
+    values_to = &quot;gdp&quot;,
+    ) |&gt;
+  filter(quarter == &quot;2&quot;) |&gt;
+  select(state, year, gdp)</code></pre>
+<pre><code>## Warning: One or more parsing issues, call `problems()` on your data frame for details,
+## e.g.:
+##   dat &lt;- vroom(...)
+##   problems(dat)</code></pre>
+<pre><code>## Rows: 54 Columns: 28
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (2): GeoFips, GeoName
+## dbl (26): 2018:Q1, 2018:Q2, 2018:Q3, 2018:Q4, 2019:Q1, 2019:Q2, 2019:Q3, 201...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>state_gdp$year &lt;- as.numeric(state_gdp$year)
+
+state_gdp</code></pre>
+<pre><code>## # A tibble: 378 × 3
+##    state    year     gdp
+##    &lt;chr&gt;   &lt;dbl&gt;   &lt;dbl&gt;
+##  1 Alabama  2018 220360.
+##  2 Alabama  2019 224229.
+##  3 Alabama  2020 208569.
+##  4 Alabama  2021 233098.
+##  5 Alabama  2022 236710.
+##  6 Alabama  2023 243977 
+##  7 Alabama  2024 250740.
+##  8 Alaska   2018  52478.
+##  9 Alaska   2019  51864.
+## 10 Alaska   2020  48242.
+## # ℹ 368 more rows</code></pre>
+<pre class="r"><code>personal_dis_income &lt;- read_csv(&quot;personalIncomeState.csv&quot;, skip = 3)</code></pre>
+<pre><code>## Warning: One or more parsing issues, call `problems()` on your data frame for details,
+## e.g.:
+##   dat &lt;- vroom(...)
+##   problems(dat)</code></pre>
+<pre><code>## Rows: 66 Columns: 78
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr (14): GeoFips, GeoName, 1948, 1949, 1950, 1951, 1952, 1953, 1954, 1955, ...
+## dbl (64): 1960, 1961, 1962, 1963, 1964, 1965, 1966, 1967, 1968, 1969, 1970, ...
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>regions_to_remove &lt;- c(
+  &quot;United States &quot;, &quot;Far West &quot;, &quot;New England&quot;, &quot;Mideast&quot;, &quot;Great Lakes&quot;,
+  &quot;Plains&quot;, &quot;Southeast&quot;, &quot;Southwest&quot;, &quot;Rocky Mountain&quot;, &quot;District of Columbia&quot;
+)
+
+#cleaning the data and processing it
+personal_dis_income &lt;- personal_dis_income |&gt;
+  rename(state = GeoName) |&gt;
+  mutate(across(-state, ~ as.numeric(gsub(&quot;\\(NA\\)&quot;, &quot;&quot;, .)))) |&gt;
+  pivot_longer(
+    cols = -c(state, GeoFips),  
+    names_to = &quot;year&quot;, 
+    values_to = &quot;disposable_income&quot; 
+  ) |&gt;
+  mutate(year = as.numeric(year)) |&gt;
+  mutate(state = gsub(&quot;\\*&quot;, &quot;&quot;, state)) |&gt;
+  filter(year &gt;= 2008) |&gt;
+  filter(!is.na(state) &amp; !(state %in% regions_to_remove))</code></pre>
+<pre><code>## Warning: There was 1 warning in `mutate()`.
+## ℹ In argument: `across(-state, ~as.numeric(gsub(&quot;\\(NA\\)&quot;, &quot;&quot;, .)))`.
+## Caused by warning:
+## ! NAs introduced by coercion</code></pre>
+<pre class="r"><code>personal_dis_income</code></pre>
+<pre><code>## # A tibble: 800 × 4
+##    GeoFips state    year disposable_income
+##      &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt;             &lt;dbl&gt;
+##  1    1000 Alabama  2008             30060
+##  2    1000 Alabama  2009             30104
+##  3    1000 Alabama  2010             31091
+##  4    1000 Alabama  2011             31760
+##  5    1000 Alabama  2012             32500
+##  6    1000 Alabama  2013             32399
+##  7    1000 Alabama  2014             33351
+##  8    1000 Alabama  2015             34538
+##  9    1000 Alabama  2016             34919
+## 10    1000 Alabama  2017             36173
+## # ℹ 790 more rows</code></pre>
+<pre class="r"><code>d_polls &lt;- read_csv(&quot;national_polls_1968-2024.csv&quot;)</code></pre>
+<pre><code>## Rows: 7436 Columns: 9
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (3): state, party, candidate
+## dbl  (4): year, weeks_left, days_left, poll_support
+## lgl  (1): before_convention
+## date (1): poll_date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code>d_state_polls &lt;- read_csv(&quot;state_polls_1968-2024.csv&quot;)</code></pre>
+<pre><code>## Rows: 205678 Columns: 9
+## ── Column specification ────────────────────────────────────────────────────────
+## Delimiter: &quot;,&quot;
+## chr  (3): state, party, candidate
+## dbl  (4): year, weeks_left, days_left, poll_support
+## lgl  (1): before_convention
+## date (1): poll_date
+## 
+## ℹ Use `spec()` to retrieve the full column specification for this data.
+## ℹ Specify the column types or set `show_col_types = FALSE` to quiet this message.</code></pre>
+<pre class="r"><code># Process state-level polling data.
+d_pollav_state &lt;- d_state_polls |&gt;
+  group_by(year, state, party) |&gt;
+  mutate(mean_pollav = mean(poll_support, na.rm = TRUE)) |&gt;
+  top_n(1, poll_date) |&gt;
+  rename(latest_pollav = poll_support) |&gt;
+  select(-c(weeks_left, days_left, poll_date, candidate, before_convention)) |&gt;
+  pivot_wider(names_from = party, values_from = c(latest_pollav, mean_pollav))
+
+# Merge data.
+d &lt;- d_pollav_state |&gt;
+  left_join(d_state_popvote, by = c(&quot;year&quot;, &quot;state&quot;)) |&gt;
+  left_join(d_popvote |&gt; filter(party == &quot;democrat&quot;), by = &quot;year&quot;) |&gt;
+  left_join(d_turnout, by = c(&quot;year&quot;, &quot;state&quot;)) |&gt;
+  left_join(personal_dis_income, by = c(&quot;state&quot;, &quot;year&quot;)) |&gt;
+  left_join(state_gdp, by = c(&quot;state&quot;, &quot;year&quot;)) |&gt;
+  filter(year &gt;= 1980) |&gt;
+  ungroup()
+
+d</code></pre>
+<pre><code>## # A tibble: 557 × 48
+##     year state               latest_pollav_REP latest_pollav_DEM mean_pollav_REP
+##    &lt;dbl&gt; &lt;chr&gt;                           &lt;dbl&gt;             &lt;dbl&gt;           &lt;dbl&gt;
+##  1  2016 Alabama                         56.3               35.1           66.3 
+##  2  2016 Alaska                          45.2               39.1           46.8 
+##  3  2016 Arizona                         45.6               42.9           41.4 
+##  4  2016 Arkansas                        53.0               33.5           49.5 
+##  5  2016 California                      32.8               54.9           31.7 
+##  6  2016 Colorado                        40.8               43.6           41.4 
+##  7  2016 Connecticut                     36.5               51.1           38.5 
+##  8  2016 Delaware                        36.1               50.1           33.9 
+##  9  2016 District of Columb…              6.50              85.6            5.00
+## 10  2016 Florida                         45.5               46.4           42.6 
+## # ℹ 547 more rows
+## # ℹ 43 more variables: mean_pollav_DEM &lt;dbl&gt;, D_pv &lt;dbl&gt;, R_pv &lt;dbl&gt;,
+## #   D_pv2p &lt;dbl&gt;, R_pv2p &lt;dbl&gt;, votes_D &lt;dbl&gt;, votes_R &lt;dbl&gt;,
+## #   total_votes &lt;dbl&gt;, two_party_votes &lt;dbl&gt;, D_pv_lag1 &lt;dbl&gt;, R_pv_lag1 &lt;dbl&gt;,
+## #   D_pv2p_lag1 &lt;dbl&gt;, R_pv2p_lag1 &lt;dbl&gt;, D_pv_lag2 &lt;dbl&gt;, R_pv_lag2 &lt;dbl&gt;,
+## #   D_pv2p_lag2 &lt;dbl&gt;, R_pv2p_lag2 &lt;dbl&gt;, party &lt;chr&gt;, winner &lt;lgl&gt;,
+## #   candidate &lt;chr&gt;, pv &lt;dbl&gt;, pv2p &lt;dbl&gt;, incumbent &lt;lgl&gt;, …</code></pre>
+<pre class="r"><code># Sequester states for which we have polling data for 2024.
+states.2024 &lt;- unique(d$state[d$year == 2024])
+states.2024 &lt;- states.2024[-which(states.2024 == &quot;Nebraska Cd 2&quot;)]
+d &lt;- d |&gt;
+  filter(state %in% states.2024)
+
+d</code></pre>
+<pre><code>## # A tibble: 233 × 48
+##     year state      latest_pollav_REP latest_pollav_DEM mean_pollav_REP
+##    &lt;dbl&gt; &lt;chr&gt;                  &lt;dbl&gt;             &lt;dbl&gt;           &lt;dbl&gt;
+##  1  2016 Arizona                 45.6              42.9            41.4
+##  2  2016 California              32.8              54.9            31.7
+##  3  2016 Florida                 45.5              46.4            42.6
+##  4  2016 Georgia                 48.3              44.4            45.5
+##  5  2016 Maryland                27.4              59.9            29.0
+##  6  2016 Michigan                42.5              45.7            36.9
+##  7  2016 Minnesota               38.1              47.0            39.0
+##  8  2016 Missouri                50.3              38.2            44.1
+##  9  2016 Montana                 50.7              32.7            54.0
+## 10  2016 Nebraska                51.4              33.6            48.6
+## # ℹ 223 more rows
+## # ℹ 43 more variables: mean_pollav_DEM &lt;dbl&gt;, D_pv &lt;dbl&gt;, R_pv &lt;dbl&gt;,
+## #   D_pv2p &lt;dbl&gt;, R_pv2p &lt;dbl&gt;, votes_D &lt;dbl&gt;, votes_R &lt;dbl&gt;,
+## #   total_votes &lt;dbl&gt;, two_party_votes &lt;dbl&gt;, D_pv_lag1 &lt;dbl&gt;, R_pv_lag1 &lt;dbl&gt;,
+## #   D_pv2p_lag1 &lt;dbl&gt;, R_pv2p_lag1 &lt;dbl&gt;, D_pv_lag2 &lt;dbl&gt;, R_pv_lag2 &lt;dbl&gt;,
+## #   D_pv2p_lag2 &lt;dbl&gt;, R_pv2p_lag2 &lt;dbl&gt;, party &lt;chr&gt;, winner &lt;lgl&gt;,
+## #   candidate &lt;chr&gt;, pv &lt;dbl&gt;, pv2p &lt;dbl&gt;, incumbent &lt;lgl&gt;, …</code></pre>
+<pre class="r"><code># Separate into training and testing for simple poll prediction model. 
+d.train &lt;- d |&gt; filter(year &lt; 2024) |&gt; select(year, state, D_pv2p, latest_pollav_DEM, mean_pollav_DEM, D_pv2p_lag1, D_pv2p_lag2, disposable_income, gdp) |&gt; drop_na()
+
+names(d.train)</code></pre>
+<pre><code>## [1] &quot;year&quot;              &quot;state&quot;             &quot;D_pv2p&quot;           
+## [4] &quot;latest_pollav_DEM&quot; &quot;mean_pollav_DEM&quot;   &quot;D_pv2p_lag1&quot;      
+## [7] &quot;D_pv2p_lag2&quot;       &quot;disposable_income&quot; &quot;gdp&quot;</code></pre>
+<pre class="r"><code>d.test &lt;- d |&gt; filter(year == 2024) |&gt; select(year, state, D_pv2p, latest_pollav_DEM, mean_pollav_DEM, D_pv2p_lag1, D_pv2p_lag2, disposable_income, gdp)
+
+d.test</code></pre>
+<pre><code>## # A tibble: 20 × 9
+##     year state  D_pv2p latest_pollav_DEM mean_pollav_DEM D_pv2p_lag1 D_pv2p_lag2
+##    &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt;             &lt;dbl&gt;           &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+##  1  2024 Arizo…     NA              46.8            41.5          NA          NA
+##  2  2024 Calif…     NA              58.9            53.6          NA          NA
+##  3  2024 Flori…     NA              45.2            39.9          NA          NA
+##  4  2024 Georg…     NA              47.2            41.7          NA          NA
+##  5  2024 Maryl…     NA              61.7            62.0          NA          NA
+##  6  2024 Michi…     NA              47.8            42.9          NA          NA
+##  7  2024 Minne…     NA              50.0            46.0          NA          NA
+##  8  2024 Misso…     NA              41.6            41.6          NA          NA
+##  9  2024 Monta…     NA              39.3            38.9          NA          NA
+## 10  2024 Nebra…     NA              38.3            38.4          NA          NA
+## 11  2024 Nevada     NA              47.7            40.5          NA          NA
+## 12  2024 New H…     NA              51.1            50.9          NA          NA
+## 13  2024 New M…     NA              50.2            50.1          NA          NA
+## 14  2024 New Y…     NA              53.9            48.6          NA          NA
+## 15  2024 North…     NA              47.3            41.2          NA          NA
+## 16  2024 Ohio       NA              43.7            39.3          NA          NA
+## 17  2024 Penns…     NA              48.1            43.3          NA          NA
+## 18  2024 Texas      NA              44.3            38.6          NA          NA
+## 19  2024 Virgi…     NA              50.4            48.3          NA          NA
+## 20  2024 Wisco…     NA              48.0            43.2          NA          NA
+## # ℹ 2 more variables: disposable_income &lt;dbl&gt;, gdp &lt;dbl&gt;</code></pre>
+<pre class="r"><code># Add back in lagged vote share for 2024. 
+t &lt;- d |&gt; 
+  filter(year &gt;= 2016) |&gt; 
+  arrange(year) |&gt; 
+  group_by(state) |&gt; 
+  mutate(
+    D_pv2p_lag1 = lag(D_pv2p, 1),
+    R_pv2p_lag1 = lag(R_pv2p, 1), 
+    D_pv2p_lag2 = lag(D_pv2p, 2),
+    R_pv2p_lag2 = lag(R_pv2p, 2),
+    disposable_income = lag(disposable_income, 1)) |&gt; 
+  filter(year == 2024) |&gt; 
+  select(state, year, D_pv2p, D_pv2p_lag1, R_pv2p_lag1, D_pv2p_lag2, R_pv2p_lag2, disposable_income, gdp) 
+
+t</code></pre>
+<pre><code>## # A tibble: 20 × 9
+## # Groups:   state [20]
+##    state           year D_pv2p D_pv2p_lag1 R_pv2p_lag1 D_pv2p_lag2 R_pv2p_lag2
+##    &lt;chr&gt;          &lt;dbl&gt;  &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+##  1 Arizona         2024     NA        50.2        49.8        48.1        51.9
+##  2 California      2024     NA        64.9        35.1        66.1        33.9
+##  3 Florida         2024     NA        48.3        51.7        49.4        50.6
+##  4 Georgia         2024     NA        50.1        49.9        47.3        52.7
+##  5 Maryland        2024     NA        67.0        33.0        64.0        36.0
+##  6 Michigan        2024     NA        51.4        48.6        49.9        50.1
+##  7 Minnesota       2024     NA        53.6        46.4        50.8        49.2
+##  8 Missouri        2024     NA        42.2        57.8        40.2        59.8
+##  9 Montana         2024     NA        41.6        58.4        38.9        61.1
+## 10 Nebraska        2024     NA        40.2        59.8        36.5        63.5
+## 11 Nevada          2024     NA        51.2        48.8        51.3        48.7
+## 12 New Hampshire   2024     NA        53.7        46.3        50.2        49.8
+## 13 New Mexico      2024     NA        55.5        44.5        54.7        45.3
+## 14 New York        2024     NA        61.7        38.3        63.4        36.6
+## 15 North Carolina  2024     NA        49.3        50.7        48.1        51.9
+## 16 Ohio            2024     NA        45.9        54.1        45.7        54.3
+## 17 Pennsylvania    2024     NA        50.6        49.4        49.6        50.4
+## 18 Texas           2024     NA        47.2        52.8        45.3        54.7
+## 19 Virginia        2024     NA        55.2        44.8        52.8        47.2
+## 20 Wisconsin       2024     NA        50.3        49.7        49.6        50.4
+## # ℹ 2 more variables: disposable_income &lt;dbl&gt;, gdp &lt;dbl&gt;</code></pre>
+<pre class="r"><code>d.test &lt;- d.test|&gt;
+  left_join(t, by = c(&quot;state&quot;, &quot;year&quot;), suffix = c(&quot;&quot;, &quot;.t&quot;)) |&gt;
+  mutate(
+    D_pv2p_lag1 = ifelse(is.na(D_pv2p_lag1), D_pv2p_lag1.t, D_pv2p_lag1),
+    D_pv2p_lag2 = ifelse(is.na(D_pv2p_lag2), D_pv2p_lag2.t, D_pv2p_lag2),
+    disposable_income = ifelse(is.na(disposable_income), disposable_income.t, disposable_income),
+    D_pv2p = ifelse(is.na(D_pv2p), D_pv2p.t, D_pv2p), 
+    gdp = ifelse(is.na(gdp), gdp, gdp)
+  ) |&gt;
+  select(-ends_with(&quot;.t&quot;))
+
+d.test</code></pre>
+<pre><code>## # A tibble: 20 × 11
+##     year state  D_pv2p latest_pollav_DEM mean_pollav_DEM D_pv2p_lag1 D_pv2p_lag2
+##    &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt;             &lt;dbl&gt;           &lt;dbl&gt;       &lt;dbl&gt;       &lt;dbl&gt;
+##  1  2024 Arizo…     NA              46.8            41.5        50.2        48.1
+##  2  2024 Calif…     NA              58.9            53.6        64.9        66.1
+##  3  2024 Flori…     NA              45.2            39.9        48.3        49.4
+##  4  2024 Georg…     NA              47.2            41.7        50.1        47.3
+##  5  2024 Maryl…     NA              61.7            62.0        67.0        64.0
+##  6  2024 Michi…     NA              47.8            42.9        51.4        49.9
+##  7  2024 Minne…     NA              50.0            46.0        53.6        50.8
+##  8  2024 Misso…     NA              41.6            41.6        42.2        40.2
+##  9  2024 Monta…     NA              39.3            38.9        41.6        38.9
+## 10  2024 Nebra…     NA              38.3            38.4        40.2        36.5
+## 11  2024 Nevada     NA              47.7            40.5        51.2        51.3
+## 12  2024 New H…     NA              51.1            50.9        53.7        50.2
+## 13  2024 New M…     NA              50.2            50.1        55.5        54.7
+## 14  2024 New Y…     NA              53.9            48.6        61.7        63.4
+## 15  2024 North…     NA              47.3            41.2        49.3        48.1
+## 16  2024 Ohio       NA              43.7            39.3        45.9        45.7
+## 17  2024 Penns…     NA              48.1            43.3        50.6        49.6
+## 18  2024 Texas      NA              44.3            38.6        47.2        45.3
+## 19  2024 Virgi…     NA              50.4            48.3        55.2        52.8
+## 20  2024 Wisco…     NA              48.0            43.2        50.3        49.6
+## # ℹ 4 more variables: disposable_income &lt;dbl&gt;, gdp &lt;dbl&gt;, R_pv2p_lag1 &lt;dbl&gt;,
+## #   R_pv2p_lag2 &lt;dbl&gt;</code></pre>
+<pre class="r"><code># Standard frequentist linear regression. 
+reg.ols &lt;- lm(D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2 + disposable_income + gdp, data = d.train)
+
+summary(reg.ols)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + 
+##     D_pv2p_lag2 + disposable_income + gdp, data = d.train)
+## 
+## Residuals:
+##      Min       1Q   Median       3Q      Max 
+## -1.32065 -0.59382  0.05444  0.36398  1.07895 
+## 
+## Coefficients:
+##                     Estimate Std. Error t value Pr(&gt;|t|)    
+## (Intercept)       -4.694e+00  3.101e+00  -1.514  0.15395    
+## latest_pollav_DEM  4.098e-01  1.908e-01   2.148  0.05114 .  
+## mean_pollav_DEM    2.217e-01  1.472e-01   1.507  0.15582    
+## D_pv2p_lag1        7.690e-01  1.739e-01   4.422  0.00069 ***
+## D_pv2p_lag2       -3.192e-01  8.151e-02  -3.916  0.00177 ** 
+## disposable_income  6.254e-05  6.223e-05   1.005  0.33328    
+## gdp               -1.576e-06  4.276e-07  -3.686  0.00274 ** 
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## Residual standard error: 0.829 on 13 degrees of freedom
+## Multiple R-squared:  0.9906,	Adjusted R-squared:  0.9862 
+## F-statistic: 227.7 on 6 and 13 DF,  p-value: 2.135e-12</code></pre>
+<pre class="r"><code>pred.ols.dem &lt;- predict(reg.ols, newdata = d.test)
+pred.ols.dem</code></pre>
+<pre><code>##        1        2        3        4        5        6        7        8 
+## 49.13361 58.62676 45.09022 49.11751 68.30337 50.09180 53.76306 43.53704 
+##        9       10       11       12       13       14       15       16 
+## 42.50767 41.77598 49.59802 56.49968 54.73233 56.23131 48.24814 44.48534 
+##       17       18       19       20 
+## 49.75267 43.57579 54.60861 49.97932</code></pre>
+<pre class="r"><code># Create dataset to summarize winners and EC vote distributions. 
+win_pred &lt;- data.frame(state = d.test$state,
+                       year = rep(2024, length(d.test$state)),
+                       simp_pred_dem = pred.ols.dem,
+                       simp_pred_rep = 100 - pred.ols.dem) |&gt; 
+            mutate(winner = ifelse(simp_pred_dem &gt; simp_pred_rep, &quot;Democrat&quot;, &quot;Republican&quot;)) |&gt;
+            left_join(d_ec, by = c(&quot;state&quot;, &quot;year&quot;))
+
+win_pred</code></pre>
+<pre><code>##             state year simp_pred_dem simp_pred_rep     winner stateab electors
+## 1         Arizona 2024      49.13361      50.86639 Republican      AZ       11
+## 2      California 2024      58.62676      41.37324   Democrat      CA       54
+## 3         Florida 2024      45.09022      54.90978 Republican      FL       30
+## 4         Georgia 2024      49.11751      50.88249 Republican      GA       16
+## 5        Maryland 2024      68.30337      31.69663   Democrat      MD       10
+## 6        Michigan 2024      50.09180      49.90820   Democrat      MI       15
+## 7       Minnesota 2024      53.76306      46.23694   Democrat      MN       10
+## 8        Missouri 2024      43.53704      56.46296 Republican      MO       10
+## 9         Montana 2024      42.50767      57.49233 Republican      MT        4
+## 10       Nebraska 2024      41.77598      58.22402 Republican      NE        5
+## 11         Nevada 2024      49.59802      50.40198 Republican      NV        6
+## 12  New Hampshire 2024      56.49968      43.50032   Democrat      NH        4
+## 13     New Mexico 2024      54.73233      45.26767   Democrat      NM        5
+## 14       New York 2024      56.23131      43.76869   Democrat      NY       28
+## 15 North Carolina 2024      48.24814      51.75186 Republican      NC       16
+## 16           Ohio 2024      44.48534      55.51466 Republican      OH       17
+## 17   Pennsylvania 2024      49.75267      50.24733 Republican      PA       19
+## 18          Texas 2024      43.57579      56.42421 Republican      TX       40
+## 19       Virginia 2024      54.60861      45.39139   Democrat      VA       13
+## 20      Wisconsin 2024      49.97932      50.02068 Republican      WI       10</code></pre>
+<pre class="r"><code>win_pred |&gt; 
+  filter(winner == &quot;Democrat&quot;) |&gt; 
+  select(state)</code></pre>
+<pre><code>##           state
+## 1    California
+## 2      Maryland
+## 3      Michigan
+## 4     Minnesota
+## 5 New Hampshire
+## 6    New Mexico
+## 7      New York
+## 8      Virginia</code></pre>
+<pre class="r"><code>win_pred |&gt; 
+  filter(winner == &quot;Republican&quot;) |&gt; 
+  select(state)</code></pre>
+<pre><code>##             state
+## 1         Arizona
+## 2         Florida
+## 3         Georgia
+## 4        Missouri
+## 5         Montana
+## 6        Nebraska
+## 7          Nevada
+## 8  North Carolina
+## 9            Ohio
+## 10   Pennsylvania
+## 11          Texas
+## 12      Wisconsin</code></pre>
+<pre class="r"><code>win_pred |&gt; 
+  group_by(winner) |&gt; 
+  summarize(n = n(), ec = sum(electors))</code></pre>
+<pre><code>## # A tibble: 2 × 3
+##   winner         n    ec
+##   &lt;chr&gt;      &lt;int&gt; &lt;dbl&gt;
+## 1 Democrat       8   139
+## 2 Republican    12   184</code></pre>
+<pre class="r"><code># Create data set to summarize winners and EC vote distributions. 
+win_pred &lt;- data.frame(state = d.test$state,
+                       year = rep(2024, length(d.test$state)),
+                       simp_pred_dem = pred.ols.dem,
+                       simp_pred_rep = 100 - pred.ols.dem) |&gt; 
+            mutate(winner = ifelse(simp_pred_dem &gt; simp_pred_rep, &quot;Democrat&quot;, &quot;Republican&quot;)) |&gt; left_join(d_ec, by = c(&quot;state&quot;, &quot;year&quot;))
+
+
+#### monte carlo simulations so i can create confidence intervals 
+# Set the number of simulations
+m &lt;- 1e4  # 10,000 simulations
+
+residual_se &lt;- summary(reg.ols)$sigma
+
+pred_dem &lt;- predict(reg.ols, newdata = d.test)
+
+n_states &lt;- nrow(d.test)
+
+pred.mat &lt;- data.frame(
+  state = rep(d.test$state, times = m),
+  year = rep(2024, times = m * n_states),
+  simp_pred_dem = numeric(m * n_states),
+  simp_pred_rep = numeric(m * n_states)
+)
+
+j &lt;- 1
+for (i in 1:m) {
+  if (i %% 1000 == 0) {
+    print(paste(&quot;Simulation&quot;, i))
+  }
+    simulated_errors &lt;- rnorm(n_states, mean = 0, sd = residual_se)
+    pred_dem_sim &lt;- pred_dem + simulated_errors
+    pred_dem_sim &lt;- pmin(pmax(pred_dem_sim, 0), 100)
+    pred_rep_sim &lt;- 100 - pred_dem_sim
+  
+  idx &lt;- j:(i * n_states)
+  pred.mat$simp_pred_dem[idx] &lt;- pred_dem_sim
+  pred.mat$simp_pred_rep[idx] &lt;- pred_rep_sim
+  
+  j &lt;- j + n_states
+}</code></pre>
+<pre><code>## [1] &quot;Simulation 1000&quot;
+## [1] &quot;Simulation 2000&quot;
+## [1] &quot;Simulation 3000&quot;
+## [1] &quot;Simulation 4000&quot;
+## [1] &quot;Simulation 5000&quot;
+## [1] &quot;Simulation 6000&quot;
+## [1] &quot;Simulation 7000&quot;
+## [1] &quot;Simulation 8000&quot;
+## [1] &quot;Simulation 9000&quot;
+## [1] &quot;Simulation 10000&quot;</code></pre>
+<pre class="r"><code>pred.mat &lt;- pred.mat %&gt;%
+  mutate(
+    winner = ifelse(simp_pred_dem &gt; simp_pred_rep, &quot;Democrat&quot;, &quot;Republican&quot;)
+  )
+####
+
+
+electoral_outcomes &lt;- pred.mat |&gt;
+  group_by(state) |&gt;
+  summarize(
+    mean_dem = mean(simp_pred_dem),
+    mean_rep = mean(simp_pred_rep),
+    sd_dem = sd(simp_pred_dem),
+    sd_rep = sd(simp_pred_rep),
+    lower_dem = mean_dem - 1.96 * sd_dem,
+    upper_dem = mean_dem + 1.96 * sd_dem,
+    lower_rep = mean_rep - 1.96 * sd_rep,
+    upper_rep = mean_rep + 1.96 * sd_rep
+  ) |&gt;
+  mutate(
+    winner = ifelse(mean_dem &gt; mean_rep, &quot;Democrat&quot;, &quot;Republican&quot;)
+  )
+
+view(electoral_outcomes)
+
+
+#Since this only gives us the results for 19 states, it includes all swing states so a simple calculation with lagged vote will allow me to fill in the winner for the rest of the US
+#list of all states 
+all_states &lt;- state.name
+
+missing_states &lt;- setdiff(all_states, unique(electoral_outcomes$state))
+missing_states</code></pre>
+<pre><code>##  [1] &quot;Alabama&quot;        &quot;Alaska&quot;         &quot;Arkansas&quot;       &quot;Colorado&quot;      
+##  [5] &quot;Connecticut&quot;    &quot;Delaware&quot;       &quot;Hawaii&quot;         &quot;Idaho&quot;         
+##  [9] &quot;Illinois&quot;       &quot;Indiana&quot;        &quot;Iowa&quot;           &quot;Kansas&quot;        
+## [13] &quot;Kentucky&quot;       &quot;Louisiana&quot;      &quot;Maine&quot;          &quot;Massachusetts&quot; 
+## [17] &quot;Mississippi&quot;    &quot;New Jersey&quot;     &quot;North Dakota&quot;   &quot;Oklahoma&quot;      
+## [21] &quot;Oregon&quot;         &quot;Rhode Island&quot;   &quot;South Carolina&quot; &quot;South Dakota&quot;  
+## [25] &quot;Tennessee&quot;      &quot;Utah&quot;           &quot;Vermont&quot;        &quot;Washington&quot;    
+## [29] &quot;West Virginia&quot;  &quot;Wyoming&quot;</code></pre>
+<pre class="r"><code>#created a new data frame for the missing states 
+missing_data &lt;- d_state_popvote |&gt;
+  filter(state %in% missing_states) |&gt;
+  filter(year == 2020) |&gt;
+  select(state, D_pv2p_lag1, R_pv2p_lag1)
+
+#Create the winner column based on lagged vote shares. Since these are not swing states, using the outcome from the last election reflects whethere it is a blue/red state
+missing_data &lt;- missing_data|&gt;
+  mutate(
+    winner = ifelse(D_pv2p_lag1 &gt; R_pv2p_lag1, &quot;Democrat&quot;, &quot;Republican&quot;)
+  )
+
+ec_2024 &lt;- d_ec |&gt;
+  filter(year == 2024) |&gt; 
+  select(state, electors)
+  
+
+
+#Combine datasets 
+all_states_pred &lt;- bind_rows(electoral_outcomes, missing_data) |&gt;
+  left_join(ec_2024, by = &quot;state&quot;)
+
+winner &lt;- all_states_pred |&gt;
+  group_by(winner) |&gt;
+  summarize(total_electors = sum(electors))
+
+winner</code></pre>
+<pre><code>## # A tibble: 2 × 2
+##   winner     total_electors
+##   &lt;chr&gt;               &lt;dbl&gt;
+## 1 Democrat              238
+## 2 Republican            297</code></pre>
+<pre class="r"><code>#DC not included so add 3 for Dem electoral college count
+election_results &lt;- tibble(
+  party = c(&quot;Democrat&quot;, &quot;Republican&quot;),
+  total_electors = c(winner$total_electors[1] + 3, winner$total_electors[2])
+)
+
+kable(election_results)</code></pre>
+<table>
+<thead>
+<tr class="header">
+<th align="left">party</th>
+<th align="right">total_electors</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Democrat</td>
+<td align="right">241</td>
+</tr>
+<tr class="even">
+<td align="left">Republican</td>
+<td align="right">297</td>
+</tr>
+</tbody>
+</table>
+<pre class="r"><code>plot_usmap(data = all_states_pred, regions = &quot;states&quot;, values = &quot;winner&quot;) + scale_fill_manual(
+    values = c(&quot;Democrat&quot; = &quot;blue&quot;, &quot;Republican&quot; = &quot;red&quot;),
+    name = &quot;Predicted Winner&quot;
+  ) +
+  labs(title = &quot;Electoral College Predictions&quot;) </code></pre>
+<p><img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-4-1.png" width="672" /></p>
+<pre class="r"><code>#how close is this race?
+
+electoral_outcomes_close &lt;- electoral_outcomes |&gt;
+  filter(state %in% c(&quot;Arizona&quot;, &quot;Georgia&quot;, &quot;Michigan&quot;, &quot;Nevada&quot;, &quot;North Carolina&quot;, &quot;Pennsylvania&quot;, &quot;Wisconsin&quot;)) |&gt;
+  select(state, mean_dem, mean_rep, lower_dem, upper_dem,lower_rep, upper_rep, winner)
+
+kable(electoral_outcomes_close)</code></pre>
+<table>
+<colgroup>
+<col width="17%" />
+<col width="10%" />
+<col width="10%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="11%" />
+<col width="13%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">state</th>
+<th align="right">mean_dem</th>
+<th align="right">mean_rep</th>
+<th align="right">lower_dem</th>
+<th align="right">upper_dem</th>
+<th align="right">lower_rep</th>
+<th align="right">upper_rep</th>
+<th align="left">winner</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Arizona</td>
+<td align="right">49.13987</td>
+<td align="right">50.86013</td>
+<td align="right">47.54128</td>
+<td align="right">50.73845</td>
+<td align="right">49.26155</td>
+<td align="right">52.45872</td>
+<td align="left">Republican</td>
+</tr>
+<tr class="even">
+<td align="left">Georgia</td>
+<td align="right">49.11946</td>
+<td align="right">50.88054</td>
+<td align="right">47.48744</td>
+<td align="right">50.75149</td>
+<td align="right">49.24851</td>
+<td align="right">52.51256</td>
+<td align="left">Republican</td>
+</tr>
+<tr class="odd">
+<td align="left">Michigan</td>
+<td align="right">50.07594</td>
+<td align="right">49.92406</td>
+<td align="right">48.44769</td>
+<td align="right">51.70418</td>
+<td align="right">48.29582</td>
+<td align="right">51.55231</td>
+<td align="left">Democrat</td>
+</tr>
+<tr class="even">
+<td align="left">Nevada</td>
+<td align="right">49.59670</td>
+<td align="right">50.40330</td>
+<td align="right">47.97361</td>
+<td align="right">51.21979</td>
+<td align="right">48.78021</td>
+<td align="right">52.02639</td>
+<td align="left">Republican</td>
+</tr>
+<tr class="odd">
+<td align="left">North Carolina</td>
+<td align="right">48.25469</td>
+<td align="right">51.74531</td>
+<td align="right">46.63044</td>
+<td align="right">49.87893</td>
+<td align="right">50.12107</td>
+<td align="right">53.36956</td>
+<td align="left">Republican</td>
+</tr>
+<tr class="even">
+<td align="left">Pennsylvania</td>
+<td align="right">49.75994</td>
+<td align="right">50.24006</td>
+<td align="right">48.13216</td>
+<td align="right">51.38772</td>
+<td align="right">48.61228</td>
+<td align="right">51.86784</td>
+<td align="left">Republican</td>
+</tr>
+<tr class="odd">
+<td align="left">Wisconsin</td>
+<td align="right">49.97913</td>
+<td align="right">50.02087</td>
+<td align="right">48.36347</td>
+<td align="right">51.59478</td>
+<td align="right">48.40522</td>
+<td align="right">51.63653</td>
+<td align="left">Republican</td>
+</tr>
+</tbody>
+</table>

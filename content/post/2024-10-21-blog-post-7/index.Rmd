@@ -1,8 +1,714 @@
 ---
 title: Blog Post 7
-author: Package Build
+author: Kelly Olmos
 date: '2024-10-21'
 slug: blog-post-7
 categories: []
 tags: []
 ---
+
+
+```{r}
+#' @title GOV 1347: Week 7 (Ground Game) Laboratory Session
+#' @author Matthew E. Dardet
+#' @date October 15, 2024
+
+####----------------------------------------------------------#
+#### Preamble
+####----------------------------------------------------------#
+
+# Load libraries.
+## install via `install.packages("name")`
+library(geofacet)
+library(usmap)
+library(ggpubr)
+library(ggthemes)
+library(haven)
+library(kableExtra)
+library(maps)
+library(mgcv)
+library(mgcViz)
+library(RColorBrewer)
+library(scales)
+library(sf)
+library(spData)
+library(stargazer)
+library(tidygeocoder)
+library(tidyverse)
+library(tigris)
+library(tmap)
+library(tmaptools)
+library(viridis)
+
+## set working directory here
+# setwd("~")
+
+```
+
+```{r}
+
+####----------------------------------------------------------#
+#### Read, merge, and process data.
+####----------------------------------------------------------#
+
+# Read popular vote datasets. 
+d_popvote <- read_csv("popvote_1948_2020.csv")
+d_state_popvote <- read_csv("state_popvote_1948_2020.csv")
+d_state_popvote[d_state_popvote$state == "District of Columbia",]$state <- "District Of Columbia"
+
+# Read elector distribution dataset. 
+d_ec <- read_csv("corrected_ec_1948_2024.csv")
+
+# Read polling data. 
+d_polls <- read_csv("national_polls_1968-2024.csv")
+d_state_polls <- read_csv("state_polls_1968-2024.csv")
+
+# Read turnout data. 
+d_turnout <- read_csv("state_turnout_1980_2022.csv")
+
+# Read county turnout. 
+d_county_turnout <- read_csv("county_turnout.csv")
+
+# Read state-level demographics.
+d_state_demog <- read_csv("demographics.csv")
+
+# Read county demographics. 
+d_county_demog <- read_csv("county_demographics.csv")
+
+# Read campaign events datasets. 
+d_campaign_events <- read_csv("campaigns_2016_2024.csv")[,-1]
+
+```
+
+
+```{r}
+####----------------------------------------------------------#
+#### Binomial simulations for election prediction. 
+####----------------------------------------------------------#
+
+
+# Merge popular vote and polling data. 
+d <- d_state_popvote |> 
+  inner_join(d_state_polls |> filter(weeks_left == 3)) |> 
+  mutate(state_abb = state.abb[match(state, state.name)])
+
+# Generate state-specific univariate poll-based forecasts with linear model.
+state_forecast <- list()
+state_forecast_outputs <- data.frame()
+for (s in unique(d$state_abb)) {
+  # Democrat model.
+  state_forecast[[s]]$dat_D <- d |> filter(state_abb == s, party == "DEM")
+  state_forecast[[s]]$mod_D <- lm(D_pv ~ poll_support, 
+                                  state_forecast[[s]]$dat_D)
+  
+  # Republican model.
+  state_forecast[[s]]$dat_R <- d |> filter(state_abb == s, party == "REP")
+  state_forecast[[s]]$mod_R <- lm(R_pv ~ poll_support, 
+                                  state_forecast[[s]]$dat_R)
+  
+  if (nrow(state_forecast[[s]]$dat_R) > 2) {
+    # Save state-level model estimates. 
+    state_forecast_outputs <- rbind(state_forecast_outputs, 
+                                    rbind(cbind.data.frame(
+                                      intercept = summary(state_forecast[[s]]$mod_D)$coefficients[1,1], 
+                                      intercept_se = summary(state_forecast[[s]]$mod_D)$coefficients[1,2],
+                                      slope = summary(state_forecast[[s]]$mod_D)$coefficients[2,1], 
+                                      state_abb = s, 
+                                      party = "DEM"), 
+                                    rbind(cbind.data.frame(
+                                     intercept = summary(state_forecast[[s]]$mod_R)$coefficients[1,1],
+                                     intercept_se = summary(state_forecast[[s]]$mod_R)$coefficients[1,2],
+                                     slope = summary(state_forecast[[s]]$mod_R)$coefficients[2,1],
+                                     state_abb = s,
+                                     party = "REP"
+                                    ))))
+  }
+}
+
+# Make graphs of polls in different states/parties at different levels of strength/significance of outcome. 
+state_forecast_trends <- state_forecast_outputs |> 
+  mutate(`0` = intercept, 
+         `25` = intercept + slope*25, 
+         `50` = intercept + slope*50, 
+         `75` = intercept + slope*75, 
+         `100` = intercept + slope*100) |>
+  select(-intercept, -slope) |> 
+  gather(x, y, -party, -state_abb, -intercept_se) |> 
+  mutate(x = as.numeric(x))
+
+# Q: What's wrong with this map? 
+# A: (1.) no polls in some states
+#    (2.) very high variance for some states (Nevada)/negative slopes for others (Mississippi)
+#    (3.) y is not always in the [0, 100] range
+ggplot(state_forecast_trends, aes(x=x, y=y, ymin=y-intercept_se, ymax=y+intercept_se)) + 
+  facet_geo(~ state_abb) +
+  geom_line(aes(color = party)) + 
+  geom_ribbon(aes(fill = party), alpha=0.5, color=NA) +
+  coord_cartesian(ylim=c(0, 100)) +
+  scale_color_manual(values = c("blue", "red")) +
+  scale_fill_manual(values = c("blue", "red")) +
+  xlab("Hypothetical Poll Support") +
+  ylab("Predicted Voteshare\n(pv = A + B * poll)") +
+  ggtitle("") +
+  theme_bw()
+
+state_forecast_trends |>
+  filter(state_abb == "CA" | state_abb == "FL")|>
+  ggplot(aes(x=x, y=y, ymin=y-intercept_se, ymax=y+intercept_se)) + 
+  facet_wrap(~ state_abb) +
+  geom_line(aes(color = party)) + 
+  geom_hline(yintercept = 100, lty = 3) +
+  geom_hline(yintercept = 0, lty = 3) + 
+  geom_ribbon(aes(fill = party), alpha=0.5, color=NA) +
+  ## N.B. You can, in fact, combine *different* data and aesthetics
+  ##       in one ggplot; but this usually needs to come at the end 
+  ##       and you must explicitly override all previous aesthetics
+  geom_text(data = d |> filter(state_abb == "CA", party=="DEM"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |> filter(state_abb == "CA", party=="REP"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |> filter(state_abb == "FL", party=="DEM"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |> filter(state_abb == "FL", party=="REP"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  scale_color_manual(values = c("blue", "red")) +
+  scale_fill_manual(values = c("blue", "red")) +
+  xlab("Hypothetical Poll Support") +
+  ylab("Predicted Voteshare\n(pv = A + B * poll)") +
+  theme_bw()
+
+# Merge turnout data into main dataset. 
+d <- d |> 
+  left_join(d_turnout, by = c("state", "year")) |> 
+  filter(year >= 1980) # Filter to when turnout dataset begins. 
+
+# Generate probabilistic univariate poll-based state forecasts. 
+state_glm_forecast <- list()
+state_glm_forecast_outputs <- data.frame()
+for (s in unique(d$state_abb)) {
+  # Democrat model. 
+  state_glm_forecast[[s]]$dat_D <- d |> filter(state_abb == s, party == "DEM")
+  state_glm_forecast[[s]]$mod_D <- glm(cbind(votes_D, vep - votes_D) ~ poll_support, # Cbind(N Success, N Total) for Binomial Model 
+                                      state_glm_forecast[[s]]$dat_D, 
+                                      family = binomial(link = "logit"))
+  
+  # Republican model. 
+  state_glm_forecast[[s]]$dat_R <- d |> filter(state_abb == s, party == "REP")
+  state_glm_forecast[[s]]$mod_R <- glm(cbind(votes_R, vep - votes_R) ~ poll_support, 
+                                      state_glm_forecast[[s]]$dat_R, 
+                                      family = binomial(link = "logit"))
+  
+  if (nrow(state_glm_forecast[[s]]$dat_R) > 2) {
+    for (hypo_avg_poll in seq(from = 0, to = 100, by = 10)) { 
+      # Democrat prediction. 
+      D_pred_vote_prob <- predict(state_glm_forecast[[s]]$mod_D, 
+                                  newdata = data.frame(poll_support = hypo_avg_poll), se = TRUE, type = "response")
+      D_pred_qt <- qt(0.975, df = df.residual(state_glm_forecast[[s]]$mod_D)) # Used in the prediction interval formula. 
+      
+      # Republican prediction. 
+      R_pred_vote_prob <- predict(state_glm_forecast[[s]]$mod_R, 
+                                  newdata = data.frame(poll_support = hypo_avg_poll), se = TRUE, type = "response")
+      R_pred_qt <- qt(0.975, df = df.residual(state_glm_forecast[[s]]$mod_R)) # Used in the prediction interval formula.
+      
+      # Save predictions. 
+      state_glm_forecast_outputs <- rbind(state_glm_forecast_outputs, 
+                                          cbind.data.frame(x = hypo_avg_poll,
+                                                           y = D_pred_vote_prob$fit*100,
+                                                           ymin = (D_pred_vote_prob$fit - D_pred_qt*D_pred_vote_prob$se.fit)*100,
+                                                           ymax = (D_pred_vote_prob$fit + D_pred_qt*D_pred_vote_prob$se.fit)*100,
+                                                           state_abb = s, 
+                                                           party = "DEM"),
+                                          cbind.data.frame(x = hypo_avg_poll,
+                                                           y = R_pred_vote_prob$fit*100,
+                                                           ymin = (R_pred_vote_prob$fit - R_pred_qt*R_pred_vote_prob$se.fit)*100,
+                                                           ymax = (R_pred_vote_prob$fit + R_pred_qt*R_pred_vote_prob$se.fit)*100,
+                                                           state_abb = s, 
+                                                           party = "REP"))
+    }
+  }
+}
+
+# Make graphs of polls in different states/parties at different levels of strength/significance of outcome. 
+ggplot(state_glm_forecast_outputs, aes(x=x, y=y, ymin=ymin, ymax=ymax)) + 
+  facet_geo(~ state_abb) +
+  geom_line(aes(color = party)) + 
+  geom_ribbon(aes(fill = party), alpha=0.5, color=NA) +
+  coord_cartesian(ylim=c(0, 100)) +
+  scale_color_manual(values = c("blue", "red")) +
+  scale_fill_manual(values = c("blue", "red")) +
+  xlab("Hypothetical Poll Support") +
+  ylab('Probability of State-Eligible Voter Voting for Party') +
+  theme_bw()
+
+state_glm_forecast_outputs |>
+  filter(state_abb == "CA" | state_abb == "FL") |>
+  ggplot(aes(x=x, y=y, ymin=ymin, ymax=ymax)) + 
+  facet_wrap(~ state_abb) +
+  geom_line(aes(color = party)) + 
+  geom_ribbon(aes(fill = party), alpha=0.5, color=NA) +
+  coord_cartesian(ylim=c(0, 100)) +
+  geom_text(data = d |> filter(state_abb == "CA", party=="DEM"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |> filter(state_abb == "CA", party=="REP"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |> filter(state_abb == "FL", party=="DEM"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  geom_text(data = d |> filter(state_abb == "FL", party=="REP"), 
+            aes(x = poll_support, y = D_pv, ymin = D_pv, ymax = D_pv, color = party, label = year), size=1.5) +
+  scale_color_manual(values = c("blue", "red")) +
+  scale_fill_manual(values = c("blue", "red")) +
+  xlab("Hypothetical Poll Support") +
+  ylab('Probability of\nState-Eligible Voter\nVoting for Party') +
+  ggtitle("Binomial Logit") + 
+  theme_bw() + 
+  theme(axis.title.y = element_text(size=6.5))
+
+# Simulating a distribution of potential election results in Pennsylvania for 2024. 
+# First step. Let's use GAM (general additive model) to impute VEP in Pennsylvania for 2024 using historical VEP.
+
+# Get historical eligible voting population in Pennsylvania. 
+vep_PA_2020 <- as.integer(d_turnout$vep[d_turnout$state == "Pennsylvania" & d_turnout$year == 2020])
+vep_PA <- d_turnout |> filter(state == "Pennsylvania") |> select(vep, year)
+
+# Fit regression for 2024 VEP prediction. 
+lm_vep_PA <- lm(vep ~ year, vep_PA)
+
+plot(x = vep_PA$year, y = vep_PA$vep, xlab = "Year", ylab = "VEP", main = "Voting Eligible Population in Pennsylvania by Year")
+abline(lm_vep_PA, col = "red")
+
+vep_PA_2024_ols <- predict(lm_vep_PA, newdata = data.frame(year = 2024)) |> as.numeric()
+
+gam_vep_PA <- mgcv::gam(vep ~ s(year), data = vep_PA)
+print(plot(getViz(gam_vep_PA)) + l_points() + l_fitLine(linetype = 3) + l_ciLine(colour = 2) + theme_get()) 
+
+# Use generalized additive model (GAM) to predict 2024 VEP in Pennsylvania.
+vep_PA_2024_gam <- predict(gam_vep_PA, newdata = data.frame(year = 2024)) |> as.numeric()
+
+# Take weighted average of linear and GAM predictions for final prediction. 
+vep_PA_2024 <- as.integer(0.75*vep_PA_2024_gam + 0.25*vep_PA_2024_ols)
+vep_PA_2024
+
+# Split datasets by party. 
+PA_D <- d |> filter(state == "Pennsylvania" & party == "DEM")
+PA_R <- d |> filter(state == "Pennsylvania" & party == "REP")
+
+# Fit Democrat and Republican models. 
+PA_D_glm <- glm(cbind(votes_R, vep - votes_R) ~ poll_support, data = PA_D, family = binomial(link = "logit"))
+PA_R_glm <- glm(cbind(votes_R, vep - votes_R) ~ poll_support, data = PA_R, family = binomial(link = "logit"))
+
+# Get predicted draw probabilities for D and R. 
+(PA_pollav_D <- d_state_polls$poll_support[d_state_polls$state == "Pennsylvania" & d_state_polls$weeks_left == 3 & d_state_polls$party == "DEM"] |> mean(na.rm = T))
+(PA_pollav_R <- d_state_polls$poll_support[d_state_polls$state == "Pennsylvania" & d_state_polls$weeks_left == 3 & d_state_polls$party == "REP"] |> mean(na.rm = T))
+(PA_sdpoll_D <- sd(d_state_polls$poll_support[d_state_polls$state == "Pennsylvania" & d_state_polls$weeks_left == 3 & d_state_polls$party == "DEM"] |> na.omit()))
+(PA_sdpoll_R <- sd(d_state_polls$poll_support[d_state_polls$state == "Pennsylvania" & d_state_polls$weeks_left == 3 & d_state_polls$party == "REP"] |> na.omit()))
+
+(prob_D_vote_PA_2024 <- predict(PA_D_glm, newdata = data.frame(poll_support = PA_pollav_D), se = TRUE, type = "response")[[1]] |> as.numeric())
+(prob_R_vote_PA_2024 <- predict(PA_R_glm, newdata = data.frame(poll_support = PA_pollav_R), se = TRUE, type = "response")[[1]] |> as.numeric())
+
+# Get predicted distribution of draws from the population. 
+sim_D_votes_PA_2024 <- rbinom(n = 10000, size = vep_PA_2024, prob = prob_D_vote_PA_2024)
+sim_R_votes_PA_2024 <- rbinom(n = 10000, size = vep_PA_2024, prob = prob_R_vote_PA_2024)
+
+# Simulating a distribution of election results: Harris PA PV. 
+hist(sim_D_votes_PA_2024, breaks = 100, col = "blue", main = "Predicted Turnout Draws for Harris \n from 10,000 Binomial Process Simulations")
+
+# Simulating a distribution of election results: Trump PA PV. 
+hist(sim_R_votes_PA_2024, breaks = 100, col = "red", main = "Predicted Turnout Draws for Trump \n from 10,000 Binomial Process Simulations")
+
+# Simulating a distribution of election results: Trump win margin. 
+sim_elxns_PA_2024 <- ((sim_R_votes_PA_2024-sim_D_votes_PA_2024)/(sim_D_votes_PA_2024 + sim_R_votes_PA_2024))*100
+hist(sim_elxns_PA_2024, breaks = 100, col = "firebrick1", main = "Predicted Draws of Win Margin for Trump \n from 10,000 Binomial Process Simulations", xlim = c(0, 0.4))
+
+# Simulations incorporating prior for SD. 
+sim_D_votes_PA_2024_2 <- rbinom(n = 10000, size = vep_PA_2024, prob = rnorm(10000, PA_pollav_D/100, PA_sdpoll_D/100))
+sim_R_votes_PA_2024_2 <- rbinom(n = 10000, size = vep_PA_2024, prob = rnorm(10000, PA_pollav_R/100, PA_sdpoll_R/100))
+sim_elxns_PA_2024_2 <- ((sim_R_votes_PA_2024_2-sim_D_votes_PA_2024_2)/(sim_D_votes_PA_2024_2 + sim_R_votes_PA_2024_2))*100
+h <- hist(sim_elxns_PA_2024_2, breaks = 100, col = "firebrick1")
+cuts <- cut(h$breaks, c(-Inf, 0, Inf))
+plot(h, yaxt = "n", bty = "n", xlab = "", ylab = "", main = "", xlim = c(-35, 35), col = c("blue", "red")[cuts], cex.axis=0.8)
+
+####----------------------------------------------------------#
+#### Ground Game: Field offices and campaign events. 
+####----------------------------------------------------------#
+
+# Where should campaigns build field offices? 
+fo_2012 <- read_csv("fieldoffice_2012_bycounty.csv")
+
+lm_obama <- lm(obama12fo ~ romney12fo + 
+                 swing + 
+                 core_rep + 
+                 swing:romney12fo + 
+                 core_rep:romney12fo + 
+                 battle + 
+                 medage08 + 
+                 pop2008 + 
+                 pop2008^2 + 
+                 medinc08 + 
+                 black + 
+                 hispanic + 
+                 pc_less_hs00 + 
+                 pc_degree00 + 
+                 as.factor(state), 
+               fo_2012)
+
+lm_romney <- lm(romney12fo ~ 
+                  obama12fo + 
+                  swing + 
+                  core_dem + 
+                  swing:obama12fo + 
+                  core_dem:obama12fo + 
+                  battle + 
+                  medage08 + 
+                  pop2008 + 
+                  pop2008^2 + 
+                  medinc08 + 
+                  black + 
+                  hispanic + 
+                  pc_less_hs00 + 
+                  pc_degree00 + 
+                  as.factor(state),
+                  fo_2012)
+
+stargazer(lm_obama, lm_romney, header=FALSE, type='latex', no.space = TRUE,
+          column.sep.width = "3pt", font.size = "scriptsize", single.row = TRUE,
+          keep = c(1:7, 62:66), omit.table.layout = "sn",
+          title = "Placement of Field Offices (2012)")
+
+# Effects of field offices on turnout and vote share. 
+fo_dem <- read_csv("fieldoffice_2004-2012_dems.csv")
+
+ef_t <- lm(turnout_change ~ dummy_fo_change + battle + dummy_fo_change:battle + as.factor(state) + as.factor(year), fo_dem)
+
+ef_d <- lm(dempct_change ~ dummy_fo_change + battle + dummy_fo_change:battle + as.factor(state) + as.factor(year), fo_dem)
+
+stargazer(ef_t, ef_d, header=FALSE, type='latex', no.space = TRUE,
+          column.sep.width = "3pt", font.size = "scriptsize", single.row = TRUE,
+          keep = c(1:3, 53:54), keep.stat = c("n", "adj.rsq", "res.dev"),
+          title = "Effect of DEM Field Offices on Turnout and DEM Vote Share (2004-2012)")
+
+# Field Strategies of Obama, Romney, Clinton, and Trump in 2016. 
+fo_add <- read_csv("fieldoffice_2012-2016_byaddress.csv")
+
+
+
+# Clinton 2016 Field Offices - Obama 2008 Field Offices. 
+
+
+
+# Case Study: Wisconsin Field Offices in 2012 and 2016 
+
+
+
+# Visualizing campaign events. 
+d_campaign_events$party[d_campaign_events$candidate %in% c("Trump / Pence", "Trump", "Pence", "Trump/Pence", "Vance")] <- "REP"
+d_campaign_events$party[d_campaign_events$candidate %in% c("Biden / Harris", "Biden", "Harris", "Biden/Harris", "Walz", "Kaine", "Clinton", "Clinton / Kaine")] <- "DEM"
+p.ev.1 <- d_campaign_events |> group_by(date, party) |> summarize(n_events = n(), year) |> filter(year == 2016) |> ggplot(aes(x = date, y = n_events, color = party)) + geom_point() + geom_smooth() + ggtitle("2016") + theme_bw()
+p.ev.2 <- d_campaign_events |> group_by(date, party) |> summarize(n_events = n(), year) |> filter(year == 2020) |> ggplot(aes(x = date, y = n_events, color = party)) + geom_point() + geom_smooth() + ggtitle("2020") +  theme_bw()
+p.ev.3 <- d_campaign_events |> group_by(date, party) |> summarize(n_events = n(), year) |> filter(year == 2024) |> ggplot(aes(x = date, y = n_events, color = party)) + geom_point() + geom_smooth() + ggtitle("2024") + theme_bw()
+
+ggarrange(p.ev.1, p.ev.2, p.ev.3)
+
+
+# Can the number of campaign events predict state-level vote share? 
+d_ev_state <- d_campaign_events |> 
+  group_by(year, state, party) |> 
+  summarize(n_events = n()) |> 
+  pivot_wider(names_from = party, values_from = n_events) |> 
+  rename(n_ev_D = DEM, n_ev_R = REP)
+d_ev_state$n_ev_D[which(is.na(d_ev_state$n_ev_D))] <- 0
+d_ev_state$n_ev_R[which(is.na(d_ev_state$n_ev_R))] <- 0
+d_ev_state$ev_diff_D_R <- d_ev_state$n_ev_D - d_ev_state$n_ev_R
+d_ev_state$ev_diff_R_D <- d_ev_state$n_ev_R - d_ev_state$n_ev_D
+
+d <- d |> 
+  left_join(d_ev_state, by = c("year", "state_abb" = "state"))
+
+lm_ev_D <- lm(D_pv2p ~ n_ev_D + ev_diff_D_R, data = d)
+lm_ev_R <- lm(R_pv2p ~ n_ev_R + ev_diff_R_D, data = d)
+
+summary(lm_ev_D)
+summary(lm_ev_R)
+
+stargazer(lm_ev_D, lm_ev_R, header=FALSE, type='latex', no.space = TRUE,
+          column.sep.width = "3pt", font.size = "scriptsize", single.row = TRUE,
+          keep.stat = c("n", "adj.rsq", "res.dev"),
+          title = "Association Between Campaign Events and Voting Outcomes of Interest")
+
+```
+
+```{r data processing}
+
+#This table will only have state_gdp data for q2 of each year 
+state_gdp <- read_csv("state_gdp.csv") |>
+  rename(state = GeoName) |>
+  pivot_longer(
+    cols = starts_with("20"),
+    names_to = c("year", "quarter"), 
+    names_sep = ":Q",
+    values_to = "gdp",
+    ) |>
+  filter(quarter == "2") |>
+  select(state, year, gdp)
+
+state_gdp$year <- as.numeric(state_gdp$year)
+
+state_gdp
+```
+
+```{r personal dis income}
+
+personal_dis_income <- read_csv("personalIncomeState.csv", skip = 3)
+
+regions_to_remove <- c(
+  "United States ", "Far West ", "New England", "Mideast", "Great Lakes",
+  "Plains", "Southeast", "Southwest", "Rocky Mountain", "District of Columbia"
+)
+
+#cleaning the data and processing it
+personal_dis_income <- personal_dis_income |>
+  rename(state = GeoName) |>
+  mutate(across(-state, ~ as.numeric(gsub("\\(NA\\)", "", .)))) |>
+  pivot_longer(
+    cols = -c(state, GeoFips),  
+    names_to = "year", 
+    values_to = "disposable_income" 
+  ) |>
+  mutate(year = as.numeric(year)) |>
+  mutate(state = gsub("\\*", "", state)) |>
+  filter(year >= 2008) |>
+  filter(!is.na(state) & !(state %in% regions_to_remove))
+
+personal_dis_income
+
+```
+
+```{r}
+
+d_polls <- read_csv("national_polls_1968-2024.csv")
+d_state_polls <- read_csv("state_polls_1968-2024.csv")
+
+# Process state-level polling data.
+d_pollav_state <- d_state_polls |>
+  group_by(year, state, party) |>
+  mutate(mean_pollav = mean(poll_support, na.rm = TRUE)) |>
+  top_n(1, poll_date) |>
+  rename(latest_pollav = poll_support) |>
+  select(-c(weeks_left, days_left, poll_date, candidate, before_convention)) |>
+  pivot_wider(names_from = party, values_from = c(latest_pollav, mean_pollav))
+
+# Merge data.
+d <- d_pollav_state |>
+  left_join(d_state_popvote, by = c("year", "state")) |>
+  left_join(d_popvote |> filter(party == "democrat"), by = "year") |>
+  left_join(d_turnout, by = c("year", "state")) |>
+  left_join(personal_dis_income, by = c("state", "year")) |>
+  left_join(state_gdp, by = c("state", "year")) |>
+  filter(year >= 1980) |>
+  ungroup()
+
+d
+# Sequester states for which we have polling data for 2024.
+states.2024 <- unique(d$state[d$year == 2024])
+states.2024 <- states.2024[-which(states.2024 == "Nebraska Cd 2")]
+d <- d |>
+  filter(state %in% states.2024)
+
+d
+# Separate into training and testing for simple poll prediction model. 
+d.train <- d |> filter(year < 2024) |> select(year, state, D_pv2p, latest_pollav_DEM, mean_pollav_DEM, D_pv2p_lag1, D_pv2p_lag2, disposable_income, gdp) |> drop_na()
+
+names(d.train)
+d.test <- d |> filter(year == 2024) |> select(year, state, D_pv2p, latest_pollav_DEM, mean_pollav_DEM, D_pv2p_lag1, D_pv2p_lag2, disposable_income, gdp)
+
+d.test
+
+# Add back in lagged vote share for 2024. 
+t <- d |> 
+  filter(year >= 2016) |> 
+  arrange(year) |> 
+  group_by(state) |> 
+  mutate(
+    D_pv2p_lag1 = lag(D_pv2p, 1),
+    R_pv2p_lag1 = lag(R_pv2p, 1), 
+    D_pv2p_lag2 = lag(D_pv2p, 2),
+    R_pv2p_lag2 = lag(R_pv2p, 2),
+    disposable_income = lag(disposable_income, 1)) |> 
+  filter(year == 2024) |> 
+  select(state, year, D_pv2p, D_pv2p_lag1, R_pv2p_lag1, D_pv2p_lag2, R_pv2p_lag2, disposable_income, gdp) 
+
+t
+
+d.test <- d.test|>
+  left_join(t, by = c("state", "year"), suffix = c("", ".t")) |>
+  mutate(
+    D_pv2p_lag1 = ifelse(is.na(D_pv2p_lag1), D_pv2p_lag1.t, D_pv2p_lag1),
+    D_pv2p_lag2 = ifelse(is.na(D_pv2p_lag2), D_pv2p_lag2.t, D_pv2p_lag2),
+    disposable_income = ifelse(is.na(disposable_income), disposable_income.t, disposable_income),
+    D_pv2p = ifelse(is.na(D_pv2p), D_pv2p.t, D_pv2p), 
+    gdp = ifelse(is.na(gdp), gdp, gdp)
+  ) |>
+  select(-ends_with(".t"))
+
+d.test
+# Standard frequentist linear regression. 
+reg.ols <- lm(D_pv2p ~ latest_pollav_DEM + mean_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2 + disposable_income + gdp, data = d.train)
+
+summary(reg.ols)
+pred.ols.dem <- predict(reg.ols, newdata = d.test)
+pred.ols.dem
+
+# Create dataset to summarize winners and EC vote distributions. 
+win_pred <- data.frame(state = d.test$state,
+                       year = rep(2024, length(d.test$state)),
+                       simp_pred_dem = pred.ols.dem,
+                       simp_pred_rep = 100 - pred.ols.dem) |> 
+            mutate(winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")) |>
+            left_join(d_ec, by = c("state", "year"))
+
+win_pred
+
+win_pred |> 
+  filter(winner == "Democrat") |> 
+  select(state)
+
+win_pred |> 
+  filter(winner == "Republican") |> 
+  select(state)
+
+win_pred |> 
+  group_by(winner) |> 
+  summarize(n = n(), ec = sum(electors))
+
+# Create data set to summarize winners and EC vote distributions. 
+win_pred <- data.frame(state = d.test$state,
+                       year = rep(2024, length(d.test$state)),
+                       simp_pred_dem = pred.ols.dem,
+                       simp_pred_rep = 100 - pred.ols.dem) |> 
+            mutate(winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")) |> left_join(d_ec, by = c("state", "year"))
+
+
+#### monte carlo simulations so i can create confidence intervals 
+# Set the number of simulations
+m <- 1e4  # 10,000 simulations
+
+residual_se <- summary(reg.ols)$sigma
+
+pred_dem <- predict(reg.ols, newdata = d.test)
+
+n_states <- nrow(d.test)
+
+pred.mat <- data.frame(
+  state = rep(d.test$state, times = m),
+  year = rep(2024, times = m * n_states),
+  simp_pred_dem = numeric(m * n_states),
+  simp_pred_rep = numeric(m * n_states)
+)
+
+j <- 1
+for (i in 1:m) {
+  if (i %% 1000 == 0) {
+    print(paste("Simulation", i))
+  }
+    simulated_errors <- rnorm(n_states, mean = 0, sd = residual_se)
+    pred_dem_sim <- pred_dem + simulated_errors
+    pred_dem_sim <- pmin(pmax(pred_dem_sim, 0), 100)
+    pred_rep_sim <- 100 - pred_dem_sim
+  
+  idx <- j:(i * n_states)
+  pred.mat$simp_pred_dem[idx] <- pred_dem_sim
+  pred.mat$simp_pred_rep[idx] <- pred_rep_sim
+  
+  j <- j + n_states
+}
+
+pred.mat <- pred.mat %>%
+  mutate(
+    winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")
+  )
+####
+
+
+electoral_outcomes <- pred.mat |>
+  group_by(state) |>
+  summarize(
+    mean_dem = mean(simp_pred_dem),
+    mean_rep = mean(simp_pred_rep),
+    sd_dem = sd(simp_pred_dem),
+    sd_rep = sd(simp_pred_rep),
+    lower_dem = mean_dem - 1.96 * sd_dem,
+    upper_dem = mean_dem + 1.96 * sd_dem,
+    lower_rep = mean_rep - 1.96 * sd_rep,
+    upper_rep = mean_rep + 1.96 * sd_rep
+  ) |>
+  mutate(
+    winner = ifelse(mean_dem > mean_rep, "Democrat", "Republican")
+  )
+
+view(electoral_outcomes)
+
+
+#Since this only gives us the results for 19 states, it includes all swing states so a simple calculation with lagged vote will allow me to fill in the winner for the rest of the US
+#list of all states 
+all_states <- state.name
+
+missing_states <- setdiff(all_states, unique(electoral_outcomes$state))
+missing_states
+
+#created a new data frame for the missing states 
+missing_data <- d_state_popvote |>
+  filter(state %in% missing_states) |>
+  filter(year == 2020) |>
+  select(state, D_pv2p_lag1, R_pv2p_lag1)
+
+#Create the winner column based on lagged vote shares. Since these are not swing states, using the outcome from the last election reflects whethere it is a blue/red state
+missing_data <- missing_data|>
+  mutate(
+    winner = ifelse(D_pv2p_lag1 > R_pv2p_lag1, "Democrat", "Republican")
+  )
+
+ec_2024 <- d_ec |>
+  filter(year == 2024) |> 
+  select(state, electors)
+  
+
+
+#Combine datasets 
+all_states_pred <- bind_rows(electoral_outcomes, missing_data) |>
+  left_join(ec_2024, by = "state")
+
+winner <- all_states_pred |>
+  group_by(winner) |>
+  summarize(total_electors = sum(electors))
+
+winner
+
+#DC not included so add 3 for Dem electoral college count
+election_results <- tibble(
+  party = c("Democrat", "Republican"),
+  total_electors = c(winner$total_electors[1] + 3, winner$total_electors[2])
+)
+
+kable(election_results)
+
+
+plot_usmap(data = all_states_pred, regions = "states", values = "winner") + scale_fill_manual(
+    values = c("Democrat" = "blue", "Republican" = "red"),
+    name = "Predicted Winner"
+  ) +
+  labs(title = "Electoral College Predictions") 
+
+```
+
+```{r}
+#how close is this race?
+
+electoral_outcomes_close <- electoral_outcomes |>
+  filter(state %in% c("Arizona", "Georgia", "Michigan", "Nevada", "North Carolina", "Pennsylvania", "Wisconsin")) |>
+  select(state, mean_dem, mean_rep, lower_dem, upper_dem,lower_rep, upper_rep, winner)
+
+kable(electoral_outcomes_close)
+```
+
+
+
+
