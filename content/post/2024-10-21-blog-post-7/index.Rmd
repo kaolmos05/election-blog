@@ -7,6 +7,11 @@ categories: []
 tags: []
 ---
 
+In this week’s blog post I will delve into the ground game and how it impacts electoral outcomes. Additionally, I will make an update to my presidential election outcome forecast. 
+
+Will the ground game impact the presidential election outcome? The ground game is defined as on-the-ground efforts made by a campaign to engage and mobilize voters. 
+
+Available literature shows evidence that direct campaign contact and advertising has minimal persuasive effect on voters (Kalla and Broockman, 2017). As election day approaches, the persuasive effect of direct campaign contact and advertising declines (Kalla and Broockman, 2017). Does this mean that the ground game has no effect on the election outcome? Well, not exactly, Enos and Fowler argue that large-scale campaigns significantly increase voter turnout in battleground states by up to 7-8 percentage points after analyzing data from the 2012 election. Kalla and Broockman conclude that the campaign ground game does not affect who a voter will vote for because it still holds value. Enos and Fowler find that the ground game does increase voter turnout. Therefore, by strategically targeting voters in specific geographic areas they can influence who turns out. 
 
 ```{r }
 #' @title GOV 1347: Week 7 (Ground Game) Laboratory Session
@@ -355,6 +360,7 @@ cuts <- cut(h$breaks, c(-Inf, 0, Inf))
 plot(h, yaxt = "n", bty = "n", xlab = "", ylab = "", main = "", xlim = c(-35, 35), col = c("blue", "red")[cuts], cex.axis=0.8)
 
 ```
+### The Ground Game Visualized 
 
 ```{r}
 ####----------------------------------------------------------#
@@ -464,6 +470,9 @@ kable(all_results, digits = 3, caption = "Association Between Campaign Events an
       col.names = c("Term", "Estimate", "p-value", "CI Lower", "CI Upper", "Party Vote Share"))
 
 ```
+In the graph above, the number of campaigns is plotted along the y-axis and the data along the x-axis for the most recent elections. As the election day approaches, the number of campaign events per week increases. The 2024 plot only has data available to the middle of October. Based on the plots from the 2016 and 2020 elections, it is expected that the number of campaign events will ramp up. It appears that the Republicans are leading in the number of campaign events. 
+
+This raises the question: does the number of campaign events affect the voting outcomes? A linear regression model on the number of events and the difference between the Democrats and Republicans shows that the number of Democratic campaign events positively affects Democratic vote share whereas the difference in event counts shows a positive but not significant association. For Republicans, there is a small negative association with Republican vote share, and a larger difference in Republican campaign events compared to Democratic events is positively associated with Republican vote share. The linear regression model used does not mean that the number of campaign events causally explain party vote share but it does show an association. 
 
 ```{r data processing}
 
@@ -483,7 +492,13 @@ state_gdp$year <- as.numeric(state_gdp$year)
 
 state_gdp
 ```
+###Update to The Presidential Election Forecast
 
+This week, I will be updating my election forecast by introducing a new variable: state gdp. State gdp is an economic indicator. I will be using quarter 2 state gdp. I am including state gdp because that is data I could find up to 2024 and similar to Alan Abramowitz’s Time for a Change Model that uses gdp growth. I added state gdp as a predictor to my model that uses linear regression and then ran 10000 simulation to create confidence intervals. 
+
+This week, Trump is still forecasted to win with an even greater electoral college margin than last week. Trump still has hold of the same battleground states as last week and has taken Wisconsin this week. 
+
+However, something important to note is that this race is very close. There are seven swing states and when I take into account the 95% confidence intervals, Harris could still win six of the seven battleground states except for North Carolina. 
 ```{r personal dis income}
 
 personal_dis_income <- read_csv("personalIncomeState.csv", skip = 3)
@@ -737,7 +752,10 @@ electoral_outcomes_close <- electoral_outcomes |>
 
 kable(electoral_outcomes_close)
 ```
+###References
 
+Kalla, Joshua L., and David E. Broockman. "The Minimal Persuasive Effects of Campaign Contact in General Elections: Evidence from 49 Field Experiments." American Political Science Review, vol. 112, no. 1, 2018, pp. 148–166. Cambridge University Press, doi:10.1017/S0003055417000363.
 
+Enos, Ryan D., and Anthony Fowler. "Aggregate Effects of Large-Scale Campaigns on Voter Turnout." Political Science Research and Methods, vol. 6, no. 4, Oct. 2018, pp. 733–751. Cambridge University Press, doi:10.1017/psrm.2016.21.
 
 
