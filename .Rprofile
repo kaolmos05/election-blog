@@ -20,4 +20,7 @@ options(
 )
 
 # fix Hugo version
-options(blogdown.hugo.version = "0.136.2")
+options(blogdown.hugo.version = "0.134.2")
+
+options(blogdown.markdown = TRUE)
+
