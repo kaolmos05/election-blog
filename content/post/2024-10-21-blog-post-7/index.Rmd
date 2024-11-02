@@ -1,14 +1,14 @@
 ---
-title: Blog Post 7
-author: Kelly Olmos
+title: "Blog Post 7"
+author: "Kelly Olmos"
 date: '2024-10-21'
-slug: blog-post-7
+slug: "blog-post-7"
 categories: []
 tags: []
 ---
 
 
-```{r}
+```{r }
 #' @title GOV 1347: Week 7 (Ground Game) Laboratory Session
 #' @author Matthew E. Dardet
 #' @date October 15, 2024
@@ -39,13 +39,15 @@ library(tigris)
 library(tmap)
 library(tmaptools)
 library(viridis)
+library(broom)
+library(knitr)
 
 ## set working directory here
 # setwd("~")
 
 ```
 
-```{r}
+```{r }
 
 ####----------------------------------------------------------#
 #### Read, merge, and process data.
@@ -95,6 +97,12 @@ d <- d_state_popvote |>
 # Generate state-specific univariate poll-based forecasts with linear model.
 state_forecast <- list()
 state_forecast_outputs <- data.frame()
+
+```
+
+```{r}
+
+#linear regressions for each state, predicting Dem party vote share based on polling data
 for (s in unique(d$state_abb)) {
   # Democrat model.
   state_forecast[[s]]$dat_D <- d |> filter(state_abb == s, party == "DEM")
@@ -125,6 +133,9 @@ for (s in unique(d$state_abb)) {
   }
 }
 
+```
+
+```{r }
 # Make graphs of polls in different states/parties at different levels of strength/significance of outcome. 
 state_forecast_trends <- state_forecast_outputs |> 
   mutate(`0` = intercept, 
@@ -136,10 +147,6 @@ state_forecast_trends <- state_forecast_outputs |>
   gather(x, y, -party, -state_abb, -intercept_se) |> 
   mutate(x = as.numeric(x))
 
-# Q: What's wrong with this map? 
-# A: (1.) no polls in some states
-#    (2.) very high variance for some states (Nevada)/negative slopes for others (Mississippi)
-#    (3.) y is not always in the [0, 100] range
 ggplot(state_forecast_trends, aes(x=x, y=y, ymin=y-intercept_se, ymax=y+intercept_se)) + 
   facet_geo(~ state_abb) +
   geom_line(aes(color = party)) + 
@@ -152,6 +159,16 @@ ggplot(state_forecast_trends, aes(x=x, y=y, ymin=y-intercept_se, ymax=y+intercep
   ggtitle("") +
   theme_bw()
 
+
+# Q: What's wrong with this map? 
+# A: (1.) no polls in some states
+#    (2.) very high variance for some states (Nevada)/negative slopes for others (Mississippi)
+#    (3.) y is not always in the [0, 100] range
+```
+
+```{r  eval=FALSE}
+
+#probabilistic state forecast w/ binomial lm 
 state_forecast_trends |>
   filter(state_abb == "CA" | state_abb == "FL")|>
   ggplot(aes(x=x, y=y, ymin=y-intercept_se, ymax=y+intercept_se)) + 
@@ -177,6 +194,10 @@ state_forecast_trends |>
   ylab("Predicted Voteshare\n(pv = A + B * poll)") +
   theme_bw()
 
+```
+
+
+```{r  }
 # Merge turnout data into main dataset. 
 d <- d |> 
   left_join(d_turnout, by = c("state", "year")) |> 
@@ -262,7 +283,9 @@ state_glm_forecast_outputs |>
   ggtitle("Binomial Logit") + 
   theme_bw() + 
   theme(axis.title.y = element_text(size=6.5))
+```
 
+```{r }
 # Simulating a distribution of potential election results in Pennsylvania for 2024. 
 # First step. Let's use GAM (general additive model) to impute VEP in Pennsylvania for 2024 using historical VEP.
 
@@ -304,7 +327,9 @@ PA_R_glm <- glm(cbind(votes_R, vep - votes_R) ~ poll_support, data = PA_R, famil
 
 (prob_D_vote_PA_2024 <- predict(PA_D_glm, newdata = data.frame(poll_support = PA_pollav_D), se = TRUE, type = "response")[[1]] |> as.numeric())
 (prob_R_vote_PA_2024 <- predict(PA_R_glm, newdata = data.frame(poll_support = PA_pollav_R), se = TRUE, type = "response")[[1]] |> as.numeric())
+```
 
+```{r}
 # Get predicted distribution of draws from the population. 
 sim_D_votes_PA_2024 <- rbinom(n = 10000, size = vep_PA_2024, prob = prob_D_vote_PA_2024)
 sim_R_votes_PA_2024 <- rbinom(n = 10000, size = vep_PA_2024, prob = prob_R_vote_PA_2024)
@@ -322,11 +347,16 @@ hist(sim_elxns_PA_2024, breaks = 100, col = "firebrick1", main = "Predicted Draw
 # Simulations incorporating prior for SD. 
 sim_D_votes_PA_2024_2 <- rbinom(n = 10000, size = vep_PA_2024, prob = rnorm(10000, PA_pollav_D/100, PA_sdpoll_D/100))
 sim_R_votes_PA_2024_2 <- rbinom(n = 10000, size = vep_PA_2024, prob = rnorm(10000, PA_pollav_R/100, PA_sdpoll_R/100))
+
+
 sim_elxns_PA_2024_2 <- ((sim_R_votes_PA_2024_2-sim_D_votes_PA_2024_2)/(sim_D_votes_PA_2024_2 + sim_R_votes_PA_2024_2))*100
 h <- hist(sim_elxns_PA_2024_2, breaks = 100, col = "firebrick1")
 cuts <- cut(h$breaks, c(-Inf, 0, Inf))
 plot(h, yaxt = "n", bty = "n", xlab = "", ylab = "", main = "", xlim = c(-35, 35), col = c("blue", "red")[cuts], cex.axis=0.8)
 
+```
+
+```{r}
 ####----------------------------------------------------------#
 #### Ground Game: Field offices and campaign events. 
 ####----------------------------------------------------------#
@@ -389,16 +419,6 @@ stargazer(ef_t, ef_d, header=FALSE, type='latex', no.space = TRUE,
 # Field Strategies of Obama, Romney, Clinton, and Trump in 2016. 
 fo_add <- read_csv("fieldoffice_2012-2016_byaddress.csv")
 
-
-
-# Clinton 2016 Field Offices - Obama 2008 Field Offices. 
-
-
-
-# Case Study: Wisconsin Field Offices in 2012 and 2016 
-
-
-
 # Visualizing campaign events. 
 d_campaign_events$party[d_campaign_events$candidate %in% c("Trump / Pence", "Trump", "Pence", "Trump/Pence", "Vance")] <- "REP"
 d_campaign_events$party[d_campaign_events$candidate %in% c("Biden / Harris", "Biden", "Harris", "Biden/Harris", "Walz", "Kaine", "Clinton", "Clinton / Kaine")] <- "DEM"
@@ -407,7 +427,6 @@ p.ev.2 <- d_campaign_events |> group_by(date, party) |> summarize(n_events = n()
 p.ev.3 <- d_campaign_events |> group_by(date, party) |> summarize(n_events = n(), year) |> filter(year == 2024) |> ggplot(aes(x = date, y = n_events, color = party)) + geom_point() + geom_smooth() + ggtitle("2024") + theme_bw()
 
 ggarrange(p.ev.1, p.ev.2, p.ev.3)
-
 
 # Can the number of campaign events predict state-level vote share? 
 d_ev_state <- d_campaign_events |> 
@@ -429,10 +448,20 @@ lm_ev_R <- lm(R_pv2p ~ n_ev_R + ev_diff_R_D, data = d)
 summary(lm_ev_D)
 summary(lm_ev_R)
 
-stargazer(lm_ev_D, lm_ev_R, header=FALSE, type='latex', no.space = TRUE,
-          column.sep.width = "3pt", font.size = "scriptsize", single.row = TRUE,
-          keep.stat = c("n", "adj.rsq", "res.dev"),
-          title = "Association Between Campaign Events and Voting Outcomes of Interest")
+ev_D_results <- tidy(lm_ev_D, conf.int = TRUE)
+ev_R_results <- tidy(lm_ev_R, conf.int = TRUE)
+
+ev_D_results <- ev_D_results |> 
+  mutate(vote_share = "D_pv2p")
+ev_R_results <- ev_R_results |> 
+  mutate(vote_share = "R_pv2p")
+
+all_results <- bind_rows(ev_D_results, ev_R_results) |>
+  select(term, estimate, p.value, conf.low, conf.high, vote_share )
+
+# Display table using kable
+kable(all_results, digits = 3, caption = "Association Between Campaign Events and Voting Outcomes of Interest",
+      col.names = c("Term", "Estimate", "p-value", "CI Lower", "CI Upper", "Party Vote Share"))
 
 ```
 
