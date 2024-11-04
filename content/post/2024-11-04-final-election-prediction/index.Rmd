@@ -1,0 +1,507 @@
+---
+title: 'Final Election Prediction '
+author: 'Kelly Olmos' 
+date: '2024-11-04'
+slug: final-election-prediction
+categories: []
+tags: []
+---
+
+```{r setup}
+#Load all libraries needed 
+library(geofacet)
+library(glmnet)
+library(usmap)
+library(ggpubr)
+library(ggthemes)
+library(haven)
+library(kableExtra)
+library(maps)
+library(mgcv)
+library(mgcViz)
+library(RColorBrewer)
+library(scales)
+library(sf)
+library(spData)
+library(stargazer)
+library(tidygeocoder)
+library(tidyverse)
+library(tigris)
+library(tmap)
+library(tmaptools)
+library(viridis)
+library(broom)
+library(knitr)
+library(dplyr)
+
+```
+
+```{r loading data sets}
+#Load all data sets needed 
+
+d_popvote <- read_csv("popvote_1948_2020.csv")
+d_state_popvote <- read_csv("state_popvote_1948_2020.csv")
+d_state_popvote[d_state_popvote$state == "District of Columbia",]$state <- "District Of Columbia"
+d_ec <- read_csv("corrected_ec_1948_2024.csv")
+d_polls <- read_csv("national_polls_1968-2024.csv")
+d_state_polls <- read_csv("state_polls_1968-2024.csv")
+d_turnout <- read_csv("state_turnout_1980_2022.csv")
+d_state_demog <- read_csv("demographics.csv")
+d_state_gdp <- read_csv("cleaned_state_gdp.csv")
+d_state_unemployment <- read_csv("State_unemployment.csv")
+
+```
+```{r}
+#Process state unemployment for my model's needs
+#Making all columns except State numeric variables
+d_state_unemployment[ , -1] <- lapply(d_state_unemployment[ , -1], as.numeric)
+
+d_state_unemployment <- d_state_unemployment |>
+  pivot_longer(
+    cols = -State,
+    names_to = "date",
+    values_to = "unemployment" #as a rate
+  ) |>
+  separate(date, into = c("month", "year"), sep = " ") |>
+  rename(state = State) |>
+  filter(month == "Sep")
+  
+d_state_unemployment$year <- as.numeric(d_state_unemployment$year)
+
+
+d_state_unemployment
+```
+```{r}
+#Process gdp growth for model's need 
+
+d_state_gdp <- d_state_gdp |>
+  select(year, state, q2_gdp_growth)
+
+d_state_gdp
+```
+```{r}
+d_state_demog <- d_state_demog |> 
+  mutate(
+    # Create 'hispanic' column by summing all Hispanic race categories
+    hispanic = rowSums(d_state_demog[, c("hispanic_white", "hispanic_black", "hispanic_american_indian", 
+                                         "hispanic_asian_pacific_islander", "hispanic_other_race", 
+                                         "hispanic_two_or_more_races")], na.rm = TRUE),
+    
+    # Create 'age_18_to_29' column by summing the relevant age groups
+    age_18_to_29 = rowSums(d_state_demog[, c("age_18_to_19", "age_20", "age_21", 
+                                             "age_22_to_24", "age_25_to_29")], na.rm = TRUE),
+    
+    # Create 'age_30_to_44' by summing the relevant age groups
+    age_30_to_44 = age_30_to_34 + age_35_to_44,
+    
+    # Create 'age_55_to_64' by summing the relevant age groups
+    age_55_to_64 = age_55_to_59 + age_60_to_61 + age_62_to_64,
+    
+    # Create 'age_75plus' by summing ages 75 and older
+    age_75plus = age_75_to_84 + age_85_and_over
+  )
+
+d_state_demog
+  
+```
+
+
+
+
+```{r}
+
+# Process state-level polling data.
+d_pollav_state <- d_state_polls |>
+  group_by(year, state, party) |>
+  mutate(mean_pollav = mean(poll_support, na.rm = TRUE)) |>
+  top_n(1, poll_date) |>
+  rename(latest_pollav = poll_support) |>
+  select(-c(weeks_left, days_left, poll_date, candidate, before_convention)) |>
+  pivot_wider(names_from = party, values_from = c(latest_pollav, mean_pollav))
+
+# Merge data.
+d <- d_pollav_state |>
+  left_join(d_state_popvote, by = c("year", "state")) |>
+  left_join(d_popvote |> filter(party == "democrat"), by = "year") |>
+  left_join(d_turnout, by = c("year", "state")) |>
+  left_join(d_state_unemployment, by = c("year", "state")) |>
+  left_join(d_state_gdp, by = c("year", "state")) |>
+  left_join(d_state_demog, by = c("state", "year")) |>
+  filter(year >= 1980) |>
+  ungroup() |>
+  distinct(state, year, .keep_all = TRUE)
+
+d_turnout
+
+# Sequester states for which we have polling data for 2024.
+states.2024 <- unique(d$state[d$year == 2024])
+states.2024 <- states.2024[-which(states.2024 == "Nebraska Cd 2")]
+d <- d |>
+  filter(state %in% states.2024)
+
+d
+
+# Separate into training and testing for simple poll prediction model. 
+d.train <- d |> filter(year < 2024) |> select(year, state, D_pv2p, latest_pollav_DEM, D_pv2p_lag1, D_pv2p_lag2, q2_gdp_growth, white, black, american_indian, asian_pacific_islander, unemployment, less_than_college, bachelors, graduate, hispanic, age_18_to_29, age_30_to_44, age_45_to_54, age_55_to_64, age_65_to_74, age_75plus) |> drop_na() |> distinct(state, year, .keep_all = TRUE)
+
+d.train
+
+d.test <- d |> filter(year == 2024) |> select(year, state, D_pv2p, latest_pollav_DEM, D_pv2p_lag1, D_pv2p_lag2, q2_gdp_growth, white, black, american_indian, asian_pacific_islander, unemployment, less_than_college, bachelors, graduate, hispanic, age_18_to_29, age_30_to_44, age_45_to_54, age_55_to_64, age_75plus) |> distinct(state, year, .keep_all = TRUE)
+
+d.test
+# Step 1: Modify `t` to include demographic variables
+t <- d |> 
+  filter(year >= 2016) |> 
+  arrange(year) |> 
+  group_by(state) |> 
+  mutate(
+    D_pv2p_lag1 = lag(D_pv2p, 1),
+    R_pv2p_lag1 = lag(R_pv2p, 1), 
+    D_pv2p_lag2 = lag(D_pv2p, 2),
+    R_pv2p_lag2 = lag(R_pv2p, 2),
+    white = lag(white, 1),
+    black = lag(black, 1),
+    american_indian = lag(american_indian, 1),
+    asian_pacific_islander = lag(asian_pacific_islander, 1),
+    less_than_college = lag(less_than_college, 1),
+    bachelors = lag(bachelors, 1),
+    graduate = lag(graduate, 1),
+    hispanic = lag(hispanic, 1), 
+    age_18_to_29 = lag(age_18_to_29, 1),
+    age_30_to_44 = lag(age_30_to_44, 1),
+    age_45_to_54 = lag(age_45_to_54, 1),
+    age_55_to_64 = lag(age_55_to_64, 1),
+    age_65_to_74 = lag(age_65_to_74, 1),
+    age_75plus = lag(age_75plus, 1)
+  ) |> 
+  filter(year == 2024) |> 
+  select(state, year, D_pv2p, D_pv2p_lag1, R_pv2p_lag1, D_pv2p_lag2, R_pv2p_lag2, white, black, american_indian, asian_pacific_islander, less_than_college, bachelors, graduate, hispanic, age_18_to_29, age_30_to_44, age_45_to_54, age_55_to_64, age_65_to_74, age_75plus) |>
+  distinct(state, year, .keep_all = TRUE)
+
+t
+# Step 2: Join `t` with `d.test` to ensure demographic data is included for 2024 predictions
+d.test <- d.test |>
+  left_join(t, by = c("state", "year"), suffix = c("", ".t")) |>
+  mutate(
+    D_pv2p_lag1 = ifelse(is.na(D_pv2p_lag1), D_pv2p_lag1.t, D_pv2p_lag1),
+    D_pv2p_lag2 = ifelse(is.na(D_pv2p_lag2), D_pv2p_lag2.t, D_pv2p_lag2),
+    D_pv2p = ifelse(is.na(D_pv2p), D_pv2p.t, D_pv2p), 
+    # Include demographic variables with fallback values
+    white = ifelse(is.na(white), white.t, white),
+    black = ifelse(is.na(black), black.t, black),
+    american_indian = ifelse(is.na(american_indian), american_indian.t, american_indian),
+    asian_pacific_islander = ifelse(is.na(asian_pacific_islander), asian_pacific_islander.t, asian_pacific_islander),
+    less_than_college = ifelse(is.na(less_than_college), less_than_college.t, less_than_college),
+    bachelors = ifelse(is.na(bachelors), bachelors.t, bachelors),
+    graduate = ifelse(is.na(graduate), graduate.t, graduate),
+    hispanic = ifelse(is.na(hispanic), hispanic.t, hispanic),
+    age_18_to_29 = ifelse(is.na(age_18_to_29), age_18_to_29.t, age_18_to_29),
+    age_30_to_44 = ifelse(is.na(age_30_to_44), age_30_to_44.t, age_30_to_44),
+    age_45_to_54 = ifelse(is.na(age_45_to_54), age_45_to_54.t, age_45_to_54),
+    age_55_to_64 = ifelse(is.na(age_55_to_64), age_55_to_64.t, age_55_to_64),
+    age_75plus = ifelse(is.na(age_75plus), age_75plus.t, age_75plus),
+  ) |>
+  select(-ends_with(".t"))
+
+d.test
+
+# Step 3: Update the regression model to include demographic variables
+reg.ols <- lm(D_pv2p ~ latest_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2 + q2_gdp_growth + white + black + american_indian + asian_pacific_islander + less_than_college + bachelors + graduate + hispanic + age_18_to_29 + age_30_to_44 + age_45_to_54 + age_55_to_64 + age_65_to_74 + age_75plus, data = d.train)
+
+summary(reg.ols)
+
+pred.ols.dem <- predict(reg.ols, newdata = d.test)
+pred.ols.dem
+
+```
+```{r}
+library(glmnet)
+library(dplyr)
+
+# Assuming d.train and d.test are your training and testing datasets respectively
+# Prepare your training data
+x_train <- as.matrix(d.train[, c("latest_pollav_DEM", "D_pv2p_lag1", "D_pv2p_lag2", "white", "black", "american_indian", "asian_pacific_islander", "less_than_college", "bachelors", "graduate", "hispanic", "age_18_to_29", "age_30_to_44", "age_45_to_54", "age_55_to_64", "age_65_to_74", "age_75plus", "q2_gdp_growth")])
+y_train <- d.train$D_pv2p
+
+# Standardize predictors
+x_train <- scale(x_train)
+
+# Prepare your testing data
+x_test <- as.matrix(d.test[, c("latest_pollav_DEM", "D_pv2p_lag1", "D_pv2p_lag2", "white", "black", "american_indian", "asian_pacific_islander", "less_than_college", "bachelors", "graduate", "hispanic", "age_18_to_29", "age_30_to_44", "age_45_to_54", "age_55_to_64", "age_65_to_74", "age_75plus", "q2_gdp_growth")])
+x_test <- scale(x_test)
+
+# Define a sequence of alpha values to try
+alphas <- seq(0, 1, by = 0.1)
+
+# Find the best alpha and lambda using cross-validation
+results <- lapply(alphas, function(a) {
+  cv_fit <- cv.glmnet(x_train, y_train, alpha = a)
+  return(data.frame(alpha = a, lambda = cv_fit$lambda.min, cvm = min(cv_fit$cvm)))
+})
+
+# Convert results to a data frame
+results_df <- do.call(rbind, results)
+
+# Identify the best performing model
+best_params <- results_df[which.min(results_df$cvm), ]
+best_alpha <- best_params$alpha
+best_lambda <- best_params$lambda
+
+# Fit the final Elastic Net model with the optimal alpha and lambda
+final_model <- glmnet(x_train, y_train, alpha = best_alpha, lambda = best_lambda)
+
+# Make predictions using the Elastic Net model
+predictions <- predict(final_model, newx = x_test, s = best_lambda)
+
+# Convert predictions to a vector
+pred_elastic_net <- as.vector(predictions)
+
+# Create a data frame to store results
+results <- data.frame(
+  state = d.test$state,
+  predicted_D_pv2p = pred_elastic_net,
+  predicted_winner = ifelse(pred_elastic_net > 50, "Democrat", "Republican")
+)
+
+# Filter results for specific states
+final_results <- results %>% 
+  filter(state %in% c("Arizona", "Georgia", "Michigan", "Nevada", "North Carolina", "Pennsylvania", "Wisconsin"))
+
+# Print the results
+print(final_results)
+
+# Calculate correlation matrix for model variables
+cor_matrix <- cor(d.train[, c("latest_pollav_DEM", "D_pv2p_lag1", "D_pv2p_lag2", "white", "black", "american_indian", "asian_pacific_islander", "less_than_college", "bachelors", "graduate", "hispanic", "age_18_to_29", "age_30_to_44", "age_45_to_54", "age_55_to_64", "age_65_to_74", "age_75plus", "q2_gdp_growth")])
+
+print(cor_matrix)
+
+# Calculate VIF to check for multicollinearity
+library(car)
+vif_model <- vif(lm(D_pv2p ~ latest_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2 + q2_gdp_growth + white + black + american_indian + asian_pacific_islander + less_than_college + bachelors + graduate + hispanic + age_18_to_29 + age_30_to_44 + age_45_to_54 + age_55_to_64 + age_65_to_74 + age_75plus, data = d.train))
+print(vif_model)
+
+```
+```{r}
+library(glmnet)
+library(dplyr)
+
+# Assuming d.train and d.test are your training and testing datasets respectively
+# Prepare your training data
+x_train <- as.matrix(d.train[, c("latest_pollav_DEM", "D_pv2p_lag1", "D_pv2p_lag2", "white", "black", "american_indian", "asian_pacific_islander", "less_than_college", "bachelors", "graduate", "hispanic", "age_18_to_29", "age_30_to_44", "age_45_to_54", "age_55_to_64", "age_65_to_74", "age_75plus", "q2_gdp_growth")])
+y_train <- d.train$D_pv2p
+
+# Standardize predictors
+x_train <- scale(x_train)
+
+# Prepare your testing data
+x_test <- as.matrix(d.test[, c("latest_pollav_DEM", "D_pv2p_lag1", "D_pv2p_lag2", "white", "black", "american_indian", "asian_pacific_islander", "less_than_college", "bachelors", "graduate", "hispanic", "age_18_to_29", "age_30_to_44", "age_45_to_54", "age_55_to_64", "age_65_to_74", "age_75plus", "q2_gdp_growth")])
+x_test <- scale(x_test)
+
+# Define a sequence of alpha values to try
+alphas <- seq(0, 1, by = 0.1)
+
+# Find the best alpha and lambda using cross-validation
+results <- lapply(alphas, function(a) {
+  cv_fit <- cv.glmnet(x_train, y_train, alpha = a)
+  return(data.frame(alpha = a, lambda = cv_fit$lambda.min, cvm = min(cv_fit$cvm)))
+})
+
+# Convert results to a data frame
+results_df <- do.call(rbind, results)
+
+# Identify the best performing model
+best_params <- results_df[which.min(results_df$cvm), ]
+best_alpha <- best_params$alpha
+best_lambda <- best_params$lambda
+
+# Fit the final Elastic Net model with the optimal alpha and lambda
+final_model <- glmnet(x_train, y_train, alpha = best_alpha, lambda = best_lambda)
+
+# Make predictions using the Elastic Net model
+predictions <- predict(final_model, newx = x_test, s = best_lambda)
+
+# Convert predictions to a vector
+pred_elastic_net <- as.vector(predictions)
+
+# Create a data frame to store results
+results <- data.frame(
+  state = d.test$state,
+  predicted_D_pv2p = pred_elastic_net,
+  predicted_winner = ifelse(pred_elastic_net > 50, "Democrat", "Republican")
+)
+
+# Filter results for specific states
+final_results <- results %>% 
+  filter(state %in% c("Arizona", "Georgia", "Michigan", "Nevada", "North Carolina", "Pennsylvania", "Wisconsin"))
+
+# Print the results
+print(final_results)
+
+# Calculate correlation matrix for model variables
+cor_matrix <- cor(d.train[, c("latest_pollav_DEM", "D_pv2p_lag1", "D_pv2p_lag2", "white", "black", "american_indian", "asian_pacific_islander", "less_than_college", "bachelors", "graduate", "hispanic", "age_18_to_29", "age_30_to_44", "age_45_to_54", "age_55_to_64", "age_65_to_74", "age_75plus", "q2_gdp_growth")])
+
+print(cor_matrix)
+
+# Calculate VIF to check for multicollinearity
+library(car)
+vif_model <- vif(lm(D_pv2p ~ latest_pollav_DEM + D_pv2p_lag1 + D_pv2p_lag2 + q2_gdp_growth + white + black + american_indian + asian_pacific_islander + less_than_college + bachelors + graduate + hispanic + age_18_to_29 + age_30_to_44 + age_45_to_54 + age_55_to_64 + age_65_to_74 + age_75plus, data = d.train))
+print(vif_model)
+
+```
+
+
+```{r}
+win_pred <- data.frame(state = d.test$state,
+                       year = rep(2024, length(d.test$state)),
+                       simp_pred_dem = pred.ols.dem,
+                       simp_pred_rep = 100 - pred.ols.dem) |> 
+            mutate(winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")) |>
+            left_join(d_ec, by = c("state", "year"))
+
+win_pred
+
+win_pred |> 
+  filter(winner == "Democrat") |> 
+  select(state)
+
+win_pred |> 
+  filter(winner == "Republican") |> 
+  select(state)
+
+win_pred |> 
+  group_by(winner) |> 
+  summarize(n = n(), ec = sum(electors))
+
+# Create data set to summarize winners and EC vote distributions. 
+win_pred <- data.frame(state = d.test$state,
+                       year = rep(2024, length(d.test$state)),
+                       simp_pred_dem = pred.ols.dem,
+                       simp_pred_rep = 100 - pred.ols.dem) |> 
+            mutate(winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")) |> left_join(d_ec, by = c("state", "year"))
+
+
+#### monte carlo simulations so i can create confidence intervals 
+# Set the number of simulations
+m <- 1e4  # 10,000 simulations
+
+residual_se <- summary(reg.ols)$sigma
+
+pred_dem <- predict(reg.ols, newdata = d.test)
+
+n_states <- nrow(d.test)
+
+pred.mat <- data.frame(
+  state = rep(d.test$state, times = m),
+  year = rep(2024, times = m * n_states),
+  simp_pred_dem = numeric(m * n_states),
+  simp_pred_rep = numeric(m * n_states)
+)
+
+j <- 1
+for (i in 1:m) {
+  if (i %% 1000 == 0) {
+    print(paste("Simulation", i))
+  }
+    simulated_errors <- rnorm(n_states, mean = 0, sd = residual_se)
+    pred_dem_sim <- pred_dem + simulated_errors
+    pred_dem_sim <- pmin(pmax(pred_dem_sim, 0), 100)
+    pred_rep_sim <- 100 - pred_dem_sim
+  
+  idx <- j:(i * n_states)
+  pred.mat$simp_pred_dem[idx] <- pred_dem_sim
+  pred.mat$simp_pred_rep[idx] <- pred_rep_sim
+  
+  j <- j + n_states
+}
+
+pred.mat <- pred.mat %>%
+  mutate(
+    winner = ifelse(simp_pred_dem > simp_pred_rep, "Democrat", "Republican")
+  )
+####
+
+
+electoral_outcomes <- pred.mat |>
+  group_by(state) |>
+  summarize(
+    mean_dem = mean(simp_pred_dem),
+    mean_rep = mean(simp_pred_rep),
+    sd_dem = sd(simp_pred_dem),
+    sd_rep = sd(simp_pred_rep),
+    lower_dem = mean_dem - 1.96 * sd_dem,
+    upper_dem = mean_dem + 1.96 * sd_dem,
+    lower_rep = mean_rep - 1.96 * sd_rep,
+    upper_rep = mean_rep + 1.96 * sd_rep
+  ) |>
+  mutate(
+    winner = ifelse(mean_dem > mean_rep, "Democrat", "Republican")
+  )
+
+view(electoral_outcomes)
+
+
+#Since this only gives us the results for 19 states, it includes all swing states so a simple calculation with lagged vote will allow me to fill in the winner for the rest of the US
+#list of all states 
+all_states <- state.name
+
+missing_states <- setdiff(all_states, unique(electoral_outcomes$state))
+missing_states
+
+#created a new data frame for the missing states 
+missing_data <- d_state_popvote |>
+  filter(state %in% missing_states) |>
+  filter(year == 2020) |>
+  select(state, D_pv2p_lag1, R_pv2p_lag1)
+
+#Create the winner column based on lagged vote shares. Since these are not swing states, using the outcome from the last election reflects whethere it is a blue/red state
+missing_data <- missing_data|>
+  mutate(
+    winner = ifelse(D_pv2p_lag1 > R_pv2p_lag1, "Democrat", "Republican")
+  )
+
+ec_2024 <- d_ec |>
+  filter(year == 2024) |> 
+  select(state, electors)
+  
+
+
+#Combine datasets 
+all_states_pred <- bind_rows(electoral_outcomes, missing_data) |>
+  left_join(ec_2024, by = "state")
+
+winner <- all_states_pred |>
+  group_by(winner) |>
+  summarize(total_electors = sum(electors))
+
+winner
+
+#DC not included so add 3 for Dem electoral college count
+election_results <- tibble(
+  party = c("Democrat", "Republican"),
+  total_electors = c(winner$total_electors[1] + 3, winner$total_electors[2])
+)
+
+kable(election_results)
+
+
+plot_usmap(data = all_states_pred, regions = "states", values = "winner") + scale_fill_manual(
+    values = c("Democrat" = "blue", "Republican" = "red"),
+    name = "Predicted Winner"
+  ) +
+  labs(title = "Electoral College Predictions") 
+
+```
+```{r}
+#how close is this race?
+
+electoral_outcomes_close <- electoral_outcomes |>
+  filter(state %in% c("Arizona", "Georgia", "Michigan", "Nevada", "North Carolina", "Pennsylvania", "Wisconsin")) |>
+  select(state, mean_dem, mean_rep, lower_dem, upper_dem,lower_rep, upper_rep, winner)
+
+kable(electoral_outcomes_close)
+```
+
+
+
+
+
