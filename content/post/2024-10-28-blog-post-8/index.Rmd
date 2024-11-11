@@ -212,7 +212,7 @@ ggplot(hurricane_data, aes(x = damage, y = incumbent_vote_share_change)) +
   labs(
     title = "Effect of Hurricane Economic Damage on Incumbent Vote Share Change",
     x = "Hurricane Damage (Dollars)",
-    y = "Change in Incumbent Vote Share",
+    y = "Change in Incumbent Vote Share (%)",
     caption = "Graph 1"
   ) 
 ```
