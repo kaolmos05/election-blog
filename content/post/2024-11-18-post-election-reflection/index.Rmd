@@ -83,7 +83,7 @@ state_level_analysis <- my_predictions |>
     bias = bias(D2pv, my_prediction)
   )
 
-state_level_analysis
+kable(state_level_analysis)
 
 ```
 
