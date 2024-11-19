@@ -1,6 +1,6 @@
 ---
 title: 'Post Election Reflection '
-author: Package Build
+author: Kelly Olmos
 date: '2024-11-18'
 slug: post-election-reflection
 categories: []
@@ -214,36 +214,12 @@ state_pres_vote <- read_csv("state_votes_pres_2024.csv")
 ```
 
 ``` r
-as.numeric("Donald J. Trump")
-```
-
-```
-## Warning: NAs introduced by coercion
-```
-
-```
-## [1] NA
-```
-
-``` r
-as.numeric("Kamala D. Harris")
-```
-
-```
-## Warning: NAs introduced by coercion
-```
-
-```
-## [1] NA
-```
-
-``` r
 state_pres_vote <- state_pres_vote |>
   select(state = "Geographic Name", Trump = "Donald J. Trump", Harris = "Kamala D. Harris") |>
   mutate(
     Trump = as.numeric(Trump),
     Harris = as.numeric(Harris),
-    D2pv = Harris/(Trump + Harris)
+    D2pv = (Harris/(Trump + Harris))*100
   ) |> 
   drop_na()
 ```
@@ -285,14 +261,15 @@ my_predictions
 ## # A tibble: 7 × 3
 ##   state           D2pv my_prediction
 ##   <chr>          <dbl>         <dbl>
-## 1 Arizona        0.472          50.2
-## 2 Georgia        0.489          50.0
-## 3 Michigan       0.493          49.0
-## 4 Nevada         0.484          49.7
-## 5 North Carolina 0.483          49.3
-## 6 Pennsylvania   0.490          48.9
-## 7 Wisconsin      0.495          48.6
+## 1 Arizona         47.2          50.2
+## 2 Georgia         48.9          50.0
+## 3 Michigan        49.3          49.0
+## 4 Nevada          48.4          49.7
+## 5 North Carolina  48.3          49.3
+## 6 Pennsylvania    49.0          48.9
+## 7 Wisconsin       49.5          48.6
 ```
+
 
 ``` r
 Mse <- mse(my_predictions$D2pv, my_predictions$my_prediction)
@@ -300,7 +277,7 @@ Mse
 ```
 
 ```
-## [1] 2393.423
+## [1] 2.104484
 ```
 
 ``` r
@@ -309,7 +286,7 @@ Rmse
 ```
 
 ```
-## [1] 48.92262
+## [1] 1.450684
 ```
 
 ``` r
@@ -318,7 +295,7 @@ Mae
 ```
 
 ```
-## [1] 48.91922
+## [1] 1.131759
 ```
 
 ``` r
@@ -327,6 +304,34 @@ Bias
 ```
 
 ```
-## [1] -48.91922
+## [1] -0.759456
+```
+
+
+``` r
+state_level_analysis <- my_predictions |>
+  group_by(state) |> 
+  mutate(
+    mse = mse(D2pv, my_prediction),
+    rmse = rmse(D2pv, my_prediction),
+    mae = mae(D2pv, my_prediction),
+    bias = bias(D2pv, my_prediction)
+  )
+
+state_level_analysis
+```
+
+```
+## # A tibble: 7 × 7
+## # Groups:   state [7]
+##   state           D2pv my_prediction     mse   rmse    mae    bias
+##   <chr>          <dbl>         <dbl>   <dbl>  <dbl>  <dbl>   <dbl>
+## 1 Arizona         47.2          50.2 9.59    3.10   3.10   -3.10  
+## 2 Georgia         48.9          50.0 1.36    1.17   1.17   -1.17  
+## 3 Michigan        49.3          49.0 0.119   0.345  0.345   0.345 
+## 4 Nevada          48.4          49.7 1.85    1.36   1.36   -1.36  
+## 5 North Carolina  48.3          49.3 0.989   0.994  0.994  -0.994 
+## 6 Pennsylvania    49.0          48.9 0.00319 0.0565 0.0565  0.0565
+## 7 Wisconsin       49.5          48.6 0.813   0.902  0.902   0.902
 ```
 

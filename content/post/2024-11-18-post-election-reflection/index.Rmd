@@ -1,6 +1,6 @@
 ---
 title: 'Post Election Reflection '
-author: Package Build
+author: Kelly Olmos
 date: '2024-11-18'
 slug: post-election-reflection
 categories: []
@@ -38,15 +38,12 @@ library(Metrics)
 ```{r}
 state_pres_vote <- read_csv("state_votes_pres_2024.csv")
 
-as.numeric("Donald J. Trump")
-as.numeric("Kamala D. Harris")
-
 state_pres_vote <- state_pres_vote |>
   select(state = "Geographic Name", Trump = "Donald J. Trump", Harris = "Kamala D. Harris") |>
   mutate(
     Trump = as.numeric(Trump),
     Harris = as.numeric(Harris),
-    D2pv = Harris/(Trump + Harris)
+    D2pv = (Harris/(Trump + Harris))*100
   ) |> 
   drop_na()
 
@@ -58,6 +55,9 @@ my_predictions <- my_predictions|>
   filter(state %in% c("Arizona", "North Carolina", "Nevada", "Pennsylvania", "Michigan", "Wisconsin", "Georgia"))
 
 my_predictions
+```
+
+```{r}
 
 Mse <- mse(my_predictions$D2pv, my_predictions$my_prediction)
 Mse
@@ -70,7 +70,20 @@ Mae
 
 Bias <- bias(my_predictions$D2pv, my_predictions$my_prediction)
 Bias
+```
 
+```{r}
+
+state_level_analysis <- my_predictions |>
+  group_by(state) |> 
+  mutate(
+    mse = mse(D2pv, my_prediction),
+    rmse = rmse(D2pv, my_prediction),
+    mae = mae(D2pv, my_prediction),
+    bias = bias(D2pv, my_prediction)
+  )
+
+state_level_analysis
 
 ```
 
