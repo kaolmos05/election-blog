@@ -1,0 +1,76 @@
+---
+title: 'Post Election Reflection '
+author: Package Build
+date: '2024-11-18'
+slug: post-election-reflection
+categories: []
+tags: []
+---
+```{r}
+library(geofacet)
+library(glmnet)
+library(usmap)
+library(ggpubr)
+library(ggthemes)
+library(haven)
+library(kableExtra)
+library(maps)
+library(mgcv)
+library(mgcViz)
+library(RColorBrewer)
+library(scales)
+library(sf)
+library(spData)
+library(stargazer)
+library(tidygeocoder)
+library(tidyverse)
+library(tigris)
+library(tmap)
+library(tmaptools)
+library(viridis)
+library(broom)
+library(knitr)
+library(dplyr)
+library(Metrics)
+```
+
+
+```{r}
+state_pres_vote <- read_csv("state_votes_pres_2024.csv")
+
+as.numeric("Donald J. Trump")
+as.numeric("Kamala D. Harris")
+
+state_pres_vote <- state_pres_vote |>
+  select(state = "Geographic Name", Trump = "Donald J. Trump", Harris = "Kamala D. Harris") |>
+  mutate(
+    Trump = as.numeric(Trump),
+    Harris = as.numeric(Harris),
+    D2pv = Harris/(Trump + Harris)
+  ) |> 
+  drop_na()
+
+my_predictions <- read_csv("my_predictions.csv")
+
+my_predictions <- my_predictions|>
+  left_join(state_pres_vote, by = c("state")) |>
+  select(state, D2pv, my_prediction) |> 
+  filter(state %in% c("Arizona", "North Carolina", "Nevada", "Pennsylvania", "Michigan", "Wisconsin", "Georgia"))
+
+my_predictions
+
+Mse <- mse(my_predictions$D2pv, my_predictions$my_prediction)
+Mse
+
+Rmse <- rmse(my_predictions$D2pv, my_predictions$my_prediction)
+Rmse 
+
+Mae <- mae(my_predictions$D2pv, my_predictions$my_prediction)
+Mae
+
+Bias <- bias(my_predictions$D2pv, my_predictions$my_prediction)
+Bias
+
+
+```
+
