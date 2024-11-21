@@ -412,6 +412,7 @@ accuracy <- data.frame(
   metric = c("MSE", "RMSE", "MAE", "Bias"),
   value = c(Mse, Rmse, Mae, Bias)
 )
+
 kable(accuracy)
 ```
 
@@ -452,7 +453,31 @@ kable(state_level_analysis)
 |Pennsylvania   | 48.98235|      48.92587|Trump  |Trump       | 0.0031896| 0.0564765| 0.0564765|  0.0564765|
 |Wisconsin      | 49.53156|      48.62988|Trump  |Trump       | 0.8130231| 0.9016779| 0.9016779|  0.9016779|
 
-I create a confusion matrix. The confusion matrix shows that I did not predict Harris would win any state that Trump actually won. It is easier to understand the errors because Trump had a clean sweep of the battleground states and my model only predicted he would win 5 which means that the error comes from predicting a Harris win in Arizona and Georgia where Trump won. 
+Below is a heat map with the error metrics visualized. The bias in my model did not disproportionately overestimate the Democratic two-party vote share. In four states: Arizona, Georgia, Nevada, and North Carolina it did overestimate the Democratic two party vote share. However, my model did overestimate Trump's winning margin in Michigan, Pennsylvania, and Wisconsin although the bias for Trump was less on average. I found this interesting because the states were I overestimated Trump's winning margin were also the ones that were hypothesized by political pundits to go for Harris. Michigan and Wisconsin provided hope for Harris because they used to make up the blue wall. I knew immediately that my model was predicting Arizona wrong because polling data showed that out of the seven battleground states, Arizona was one of the least likely states to go for Harris.
+
+To investigate why there is no direction in bias for my model I will go back to my OLS regression results and explore which of my variables might have affected my model. 
+
+``` r
+state_level_analysis_long <- state_level_analysis |>
+  pivot_longer(cols = c(mse, rmse, mae, bias), names_to = "Metric", values_to = "Value")
+
+#https://r-charts.com/correlation/heat-map-ggplot2/
+   
+ggplot(state_level_analysis_long, aes(state, Metric, fill = Value)) +
+  geom_tile() +
+  geom_text(aes(label = round(Value, 3)), color = "black") +
+  scale_fill_gradient(low = "darkseagreen1", high = "darkseagreen4") +
+  labs(
+    title = "State-Level Analysis of Metrics",
+    x = "State",
+    y = "Metric",
+    fill = "Value"
+  ) +
+  theme_minimal()
+```
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/unnamed-chunk-2-1.png" width="672" />
+I created a confusion matrix. The confusion matrix shows that I did not predict Harris would win any state that Trump actually won. It is easier to understand the errors because Trump had a clean sweep of the battleground states and my model only predicted he would win 5 which means that the error comes from predicting a Harris win in Arizona and Georgia where Trump won. 
 
 ``` r
 table("Actual" = my_predictions$Winner, 
@@ -470,5 +495,8 @@ table("Actual" = my_predictions$Winner,
 confusion_matrix <- confusionMatrix(data= my_predictions$Winner, reference = my_predictions$pred_Winner)
 ```
 ### Reflection
+
+
+
 
 
