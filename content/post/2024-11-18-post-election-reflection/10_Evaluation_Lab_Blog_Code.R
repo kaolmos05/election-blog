@@ -387,20 +387,6 @@ sqrt(mean((results$harris_2pv - results$pred)^2))
 
 mean(abs(results$harris_2pv - results$pred))
 
-# (5.) Confusion Matrix 
-results <- results |> 
-  mutate(pred_class = as.factor(case_when(pred > 50 ~ "DEM", 
-                                          .default = "REP")),
-         result_class = as.factor(case_when(harris_2pv > 50 ~ "DEM", 
-                                            .default = "REP")))
-
-table("Actual" = results$result_class, 
-      "Prediction" = results$pred_class)
-
-library(caret)
-
-confusionMatrix(table("Actual" = results$result_class, 
-                      "Prediction" = results$pred_class))
 
 
 

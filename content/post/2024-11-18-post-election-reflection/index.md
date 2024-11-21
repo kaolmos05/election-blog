@@ -1,5 +1,5 @@
 ---
-title: 'Post Election Reflection '
+title: 'Post-Election Reflection '
 author: Kelly Olmos
 date: '2024-11-18'
 slug: post-election-reflection
@@ -7,21 +7,10 @@ categories: []
 tags: []
 ---
 
+
 ``` r
+library(censable)
 library(geofacet)
-library(glmnet)
-```
-
-```
-## Loading required package: Matrix
-```
-
-```
-## Loaded glmnet 4.1-8
-```
-
-``` r
-library(usmap)
 library(ggpubr)
 ```
 
@@ -78,6 +67,7 @@ library(mgcViz)
 
 ``` r
 library(RColorBrewer)
+library(readstata13)
 library(scales)
 library(sf)
 ```
@@ -131,13 +121,10 @@ library(tidyverse)
 ## ✖ readr::col_factor() masks scales::col_factor()
 ## ✖ dplyr::collapse()   masks nlme::collapse()
 ## ✖ purrr::discard()    masks scales::discard()
-## ✖ tidyr::expand()     masks Matrix::expand()
 ## ✖ dplyr::filter()     masks stats::filter()
 ## ✖ dplyr::group_rows() masks kableExtra::group_rows()
 ## ✖ dplyr::lag()        masks stats::lag()
 ## ✖ purrr::map()        masks maps::map()
-## ✖ tidyr::pack()       masks Matrix::pack()
-## ✖ tidyr::unpack()     masks Matrix::unpack()
 ## ℹ Use the conflicted package (<http://conflicted.r-lib.org/>) to force all conflicts to become errors
 ```
 
@@ -179,11 +166,85 @@ library(viridis)
 ```
 
 ``` r
+library(geofacet)
+library(glmnet)
+```
+
+```
+## Loading required package: Matrix
+## 
+## Attaching package: 'Matrix'
+## 
+## The following objects are masked from 'package:tidyr':
+## 
+##     expand, pack, unpack
+## 
+## Loaded glmnet 4.1-8
+```
+
+``` r
+library(usmap)
+library(ggpubr)
+library(ggthemes)
+library(haven)
+library(kableExtra)
+library(maps)
+library(mgcv)
+library(mgcViz)
+library(RColorBrewer)
+library(scales)
+library(sf)
+library(spData)
+library(stargazer)
+library(tidygeocoder)
+library(tidyverse)
+library(tigris)
+library(tmap)
+library(tmaptools)
+library(viridis)
+library(caret)
+```
+
+```
+## Loading required package: lattice
+## 
+## Attaching package: 'lattice'
+## 
+## The following object is masked from 'package:mgcViz':
+## 
+##     qq
+## 
+## 
+## Attaching package: 'caret'
+## 
+## The following object is masked from 'package:purrr':
+## 
+##     lift
+```
+
+``` r
 library(broom)
 library(knitr)
 library(dplyr)
 library(Metrics)
 ```
+
+```
+## 
+## Attaching package: 'Metrics'
+## 
+## The following objects are masked from 'package:caret':
+## 
+##     precision, recall
+```
+
+### My Model and its Predictions
+
+I ran a state-level ordinary least squares regression. For the non-battleground states, I used the lagged vote shares to predict which candidate would win that particular state. I used polling data, fundamentals (Q2 gdp growth, and demographics (age, race, and education level) to predict which candidate would win in each state. Since there was not enough polling data for all states, I focused on the ones that did–battleground states. I ran an elastic net on my OLS regression model to deal with multicollinearity. Some variables like race and education level may be correlated. Additionally I ran 10,000 simulations to create 95% confidence intervals. 
+
+The total list of predictors in my OLS regression is: latest_pollav_DEM, D_pv2p_lag1,  D_pv2p_lag2 +, q2_gdp_growth, white, black, american_indian, asian_pacific_islander, less_than_college, college, hispanic, age_18_to_29, age_30_to_64, age_65_75plus. 
+
+My model predicted a Trump victory with 285 electoral college votes and 258 electoral college votes for Harris. My model inaccurately predicted that Georgia and Arizona would go for Harris. 
 
 
 
@@ -219,8 +280,9 @@ state_pres_vote <- state_pres_vote |>
   mutate(
     Trump = as.numeric(Trump),
     Harris = as.numeric(Harris),
-    D2pv = (Harris/(Trump + Harris))*100
-  ) |> 
+    D2pv = (Harris/(Trump + Harris))*100,
+    Winner = as.factor(ifelse(D2pv > 50, "Harris", "Trump"))
+    ) |> 
   drop_na()
 ```
 
@@ -250,25 +312,63 @@ my_predictions <- read_csv("my_predictions.csv")
 
 ``` r
 my_predictions <- my_predictions|>
+  mutate(
+    pred_Winner = as.factor(ifelse(my_prediction > 50, "Harris", "Trump"))
+  ) |>
   left_join(state_pres_vote, by = c("state")) |>
-  select(state, D2pv, my_prediction) |> 
+  select(state, D2pv, my_prediction, Winner, pred_Winner) |> 
   filter(state %in% c("Arizona", "North Carolina", "Nevada", "Pennsylvania", "Michigan", "Wisconsin", "Georgia"))
 
-my_predictions
+
+kable(my_predictions)
 ```
 
+
+
+|state          |     D2pv| my_prediction|Winner |pred_Winner |
+|:--------------|--------:|-------------:|:------|:-----------|
+|Arizona        | 47.15253|      50.24998|Trump  |Harris      |
+|Georgia        | 48.87845|      50.04388|Trump  |Harris      |
+|Michigan       | 49.30156|      48.95665|Trump  |Trump       |
+|Nevada         | 48.37829|      49.74023|Trump  |Trump       |
+|North Carolina | 48.29889|      49.29332|Trump  |Trump       |
+|Pennsylvania   | 48.98235|      48.92587|Trump  |Trump       |
+|Wisconsin      | 49.53156|      48.62988|Trump  |Trump       |
+In the bar chart below, I have plotted my predicted Democratic two-party vote share compared to actual Democratic two-party vote share in the battleground states. 
+
+
+``` r
+bar_chart <- my_predictions |>
+  select(state, D2pv, my_prediction) |>
+  pivot_longer(cols = c(D2pv, my_prediction), 
+               names_to = "type", 
+               values_to = "D2pv_value")
+
+ggplot(bar_chart, aes(x = state, y = D2pv_value, fill = type)) +
+  geom_bar(stat = "identity", position = position_dodge(width = 0.8)) +
+  scale_fill_manual(values = c("D2pv" = "darkgreen", "my_prediction" = "red"), 
+                    labels = c("D2pv (%)", "Predicted D2pv (%)")) +
+  labs(
+    title = "Predicted vs Actual Democratic Two-Party Vote Share",
+    x = "State",
+    y = "D2pv",
+    fill = "Key"
+  ) 
 ```
-## # A tibble: 7 × 3
-##   state           D2pv my_prediction
-##   <chr>          <dbl>         <dbl>
-## 1 Arizona         47.2          50.2
-## 2 Georgia         48.9          50.0
-## 3 Michigan        49.3          49.0
-## 4 Nevada          48.4          49.7
-## 5 North Carolina  48.3          49.3
-## 6 Pennsylvania    49.0          48.9
-## 7 Wisconsin       49.5          48.6
-```
+
+<img src="{{< blogdown/postref >}}index_files/figure-html/bar chart-1.png" width="672" />
+
+### Accuracy of my Model 
+
+To quantify the accuracy of my model, I calculated the MSE, RMSE, MAE, and Bias. The findings are presented in the table below. 
+
+The average squared difference between predicted and actual Democratic vote shares is 2.104.
+
+The average error is approximately 1.45 percentage points.
+
+The average absolute error between my predicted and actual Democratic vote share is 1.13 percentage points
+
+My bias score indicates that I overestimated the Democratic party vote share by 0.76 points on average. 
 
 
 ``` r
@@ -307,6 +407,25 @@ Bias
 ## [1] -0.759456
 ```
 
+``` r
+accuracy <- data.frame(
+  metric = c("MSE", "RMSE", "MAE", "Bias"),
+  value = c(Mse, Rmse, Mae, Bias)
+)
+kable(accuracy)
+```
+
+
+
+|metric |     value|
+|:------|---------:|
+|MSE    |  2.104484|
+|RMSE   |  1.450684|
+|MAE    |  1.131759|
+|Bias   | -0.759456|
+
+I performed a state-level analysis to test how well my model worked in certain states. My model performed the worst in Arizona where I overestimated the Democratic party vote share by a little over three percentage points. The model performed the best in Pennsylvania where the MSE value was 0.003. 
+
 
 ``` r
 state_level_analysis <- my_predictions |>
@@ -323,13 +442,33 @@ kable(state_level_analysis)
 
 
 
-|state          |     D2pv| my_prediction|       mse|      rmse|       mae|       bias|
-|:--------------|--------:|-------------:|---------:|---------:|---------:|----------:|
-|Arizona        | 47.15253|      50.24998| 9.5942180| 3.0974535| 3.0974535| -3.0974535|
-|Georgia        | 48.87845|      50.04388| 1.3582278| 1.1654303| 1.1654303| -1.1654303|
-|Michigan       | 49.30156|      48.95665| 0.1189596| 0.3449052| 0.3449052|  0.3449052|
-|Nevada         | 48.37829|      49.74023| 1.8548872| 1.3619424| 1.3619424| -1.3619424|
-|North Carolina | 48.29889|      49.29332| 0.9888821| 0.9944255| 0.9944255| -0.9944255|
-|Pennsylvania   | 48.98235|      48.92587| 0.0031896| 0.0564765| 0.0564765|  0.0564765|
-|Wisconsin      | 49.53156|      48.62988| 0.8130231| 0.9016779| 0.9016779|  0.9016779|
+|state          |     D2pv| my_prediction|Winner |pred_Winner |       mse|      rmse|       mae|       bias|
+|:--------------|--------:|-------------:|:------|:-----------|---------:|---------:|---------:|----------:|
+|Arizona        | 47.15253|      50.24998|Trump  |Harris      | 9.5942180| 3.0974535| 3.0974535| -3.0974535|
+|Georgia        | 48.87845|      50.04388|Trump  |Harris      | 1.3582278| 1.1654303| 1.1654303| -1.1654303|
+|Michigan       | 49.30156|      48.95665|Trump  |Trump       | 0.1189596| 0.3449052| 0.3449052|  0.3449052|
+|Nevada         | 48.37829|      49.74023|Trump  |Trump       | 1.8548872| 1.3619424| 1.3619424| -1.3619424|
+|North Carolina | 48.29889|      49.29332|Trump  |Trump       | 0.9888821| 0.9944255| 0.9944255| -0.9944255|
+|Pennsylvania   | 48.98235|      48.92587|Trump  |Trump       | 0.0031896| 0.0564765| 0.0564765|  0.0564765|
+|Wisconsin      | 49.53156|      48.62988|Trump  |Trump       | 0.8130231| 0.9016779| 0.9016779|  0.9016779|
+
+I create a confusion matrix. The confusion matrix shows that I did not predict Harris would win any state that Trump actually won. It is easier to understand the errors because Trump had a clean sweep of the battleground states and my model only predicted he would win 5 which means that the error comes from predicting a Harris win in Arizona and Georgia where Trump won. 
+
+``` r
+table("Actual" = my_predictions$Winner, 
+      "Prediction" = my_predictions$pred_Winner)
+```
+
+```
+##         Prediction
+## Actual   Harris Trump
+##   Harris      0     0
+##   Trump       2     5
+```
+
+``` r
+confusion_matrix <- confusionMatrix(data= my_predictions$Winner, reference = my_predictions$pred_Winner)
+```
+### Reflection
+
 
