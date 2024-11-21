@@ -93,6 +93,7 @@ my_predictions <- my_predictions|>
 kable(my_predictions)
   
 ```
+
 In the bar chart below, I have plotted my predicted Democratic two-party vote share compared to actual Democratic two-party vote share in the battleground states. 
 
 ```{r bar chart}
@@ -184,7 +185,10 @@ ggplot(state_level_analysis_long, aes(state, Metric, fill = Value)) +
     fill = "Value"
   ) 
 ```
-I created a confusion matrix. The confusion matrix shows that I did not predict Harris would win any state that Trump actually won. It is easier to understand the errors because Trump had a clean sweep of the battleground states and my model only predicted he would win 5 which means that the error comes from predicting a Harris win in Arizona and Georgia where Trump won. 
+
+I created a confusion matrix. The confusion matrix shows that I did not predict Harris would win any state that Trump actually won. It is easier to understand the errors because Trump had a clean sweep of the battleground states and my model only predicted he would win 5 which means that the error 
+comes from predicting a Harris win in Arizona and Georgia where Trump won. 
+
 ```{r}
 
 table("Actual" = my_predictions$Winner, 
@@ -194,7 +198,7 @@ confusion_matrix <- confusionMatrix(data= my_predictions$Winner, reference = my_
 ```
 ### Reflection
 
-I used a combination of demographics, polling data, and economic indicators to predict the electoral college results and the democratic two-party vote share in the battleground states with a OLS regression. One of the things that immediately stands out to me is that I may have made my model too complex. Although my model did not do a terrible job predicting the outcome of the election, I recognize from a statistical perspective that there were too many variables and some of them are not independent of one another which led to multicollinearity. For example, I have race and education level variables which are likely correlated in my linear regression. Additionally, I had a high r-squared value, around the high nineties which suggests that my model may be overfitting. 
+I used a combination of demographics, polling data, and economic indicators to predict the electoral college results and the democratic two-party vote share in the battleground states with a OLS regression. One of the things that immediately stands out to me is that I may have made my model too complex. Although my model did not do a terrible job predicting the outcome of the election, I recognize from a statistical perspective that there were too many variables and some of them are not independent of one another which led to multicollinearity. For example, I have race and education level variables which are likely correlated in my linear regression. Additionally, I had a high r-squared value, around the high nineties which suggests that my model may be overfitting. To test whether the OLS regression model is not effective for predicting electoral outcomes, I could create an ensemble model or I could test the performance of my model with less variables. 
 
 In terms of the components of my model, I knew including demographic variables was a risk because the Kim & Zilinsky article we read a couple of weeks ago claims that five key demographic attributes can predict a voter's choice about 68% of the time. I only use three of those key attributes so it may be even lower for my model in terms of its predicting capacity. Post-election exit polls show that Trump made gains with most demographic groups which indicates that demographic attributes may not have great predicting capacity in this election. To test this out I removed race variables from my model and this is how the update model performed below. 
 
@@ -249,7 +253,10 @@ ggplot(state_level_analysis_long1, aes(state, Metric, fill = Value)) +
     fill = "Value"
   ) 
 ```
-After removing the race variables from my model, it does perform better, accurately predicting a Trump victory in all battleground states, but has started to underestimate the Democratic two-party vote share in six out of the seven battleground states which I thought was interesting. The model once again overestimates the Harris margin which makes me wonder what about the variables and Arizona is so unique that it is not being captured by the variables in my model. I predict it has to do with the quality of polls in Arizona potentially overestimating Harris support in Arizona. The graphic below shows that Arizona substantially shifted to the right. 
+
+After removing the race variables from my model, it does perform better, accurately predicting a Trump victory in all battleground states, but has started to underestimate the Democratic two-party vote share in six out of the seven battleground states which I thought was interesting. The model once again overestimates the Harris margin which makes me wonder what about the variables and Arizona is so unique that it is not being captured by the variables in my model. I predict it has to do with the quality of polls in Arizona potentially overestimating Harris support in Arizona. The graphic below shows that Arizona substantially shifted to the right. To test whether the polls overestimated Harris support in the states like Arizona, we will have to wait until the votes are all counted and final election results are available and compare them to what the polls predicted. 
+
+Ultimately, it is not possible to know the impact of race until the voter files are available because exit polls are known to be less reliable. Once the voter file is available, I can test how demographic groups voted in the 2024 election. 
 
 ```{r}
 # Read 2024 results datasets. 
@@ -395,20 +402,9 @@ ggplot(state_level_analysis_long2, aes(state, Metric, fill = Value)) +
 ```
 When I only include the variables that were statistically significant, the model performs better than my original better and the one updates without race variables. The aggregate level MSE value is 0.17 which is close to 0, indicating very good accuracy. I think this is really interesting because the Kim & Zilinsky article did not show the demographic attributes had high predicting capacity. This latest iteration of my model shows that polling data and race variables predict this election outcome very well. 
 
-What does this say about the Q2 GDP growth? This was my only economic variable in my model. I did consider including unemployment but in the end opted to exclude because it was showing multicollinearity with Q2 GDP growth. When I added Q2 GDP growth to both of the updated models it increased the Democratic two-party vote share to the extent where it flipped states. 
+What does this say about the Q2 GDP growth? This was my only economic variable in my model. I did consider including unemployment but in the end opted to exclude because it was showing multicollinearity with Q2 GDP growth. When I added Q2 GDP growth to both of the updated models it increased the Democratic two-party vote share to the extent where it flipped states. I think this is the result of Trump's perception as a successful business man. A couple of weeks ago, I listened to The Daily and in this episode, there were many clips of interviews with Nevada voters who said they were voting for Trump because of the economy. Inflation in 2022 and 2023 has tainted the economic image of the Biden administration and Harris was not able to escape that. I can test whether voter's perception of the economy is a better predictor for electoral outcomes by switching out Q2 GDP growth with inflation or consumer economic index and include it in my model and see how it performs. 
 
-### Where To Go From Here
-
-In a 
-
-
-
-
-
-
-
-
-++ interaction variables
+In a future iteration of this model I would also like to account for incumbency and make it an interaction variable with some economic indicator. Post-election discussion that I've heard suggests that Trump won because voters were dissatisfied with the economy and wanted change. I think an interaction variable could have captured public dissatisfaction and performed better. 
 
 
 
