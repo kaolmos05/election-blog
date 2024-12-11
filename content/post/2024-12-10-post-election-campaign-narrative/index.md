@@ -7,6 +7,8 @@ categories: []
 tags: []
 ---
 
+
+
 Texas is a southern state that is bordered by New Mexico, Oklahoma, Louisiana, Arkansas, and Mexico. It is the second most populous state in the United States. Greg Abbott is the current governor of Texas. 
 
 ### Demographics 
@@ -33,7 +35,13 @@ Texas joined the United States in 1845 and participated in its first presidentia
 
 Rapid population growth has made Texas increasingly significant, with its 29.1 million residents in 2020 giving it 40 electoral votes. This growth, driven by shifting demographics, positions Texas as a potential battleground in future elections hence my interest in exploring Texas. 
 
-![Screenshot](content/post/2024-12-10-post-election-campaign-narrative/Screenshot.png)
+
+``` r
+library(knitr)
+knitr::include_graphics("Screenshot.png")
+```
+
+<img src="Screenshot.png" width="629" />
 
 The graphic above, created by 270 to Win highlights why Texas is a core state for Republicans. 
 
