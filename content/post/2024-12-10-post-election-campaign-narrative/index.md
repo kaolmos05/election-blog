@@ -35,12 +35,6 @@ Texas joined the United States in 1845 and participated in its first presidentia
 
 Rapid population growth has made Texas increasingly significant, with its 29.1 million residents in 2020 giving it 40 electoral votes. This growth, driven by shifting demographics, positions Texas as a potential battleground in future elections hence my interest in exploring Texas. 
 
-
-``` r
-library(knitr)
-knitr::include_graphics("Screenshot.png")
-```
-
 <img src="Screenshot.png" width="629" />
 
 The graphic above, created by 270 to Win highlights why Texas is a core state for Republicans. 
